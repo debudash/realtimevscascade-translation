@@ -9,31 +9,36 @@ Status legend: `[ ]` todo · `[x]` done · `[~]` partial · `BLOCKED: reason`
 ---
 
 ## M0 · Scaffold (≈45 min)
-- [ ] `git init` if needed. Make the first commit with the pack files, and
+- [x] `git init` if needed. Make the first commit with the pack files, and
       include `.gitignore` (already in the pack: `.env`, .NET, Node,
       Playwright, `harness/results/tmp/`) in that same first commit. Confirm
       `.env` is ignored and `.env.example` is tracked before committing.
-- [ ] Server: `Workbench.sln` with Api, Core, Providers, and Tests (xUnit)
+- [x] Server: `Workbench.sln` with Api, Core, Providers, and Tests (xUnit)
       projects. Add a health endpoint, and config binding for Providers and
       keys.
-- [ ] Load `.env` via DotNetEnv in Workbench.Api before builder config (real
+- [x] Load `.env` via DotNetEnv in Workbench.Api before builder config (real
       environment variables take precedence).
-- [ ] Add dotenv for Node scripts (harness, report, Playwright setup) that
+- [x] Add dotenv for Node scripts (harness, report, Playwright setup) that
       need keys.
-- [ ] Client: Vite + React + TS app. Proxy `/api` and `/ws` to :5080. Copy
+- [x] Client: Vite + React + TS app. Proxy `/api` and `/ws` to :5080. Copy
       the logo from `docs/design/boostlingo-logo.png` to `client/public/`.
-- [ ] Root `package.json` scripts: `dev` (backend + client concurrently),
+- [x] Root `package.json` scripts: `dev` (backend + client concurrently),
       `test` (dotnet test + vitest), `e2e` (Playwright), `report`. They must
       work on Windows and macOS.
-- [ ] Event contracts as C# records, plus TS types and a round-trip contract
+- [x] Event contracts as C# records, plus TS types and a round-trip contract
       test.
-- [ ] Health endpoint reports which env vars are missing (names only). The
+- [x] Health endpoint reports which env vars are missing (names only). The
       client shows the `config_error` panel when any are missing.
 
 **Acceptance:**
 - `npm run dev` serves the client on :5173, and the client reaches
   `/api/health`.
 - `npm test` passes.
+
+**Notes (M0):** verified 2026-10-15: `npm run dev` serves :5173, `/api/health`
+through the Vite proxy returns `configOk: true`; `npm test` = 20 xUnit + 17
+vitest green. `.env` ignored / `.env.example` tracked checked before the first
+commit.
 
 ## M1 · Audio engine and floor control (≈1.5 h)
 - [ ] CaptureWorklet: PCM16 16 kHz mono, 20 ms frames. Input source is the
@@ -205,6 +210,24 @@ configurations, plus the soak, provider-swap, and onboarding results.
 
 ## Decisions made during the run
 (The agent appends here.)
+
+- **M0 · .NET SDK:** no .NET SDK was installed on the machine. Installed the
+  .NET 10 LTS SDK (10.0.402) into the gitignored repo-local `.dotnet/` with
+  Microsoft's signed `dotnet-install.ps1` (no global install).
+  `scripts/dotnet.mjs` prefers `.dotnet/`, then `dotnet` on PATH, so the npm
+  scripts work on any machine with a normal SDK install too.
+- **M0 · Event wire format:** `audio.chunk` carries base64 PCM16 in JSON
+  (simple, contract-testable; ~33% overhead is irrelevant on localhost).
+  Added two events beyond the table in architecture §3: `segment.commit`
+  (drives the Commit chip and shows what the policy released) and
+  `provider.failover` (the failover note on the turn).
+- **M0 · Contract test:** `contracts/event-samples.json` is round-tripped by
+  both xUnit (`EventContractTests`) and vitest (`events.test.ts`); both sides
+  also assert every declared event type has a sample.
+- **M0 · Config:** languages and pairs live in `appsettings.json`
+  (`Languages`), served by `GET /api/config`; clips are served by
+  `GET /api/clips` from `harness/clips/`. Node scripts load `.env` via
+  `scripts/env.mjs` (dotenv, override false).
 
 ## Blockers
 (The agent appends here.)
