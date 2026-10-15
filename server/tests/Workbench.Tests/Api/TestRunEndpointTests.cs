@@ -53,7 +53,7 @@ public sealed class TestRunEndpointTests : IDisposable
         await http.PostAsJsonAsync("/api/test-runs", Run("Second", "realtime"));
 
         var list = await http.GetFromJsonAsync<JsonElement>("/api/test-runs");
-        Assert.Equal(["Second", "First"], list.EnumerateArray().Select(r => r.GetProperty("name").GetString()).ToArray());
+        Assert.Equal(["Second", "First"], list.EnumerateArray().Select(r => r.GetProperty("name").GetString()!).ToArray());
         Assert.All(list.EnumerateArray(), r => Assert.False(r.TryGetProperty("turns", out _)));
         Assert.Equal("realtime", list[0].GetProperty("setup").GetProperty("mode").GetString());
     }

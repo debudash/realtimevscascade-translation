@@ -39,6 +39,11 @@ export interface ClipInfo {
   id: string;
   lang: string;
   text: string;
+  /** Target language and reference translation from harness/scripts.json (absent for test fixtures). */
+  target?: string | null;
+  reference?: string | null;
+  /** Audio length from the WAV header, for Test Run estimates. */
+  durationSeconds?: number | null;
 }
 
 async function getJson<T>(url: string): Promise<T> {
