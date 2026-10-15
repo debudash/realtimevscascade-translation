@@ -1,5 +1,6 @@
 import type { TransportFactory } from "../session/controller";
 import { FakeTransport } from "./fake/FakeTransport";
+import { RealtimeTransport } from "./realtime/RealtimeTransport";
 
 /**
  * Picks the transport for a mode. `?transport=fake` forces the client-only simulator
@@ -7,8 +8,10 @@ import { FakeTransport } from "./fake/FakeTransport";
  */
 export function createTransportFactory(params: URLSearchParams): TransportFactory {
   const forceFake = params.get("transport") === "fake";
-  return ({ sink, player }) => {
+  return ({ mode, sink, player, capture, pairId, strategy, providers }) => {
     if (forceFake) return new FakeTransport(sink, player);
-    return new FakeTransport(sink, player);
+    const opts = { pairId, strategy, providers, captureTrack: capture.track };
+    if (mode === "realtime") return new RealtimeTransport(sink, opts);
+    return new FakeTransport(sink, player); // replaced by CascadeTransport in M3
   };
 }
