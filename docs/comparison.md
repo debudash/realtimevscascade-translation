@@ -43,7 +43,11 @@ The judge and WER miss three things that matter in a clinic:
 2. **Terminology.** Realtime and DeepL rendered "receta" as *recipe*; the OpenAI cascade said *prescription*.
 3. **Clause seams.** Committing clauses mid-sentence produced "The child fell down. and hurt his left arm." and "¿Duele? ¿Cuando respira profundamente?", which shows in fluency (4.71).
 
-Register and terminology are fixable with a formality setting and a glossary. Only the cascade has those levers.
+Both are fixable, and the follow-up measured it ([translation-controls.md](translation-controls.md)):
+with a formality setting, a glossary and matching prompt instructions, every Spanish sentence that
+addresses the listener came out formal and "receta" became *prescription* in all three pipelines.
+DeepL went from 4/18 to 9/9 formal and from 18/28 to 14/14 glossary terms. These baseline numbers
+are with the controls off.
 
 ## 3. Cost per minute of input speech
 
@@ -61,11 +65,12 @@ re-billed as context, pruned here to 2 turns), 45% output audio, 7% text and 3% 
   and turn boundaries. Recognition, translation and synthesis are one opaque step: unmeasurable,
   unswappable, and the source of the run-to-run variance above. Its source transcript comes from a
   separate model and is, in OpenAI's words, "guidance".
-- **Follow-up, measured:** turning on the translation controls (formal register + clinic glossary)
-  took DeepL from 4/18 to 9/9 formal Spanish and from 18/28 to 14/14 glossary terms, and fixed
-  "receta" → *prescription* in every pipeline. Realtime's prompt fixed terminology too (13/14), so
-  the gap is smaller than "only the cascade has levers" suggests. See
-  [`harness/results-controls/report.md`](../harness/results-controls/report.md).
+- **Prompt-level control does work in Realtime, but it is a request, not a guarantee.** Realtime's
+  prompt fixed terminology too (13 of 14 glossary terms), so "only the cascade has levers" was too
+  strong. The difference is how strongly each lever binds: DeepL's formality and glossary are API
+  parameters enforced by the provider, deterministic and auditable per term, whereas Realtime follows
+  an instruction it usually honours. In the same run, Realtime once re-spoke the previous turn's
+  translation instead of the new sentence ([translation-controls.md](translation-controls.md)).
 - **The cascade lets us own the media plane:** every stage is timed (on screen and in the report),
   swappable by config, and tunable. The tuning points:
   - commit policy (the measured 0.22 s p50 gain of clause vs. segment, at a fluency cost);
@@ -110,9 +115,9 @@ cannot rule out a slow leak.
 | Scenario | Use | Why |
 |---|---|---|
 | Low-stakes conversational (front desk, scheduling) | **Realtime** | Fastest at p50 (1.09 s), natural, nothing to operate. Quality was equal on this set. |
-| Regulated / clinical consults, audit required | **Cascade** | Every stage measured and logged. Register and terminology are controllable. Data path and providers are ours. 4.8× cheaper. |
+| Regulated / clinical consults, audit required | **Cascade** (DeepL with formality + glossary) | Every stage measured and logged. Register and terminology enforced by the provider, not just requested: 9/9 formal, 14/14 glossary terms in the follow-up. Data path and providers are ours. 4.8× cheaper. |
 | Strict latency SLOs | **Cascade with DeepL** | p95 1.25 s, stable across runs. Realtime's p95 ranged 1.06-1.72 s run to run. |
-| Terminology-heavy (medications, legal, insurance) | **Cascade** with a glossary-capable translator | The fix lives in a stage we own. Realtime's only lever is the prompt. |
+| Terminology-heavy (medications, legal, insurance) | **Cascade** with a glossary-capable translator | A provider-enforced glossary is deterministic and auditable. Realtime's prompt fixed terminology too (13/14), but only as an instruction. |
 | Uncommon language pairs | **Cascade** | Pick the best STT, translator and voice per language. |
 | High volume, cost-sensitive | **Cascade** | $0.043/min vs. $0.210/min. |
 

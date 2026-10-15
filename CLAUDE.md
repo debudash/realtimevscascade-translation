@@ -284,3 +284,8 @@ media modules split into separate services.
   traceability, README, MORNING.md. Decided: disclose rather than estimate
   the output-latency asymmetry; spend the remaining Realtime harness run to
   settle its variance. Left `npm run dev` running.
+- **Follow-up (agent, at the user's request):** translation controls
+  (formal register + clinic glossary) in both architectures; DeepL via
+  `formality` + a v3 multilingual glossary (Free plan: one glossary; literal
+  matching needs noun-phrase entries, both verified live). Measured in
+  `harness/results-controls/`, written up in docs/translation-controls.md.

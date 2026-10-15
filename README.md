@@ -10,7 +10,8 @@ identically, and measures them:
 Two push-to-talk buttons (one per speaker, English ↔ Spanish), live source and target transcripts,
 per-stage latency on screen, a mode toggle that can switch mid-session (queued until the turn ends),
 and an evaluation harness that produces [`harness/results/report.md`](harness/results/report.md). The
-recommendation is in [`docs/comparison.md`](docs/comparison.md).
+recommendation is in [`docs/comparison.md`](docs/comparison.md). A follow-up on clinic register and
+terminology (formality + glossary) is in [`docs/translation-controls.md`](docs/translation-controls.md).
 
 > Candidate take-home, not an official Boostlingo product.
 
@@ -55,7 +56,7 @@ npm run report   # rebuild harness/results/report.md from saved harness runs
 
 Useful URL parameters: `?mode=realtime`, `?strategy=clause`, `?controls=off` (turn off the translation
 controls: formal register + clinic glossary, on by default; see
-[`harness/results-controls/report.md`](harness/results-controls/report.md)), `?providers=fake` (server-side fake
+[`docs/translation-controls.md`](docs/translation-controls.md)), `?providers=fake` (server-side fake
 providers, no keys, no cost), `?providers=fake&faults=translation:429` (inject failures: `429`,
 `timeout`, `empty`, `500`, `400` for `stt`/`translation`/`tts`), `?transport=fake` (client-only
 simulator).
@@ -123,6 +124,9 @@ Providers sit behind `ISttProvider`, `ITranslationProvider`, `ITtsProvider` (`se
   pipeline applies the final-transcript timeout, and the adapter owns its connect retry (see Deepgram).
 - **Add a language pair:** add the language and pair to `Languages` in appsettings.json (see
   [`harness/results/onboarding.md`](harness/results/onboarding.md) for the EN ↔ FR exercise).
+  For clinic terminology in the new pair, add a `TranslationControls.Glossary` entry for each direction.
+- **Change terminology or register:** edit `TranslationControls` in appsettings.json. DeepL rebuilds its
+  glossary on the next turn. The Free plan holds one glossary, and the adapter only replaces its own.
 
 ## Known limitations
 

@@ -151,7 +151,11 @@ Unit-test the turn and floor machine with table-driven tests (vitest).
   - `clause` commits stable partial text at clause punctuation or
     conjunction boundaries, never re-sending committed text.
 - **Translation:** stream tokens. Pass the last 2 committed segments as
-  context. Glossary support is a stretch goal.
+  context. **Translation controls** (formal register + clinic glossary,
+  `TranslationControls` in appsettings.json, on by default, `?controls=off`
+  per session) travel on each turn: DeepL applies them as `formality` and a
+  multilingual glossary, the OpenAI translator and the Realtime session as
+  prompt instructions. See [translation-controls.md](translation-controls.md).
 - **TTS:** synthesize per committed translation; stream the chunks.
   - The browser buffers the audio until release (consecutive playback),
     then plays immediately.

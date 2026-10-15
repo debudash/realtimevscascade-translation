@@ -84,7 +84,9 @@ accuracy, 4.88-5.00 completeness and 4.71-5.00 fluency.
 | 10 | | | | | | | | |
 
 Things the judge under-weighted overnight: register (DeepL used informal *tú*) and terminology
-("receta" → *recipe* instead of *prescription* in Realtime and DeepL).
+("receta" → *recipe* instead of *prescription* in Realtime and DeepL). Both are now fixed by the
+translation controls, which are on by default; see
+[`docs/translation-controls.md`](docs/translation-controls.md). Use `?controls=off` to hear the baseline.
 
 ## Blocked or partial
 
@@ -99,7 +101,7 @@ Nothing is blocked. These items are partial or are deviations; each is logged in
 ## Suggested next steps
 
 1. **Run with real people:** a 10-minute session per mode with real voices and accents, then compare against the synthetic numbers.
-2. **Add a glossary and formality controls to the cascade:** DeepL `formality`, a medical glossary, and a translation prompt with the clinic register. Then re-run the harness to show the controllability win.
+2. ~~**Add a glossary and formality controls**~~ **Done:** see [`docs/translation-controls.md`](docs/translation-controls.md). Next: test the glossary on held-out sentences, since this one was written after seeing the test set's errors.
 3. **Try `gpt-realtime-translate` and `gpt-realtime-2.x`** (newer than the locked model) through the same harness.
 4. **Smooth the clause seams:** pass the next segment's context, or merge fragments shorter than a few words.
 5. **Run a 30-minute soak** with forced GC to settle the slow-leak question.

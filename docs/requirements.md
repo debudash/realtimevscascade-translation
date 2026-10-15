@@ -48,6 +48,12 @@ Status: **Met** · **Partly met** (see note) · **Not met**.
 | O2 | Per-stage latency instrumentation visible in the UI | see F7 | see F7 | — | Met |
 | O3 | Agentic coding assistant used; git history reflects iterative development | Claude Code, unattended run per KICKOFF.md; per-milestone commits and subagent reviews | — | CLAUDE.md agent log, PROGRESS.md | Met |
 
+## Follow-up: translation controls (beyond the brief)
+
+| # | What | Implemented in | Proved by | Evidence | Status |
+|---|---|---|---|---|---|
+| X1 | Formal register and clinic glossary, in both architectures | `TranslationControls` (Core), `DeepLTranslationProvider` (formality + v3 glossary), `InterpreterPrompt.Controls` (OpenAI translator + Realtime), `?controls=` | xUnit `TranslationControlsTests`, live `DeepLControlsContractTests` (formality, glossary) | [`translation-controls.md`](translation-controls.md), `harness/results-controls/report.md` | Met (glossary evaluated on the same clips it was written for) |
+
 ## Impact metrics (brief, "Key Impact Metrics")
 
 | Metric | Where measured |
