@@ -55,8 +55,11 @@ are with the controls off.
 |---|---|---|
 | **$0.210** | **$0.043** | $0.066 (DeepL rate unverified) |
 
-Usage was logged per turn and priced from `harness/pricing.json` (read 2026-10-15, marked "verify").
-The cascade is about **4.8× cheaper**. Realtime's cost is 45% input audio (which includes earlier turns
+Usage was logged per turn and priced from `harness/pricing.json`. OpenAI, Deepgram and ElevenLabs
+prices were checked against their official pricing pages on 2026-10-15. Two caveats: Deepgram's
+streaming rate is a limited-time promotion (list price would add about $0.003/min to the cascade),
+and DeepL's API rate could not be confirmed on deepl.com (the Growth plan's overage would add about
+$0.0025/min). The cascade is about **4.8× cheaper** (about 4.5× at Deepgram's list price). Realtime's cost is 45% input audio (which includes earlier turns
 re-billed as context, pruned here to 2 turns), 45% output audio, 7% text and 3% side transcription.
 
 ## 4. Controllability: control plane vs. media plane

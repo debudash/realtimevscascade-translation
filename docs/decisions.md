@@ -246,8 +246,8 @@ Brief = `docs/brief.md` (governs). PRD = `docs/prd-summary.md`.
 ### D-19 · Cost per minute from logged usage times a dated pricing table
 - **Basis:** the "cost per minute" impact metric.
 - **Alternatives:** a live cost meter in the UI (cut: not a must-have).
-- **Status:** Implemented
-- **Evidence:** `harness/pricing.json` (read 2026-10-15, marked "verify"; DeepL rate unverified), `harness/metrics.ts` `turnCost`. Tests: `harness/metrics.test.ts` "turnCost" (cascade, DeepL, Realtime).
+- **Status:** Implemented; DeepL price unverified
+- **Evidence:** `harness/pricing.json` (OpenAI, Deepgram and ElevenLabs verified on their pricing pages 2026-10-15, Deepgram's rate a promotion; DeepL unverified), `harness/metrics.ts` `turnCost`. Tests: `harness/metrics.test.ts` "turnCost" (cascade, DeepL, Realtime).
 
 ### D-20 · Warm-up and press-to-warm
 - **Decision:** connections and providers are warmed on page load and after

@@ -143,7 +143,7 @@ Providers sit behind `ISttProvider`, `ITranslationProvider`, `ITtsProvider` (`se
 - **429 handling** uses exponential backoff with jitter and ignores `Retry-After` headers.
 - **Deny tone pickup.** The deny tone plays while the other speaker's mic is open. Browser echo
   cancellation usually removes it, but on some setups it can reach STT.
-- **DeepL cost** in the report uses an unverified rate (the key here is Free-plan).
+- **DeepL cost** in the report uses an unverified rate: deepl.com does not publish the API rate in a readable form (the key here is Free-plan). Other prices were verified on 2026-10-15; Deepgram's is a promotion.
 - **Local only.** The WebSocket and endpoints are unauthenticated (localhost). Production needs auth
   in front of the control plane.
 - **Soak length.** 5 minutes per mode showed no growth beyond retained transcripts, but cannot rule

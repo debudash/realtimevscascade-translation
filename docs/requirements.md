@@ -55,7 +55,7 @@ test, a measurement or a reproducible check.
 |---|---|---|---|---|---|
 | M1 | Latency | report §1: p50 1.09 s / p95 1.46 s (72 turns); stages "hidden" | report §1: segment 1.43 / 1.89 s, clause 1.21 / 1.44 s, DeepL 1.15 / 1.25 s (48 turns each); server stage durations | comparison.md §1 | Met |
 | M2 | Quality (subjective + WER) | report §2: target WER 0.097, judge 4.96 / 4.97 / 4.99, answered-instead 0/72 | report §2: source WER 0.000, target WER 0.059-0.293, judge scores, answered-instead 0/48 per config | comparison.md §2 | Partial: "subjective" rests on the automated judge only; the human sheet in MORNING.md is blank |
-| M3 | Cost per minute | report §3: $0.210/min (with split) | report §3: $0.043/min (OpenAI), $0.066/min (DeepL) | comparison.md §3 | Partial: prices read 2026-10-15 and marked "verify"; the DeepL rate is unverified |
+| M3 | Cost per minute | report §3: $0.210/min (with split) | report §3: $0.043/min (OpenAI), $0.066/min (DeepL) | comparison.md §3 | Partial: OpenAI, Deepgram and ElevenLabs verified 2026-10-15 (Deepgram rate is a promotion); DeepL unverified |
 | M4 | Controllability | Prompt, voice, turn boundaries; internals not observable; prompt-level controls measured (13/14 glossary terms) | Every stage timed and swappable; commit policy measured; formality + glossary enforced (9/9 formal, 14/14 terms) | comparison.md §4, [`translation-controls.md`](translation-controls.md) | Met |
 | M5 | Provider flexibility | Model version only | OpenAI -> DeepL by config only: report §4, `CascadeProviderFactoryTests.Config_alone_swaps_the_default_translator` | comparison.md §5 | Met |
 | M6 | Time to onboard a language pair | EN<->FR by config, 1.00-1.41 s | EN<->FR by config, 1.28-1.42 s | comparison.md §6, `harness/results/onboarding.md` | Met (one well-supported language; an uncommon pair was not tried) |
@@ -86,7 +86,7 @@ its "Changes during the build".
 | D-16 | Realtime internals "hidden", never estimated | `LatencyPanel.tsx`; report stage table | Met |
 | D-17 | Quality: WER, rubric, answered-instead, judge + human | `harness/metrics.test.ts`; report §2 | Partial: human spot-check not done |
 | D-18 | Fair comparison: identical input, one clock, run conditions | Replay harness; `metrics.test.ts` run-conditions test | Partial: run conditions lack `runId` and `build` sha (C-09) |
-| D-19 | Cost from logged usage x dated prices | `harness/metrics.test.ts` "turnCost"; report §3 | Partial: prices not verified |
+| D-19 | Cost from logged usage x dated prices | `harness/metrics.test.ts` "turnCost"; report §3; `harness/pricing.json` sources with verification date | Partial: OpenAI, Deepgram, ElevenLabs verified 2026-10-15; DeepL unverified |
 | D-20 | Warm-up and press-to-warm | `turnMachine.test.ts` "press while Warming is 'Not ready'"; `CascadeSession.StartTurnAsync` | Met |
 | D-21 | Deny tone never counts as first audible | `denyTone.test.ts` "never produces first_audible..." | Met |
 | D-22 | Secrets in gitignored `.env` | `HealthEndpointTests.Reports_missing_key_names_and_never_values`; `.gitignore`; settings deny rules | Met |
