@@ -217,17 +217,19 @@ unverified). Judge 4.7-5.0 across the board; 0/24 answered-instead-of-
 interpreted in every configuration. Soak 5 min per mode: 45 turns each, 0
 failures, 0 unplanned disconnects, forced-drop recovery 2.1 s (Realtime) /
 1.1 s (cascade), transcripts intact. EN<->FR onboarded by config in ~2 min.
-Harness runs used: 1 of 3 per configuration (the first DeepL attempt
-aborted mid-run on a page reload and saved nothing; see Decisions).
-Soak runs used: 1 of 1 per mode.
+Harness runs used: Realtime 3 of 3, each cascade configuration 2 of 3 (the
+first DeepL attempt aborted mid-run on a page reload and saved nothing; see
+Decisions). Soak runs used: 1 of 1 per mode. The run-1 numbers above were
+superseded by the pooled report in M7 (Realtime p50/p95 1.09/1.46 s over 72
+turns; segment 1.43/1.89, clause 1.21/1.44, DeepL 1.15/1.25 over 48).
 
 ## M7 · Review, docs, and morning handoff (≈1.5 h)
-- [ ] Architecture review pass (use a subagent if available): check every
+- [x] Architecture review pass (use a subagent if available): check every
       CLAUDE.md must-have, locked decision, and code quality expectation
       against the code. Fix any gaps, and list what is not fixable.
-- [ ] Run the full suite: `npm test` and `npm run e2e`. Everything is green
+- [x] Run the full suite: `npm test` and `npm run e2e`. Everything is green
       or explicitly skipped with a reason.
-- [ ] `README.md`:
+- [x] `README.md`:
       - setup on Windows and macOS (prerequisites; copy `.env.example` to
         `.env` and add keys)
       - run
@@ -235,16 +237,16 @@ Soak runs used: 1 of 1 per mode.
       - why C#/.NET
       - how to swap a provider
       - known limitations
-- [ ] `docs/requirements.md`: a traceability matrix. Columns: every
+- [x] `docs/requirements.md`: a traceability matrix. Columns: every
       requirement in `docs/brief.md` (functional, performance, code quality,
       other) -> where it is implemented -> the test that proves it -> the
       evidence (test name, report section, or screenshot) -> status.
-- [ ] `docs/comparison.md` (1-2 pages), from report.md numbers only,
+- [x] `docs/comparison.md` (1-2 pages), from report.md numbers only,
       following "Comparison write-up requirements" in CLAUDE.md, including
       every disclosure listed there.
-- [ ] Append the agent log to the "How I directed the agent" section of
+- [x] Append the agent log to the "How I directed the agent" section of
       CLAUDE.md.
-- [ ] `MORNING.md` for the user:
+- [x] `MORNING.md` for the user:
       - the URL
       - one command to start, in case the app has stopped
       - a 5-minute guided test script (what to click, what to expect)
@@ -253,10 +255,21 @@ Soak runs used: 1 of 1 per mode.
         to spot-check the automated judge
       - what is BLOCKED or partial
       - suggested next steps
-- [ ] Final commit.
-- [ ] Final step: start `npm run dev` as a background task, confirm that
+- [x] Final commit.
+- [x] Final step: start `npm run dev` as a background task, confirm that
       `/api/health` is OK and that http://localhost:5173 loads, and **leave
       it running**.
+
+**Notes (M7):** a subagent architecture review found 13 gaps; fixed: Realtime
+warm-up hang in real Chrome (audio resumed from the press), Deepgram connect
+retry, stalled-stream and Realtime response timeouts, per-mode config gate
+(missing DeepL no longer blocks), commit policy via DI + config, provider
+factory tests, deny tone kept out of T0, report pooling + server stage
+durations, doc claims. Kept as disclosed limitations: output-latency
+asymmetry, TTS per segment (not mid-segment), STT final without retry.
+A second harness run per configuration (and a third for Realtime) showed
+Realtime's vendor-side variance; the comparison reflects it. Final suite:
+`npm test` 73 xUnit + 85 vitest green, `npm run e2e` 19/19 green.
 
 ---
 
@@ -288,8 +301,10 @@ Soak runs used: 1 of 1 per mode.
 - **M1 · Clocks:** capture marks use the capture context's processing time
   (minus the mic's reported input latency); first_audible uses
   getOutputTimestamp (when the sample reaches the speaker) in cascade, and a
-  5 ms-polled AnalyserNode on the remote track in Realtime. Both modes are
-  therefore measured to the output device, not to "sent to the speaker API".
+  5 ms-polled AnalyserNode on the remote track in Realtime. The cascade mark
+  therefore includes the device's output latency and the Realtime mark does
+  not (it sees samples just before output): a small bias in Realtime's
+  favour, disclosed in comparison.md rather than corrected with an estimate.
 - **M1 · Client-only FakeTransport** (`?transport=fake`) for UI/audio work
   with no backend audio path; server-side fakes come in M3.
 - **M1 · Retry turn:** the controller keeps the last 5 turns' captured PCM;
@@ -365,6 +380,15 @@ Soak runs used: 1 of 1 per mode.
   transcripts) alongside the raw start/end values.
 - **M6 · Judge:** gpt-4.1-mini, temperature 0, JSON output, cached in
   `harness/results/judge-cache.json` so regenerating the report is free.
+- **M7 · Report pools runs:** p50/p95 are over every saved run of a
+  configuration, with a per-run table so variance stays visible. Realtime
+  got its third run because runs 1 and 2 disagreed (p95 1.06 vs 1.72 s).
+- **M7 · Output latency not corrected:** Realtime's first-audible could be
+  shifted by an estimated `outputLatency`, but that would be an estimate in
+  a "measured only" report; the asymmetry is disclosed instead.
+- **M7 · Optional DeepL key:** DeepL is the failover; without its key the
+  cascade runs with no failover instead of refusing to start, and Realtime
+  needs only the OpenAI key (`/api/health` reports `missingByMode`).
 
 ## Blockers
 (The agent appends here.)
@@ -372,3 +396,6 @@ Soak runs used: 1 of 1 per mode.
 ## Session log
 (The agent appends one line per session: start time, milestones covered, and
 where it stopped.)
+
+- 2026-10-14 23:59 → 2026-10-15 ~07:30 local session: M0-M7 in one session; stopped
+  after M7 with `npm run dev` running.

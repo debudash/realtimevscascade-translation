@@ -279,3 +279,8 @@ media modules split into separate services.
   cost per minute, 5-minute soak per mode with a forced drop, EN<->FR
   onboarding by config. Decided: replay input instead of fake-capture file;
   heap floors instead of raw start/end. Deferred: longer soaks.
+- **M7 (agent):** subagent architecture review (13 gaps, fixed or disclosed),
+  pooled report with run-to-run variance, comparison.md, requirements
+  traceability, README, MORNING.md. Decided: disclose rather than estimate
+  the output-latency asymmetry; spend the remaining Realtime harness run to
+  settle its variance. Left `npm run dev` running.

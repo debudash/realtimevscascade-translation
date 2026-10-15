@@ -411,5 +411,75 @@
     "fluency": 5,
     "answered_instead_of_interpreted": false,
     "note": "Perfect match with reference."
+  },
+  "a9c2b303a5325e74": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Exact match with reference."
+  },
+  "2eff6ad146960d2a": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate and fluent, minor article omission does not affect meaning."
+  },
+  "feed36466eaaa869": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Correct and natural word order."
+  },
+  "de1386a743e952ee": {
+    "accuracy": 4,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Recipe should be prescription for accuracy."
+  },
+  "f52596482a55bc38": {
+    "accuracy": 4,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Gender changed from 'he' to 'she'"
+  },
+  "f99877c56f060ce0": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect translation with natural phrasing."
+  },
+  "fcc1df4eef0f169d": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect translation with natural phrasing."
+  },
+  "a9424f710432350e": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect translation, natural and complete."
+  },
+  "ff0d9e76a32f681b": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Minor singular/plural difference, meaning preserved."
+  },
+  "1c4c2b3387665678": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate and natural translation."
   }
 }

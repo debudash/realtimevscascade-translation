@@ -114,6 +114,17 @@ async function judge(clip: ScriptClip, target: string): Promise<Verdict | null> 
   return v;
 }
 
+/** Realtime: where the time between response start and first audio went, per run (vendor-side). */
+function rtSplit(runs: Run[]): string | null {
+  const rt = runs.find((r) => r.config === "realtime");
+  if (!rt) return null;
+  const parts = rt.files.map((f, i) => {
+    const ok = rt.turns.filter((t) => t.run === f && t.status === "completed");
+    return `run ${i + 1}: release → response start ${pp(ok.map((t) => since(t, "rtResponseStart", "release")))}, response start → first audible ${pp(ok.map((t) => since(t, "firstAudible", "rtResponseStart")))}`;
+  });
+  return `Realtime p50 / p95 by segment, ${parts.join("; ")}. The client-side part (release → response start) is stable across runs; the variance is in the vendor's time from response start to first audio.`;
+}
+
 // ---------- report ----------
 async function main() {
   const runs = pooledRuns();
@@ -167,6 +178,23 @@ async function main() {
   }
   line();
   line("Cascade target is < 3 s; the < 2 s stretch goal is shown against the clause configuration but applies to every cascade row.");
+  line();
+
+  line("### Run-to-run variance (mouth-to-ear p50 / p95 per run)");
+  line();
+  line("| Configuration | " + [1, 2, 3].map((n) => `Run ${n}`).join(" | ") + " |");
+  line("|---|---|---|---|");
+  for (const r of runs) {
+    const cells = [0, 1, 2].map((i) => {
+      const f = r.files[i];
+      if (!f) return "–";
+      const ok = r.turns.filter((t) => t.run === f && t.status === "completed");
+      return `${pp(ok.map((t) => since(t, "firstAudible")))} (${f.split("--")[1].slice(11, 16).replace("-", ":")} UTC)`;
+    });
+    line(`| ${r.label} | ${cells.join(" | ")} |`);
+  }
+  line();
+  if (rtSplit(runs)) line(rtSplit(runs)!);
   line();
 
   line("### Stage breakdown (p50 / p95, ms after T0, completed turns)");

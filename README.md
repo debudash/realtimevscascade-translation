@@ -47,7 +47,8 @@ npx playwright install chromium   # only for e2e tests and the harness
 
 ```bash
 npm run dev      # backend on :5080 + Vite on :5173 → open http://localhost:5173
-npm test         # xUnit (server) + vitest (client, harness metrics)
+npm test         # xUnit (server) + vitest (client, harness metrics); includes 5 live provider
+                 # contract tests (fractions of a cent) unless WORKBENCH_SKIP_CONTRACT=1 or keys are missing
 npm run e2e      # Playwright (fake-provider specs are free; real-provider specs cost cents and skip without keys)
 npm run report   # rebuild harness/results/report.md from saved harness runs
 ```
@@ -113,9 +114,11 @@ Providers sit behind `ISttProvider`, `ITranslationProvider`, `ITtsProvider` (`se
   `server/src/Workbench.Api/appsettings.json` (e.g. `"Translation": "deepl"`), or per session from the
   URL (`?providers=translation:deepl`). The harness ran DeepL as primary this way, with no code change.
 - **Add a provider:** implement the interface in `Workbench.Providers/<Vendor>/`, register the class in
-  `Program.cs` (`providers.AddTranslation("vendor", sp => ...)`), add its key name to
-  `CascadeProviderFactory.Keys`. Retry, timeouts, failover, timing events and usage metering are applied
-  by the pipeline and resilience decorators, not by the adapter.
+  `Program.cs` (`providers.AddTranslation("vendor", sp => ...)`), and add its key name to
+  `CascadeProviderFactory.Keys` (the health check and config panel read the same table). For
+  translation and TTS, retry with jitter, first-item and stall timeouts, failover, timing events and
+  usage metering come from the pipeline and resilience decorators. STT is a long-lived stream: the
+  pipeline applies the final-transcript timeout, and the adapter owns its connect retry (see Deepgram).
 - **Add a language pair:** add the language and pair to `Languages` in appsettings.json (see
   [`harness/results/onboarding.md`](harness/results/onboarding.md) for the EN ↔ FR exercise).
 
@@ -139,7 +142,9 @@ Providers sit behind `ISttProvider`, `ITranslationProvider`, `ITtsProvider` (`se
   in front of the control plane.
 - **Soak length.** 5 minutes per mode showed no growth beyond retained transcripts, but cannot rule
   out a slow leak.
-- **Browsers.** Tested in Chromium (Playwright) and Chrome. Safari and Firefox are untested.
+- **Browsers.** Automated runs use Playwright's Chromium with an autoplay flag. Audio that a browser
+  blocks before a user gesture is started from the first press, but a manual check in desktop Chrome
+  is part of MORNING.md. Safari and Firefox are untested.
 
 ## Repo layout
 
