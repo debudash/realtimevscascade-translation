@@ -119,8 +119,11 @@ on {current}".
 
 ## Test Runs tab (added after the build, decisions C-23)
 
-Under the header, two tabs: **Workbench** (everything above) and **Test
-Runs**. The open tab is kept in the URL hash (`#test-runs`).
+Under the header, three tabs: **Workbench** (everything above), **Test
+Runs** and **Documentation** (a plain how-to for testers: before you
+start, interpreting, reading the measurements, comparing modes, test runs,
+errors, terms). The open tab is kept in the URL hash (`#test-runs`,
+`#documentation`).
 
 - **New test run** (left):
   - Name (defaults to "Test run" plus date and time).

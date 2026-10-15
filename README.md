@@ -61,6 +61,11 @@ providers, no keys, no cost), `?providers=fake&faults=translation:429` (inject f
 `timeout`, `empty`, `500`, `400` for `stt`/`translation`/`tts`), `?transport=fake` (client-only
 simulator).
 
+## Using the workbench
+
+The app's **Documentation** tab is a short how-to for testers: getting ready, interpreting a
+conversation, reading the measurements, comparing modes, test runs, errors and terms.
+
 ## Test Runs
 
 The **Test Runs** tab runs chosen replay clips on one setup (Realtime, Cascade segment, Cascade

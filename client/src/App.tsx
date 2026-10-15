@@ -9,6 +9,7 @@ import { LatencyPanel } from "./ui/LatencyPanel";
 import { ModeComparison } from "./ui/ModeComparison";
 import { TestRunner } from "./session/TestRunner";
 import { TestRuns } from "./ui/TestRuns";
+import { Documentation } from "./ui/Documentation";
 import { ConnectionBanner, MicDeniedPanel, PendingSwitchBanner, SessionErrorBanner, Toast } from "./ui/StatusBanners";
 import { Transcripts } from "./ui/Transcripts";
 import { ControllerContext, useSnapshot } from "./ui/useController";
@@ -45,10 +46,11 @@ const controller = createController();
 /** Test Runs drive the same controller; the runner outlives tab switches. */
 const runner = new TestRunner(controller);
 
-type Tab = "workbench" | "test-runs";
+type Tab = "workbench" | "test-runs" | "documentation";
 const TABS: [Tab, string][] = [
   ["workbench", "Workbench"],
   ["test-runs", "Test Runs"],
+  ["documentation", "Documentation"],
 ];
 
 export function App() {
@@ -68,8 +70,8 @@ export function App() {
 function Shell({ startError }: { startError: string | null }) {
   const s = useSnapshot();
   const missing = s.sessionError?.code === "config_error" ? (s.health?.missingByMode?.[s.turn.mode] ?? s.health?.missing ?? []) : [];
-  // The open tab lives in the URL hash (#test-runs) so a reload keeps it.
-  const [tab, setTab] = useState<Tab>(() => (window.location.hash === "#test-runs" ? "test-runs" : "workbench"));
+  // The open tab lives in the URL hash (#test-runs, #documentation) so a reload keeps it.
+  const [tab, setTab] = useState<Tab>(() => TABS.find(([t]) => `#${t}` === window.location.hash)?.[0] ?? "workbench");
   const choose = (t: Tab) => {
     setTab(t);
     history.replaceState(null, "", t === "workbench" ? window.location.pathname + window.location.search : `#${t}`);
@@ -106,6 +108,9 @@ function Shell({ startError }: { startError: string | null }) {
         </div>
         <div id="panel-test-runs" role="tabpanel" aria-labelledby="tab-test-runs" hidden={tab !== "test-runs"} className="tabpanel">
           <TestRuns runner={runner} />
+        </div>
+        <div id="panel-documentation" role="tabpanel" aria-labelledby="tab-documentation" hidden={tab !== "documentation"} className="tabpanel">
+          <Documentation />
         </div>
       </main>
       <Toast />

@@ -304,3 +304,15 @@ main { padding: 24px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (max-width: 900px) { .tr { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .tr-bar > i { transition: none; } }
+
+/* Documentation tab: one readable column. */
+.doc { max-width: 760px; display: flex; flex-direction: column; gap: 18px; line-height: 1.55; }
+.doc__title { margin: 0; font-size: 20px; color: var(--heading); }
+.doc h3 { margin: 0 0 6px; font-size: 15px; color: var(--heading); }
+.doc p, .doc ul, .doc ol, .doc dl { margin: 0; }
+.doc ul, .doc ol { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.doc dl { display: grid; grid-template-columns: minmax(10rem, max-content) minmax(0, 1fr); gap: 6px 16px; }
+.doc dt { font-weight: 600; color: var(--heading); }
+.doc dd { margin: 0; }
+.doc code { font-family: var(--mono); font-size: 0.9em; }
+@media (max-width: 760px) { .doc dl { grid-template-columns: 1fr; } .doc dd { margin-bottom: 6px; } }
