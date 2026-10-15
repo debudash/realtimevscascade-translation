@@ -1,4 +1,4 @@
-# Good morning
+# Handoff
 
 The workbench should already be running: **http://localhost:5173**
 
@@ -8,7 +8,7 @@ If it isn't, start it from this folder (backend :5080 + client :5173):
 npm run dev
 ```
 
-Everything was built, tested and measured overnight. The recommendation is in
+The first build phase built, tested and measured everything. The recommendation is in
 [`docs/comparison.md`](docs/comparison.md). The full numbers are in
 [`harness/results/report.md`](harness/results/report.md).
 
@@ -56,7 +56,7 @@ Use headphones, so the interpretation doesn't feed back into the other speaker's
 6. **Realtime.**
    - Repeat a sentence in either language.
    - Expected: faster first audio (p50 about 1.1 s on the clips). The waterfall shows "STT / LLM / TTS: hidden", and the source transcript may arrive after the audio.
-   - **Manual check (real Chrome):** if Realtime was the first mode you used on page load, confirm the interpretation is audible on your first press. Browsers block audio until a user gesture; the app starts it from the press, but only Chromium with an autoplay flag was tested overnight.
+   - **Manual check (real Chrome):** if Realtime was the first mode you used on page load, confirm the interpretation is audible on your first press. Browsers block audio until a user gesture; the app starts it from the press, but only Chromium with an autoplay flag was tested automatically.
 7. **Compare.**
    - Look at the **Session p50 / p95** table: the Target cell is green when p95 is under target.
    - Click **Export session metrics** to download every turn's marks as JSON.
@@ -71,7 +71,7 @@ The blind human spot-check was done on 2026-10-15: 20 turns, 10 per mode, scored
 hid the pipeline. Results are in `harness/results/human-scores.json` and report section 2
 ("Human spot-check"): 44 of 60 scores identical to the automated judge, all within one point.
 
-Things the judge under-weighted overnight: register (DeepL used informal *tú*) and terminology
+Things the judge under-weighted in the first evaluation: register (DeepL used informal *tú*) and terminology
 ("receta" → *recipe* instead of *prescription* in Realtime and DeepL). Both are now fixed by the
 translation controls, which are on by default; see
 [`docs/translation-controls.md`](docs/translation-controls.md). Use the header's **Clinic terms | Off** toggle (or `?controls=off`) to hear the baseline; each turn card says which was used.

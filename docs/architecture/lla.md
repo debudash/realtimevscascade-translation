@@ -1,6 +1,6 @@
 # Low-level architecture (as built)
 
-Source: as built at commit fdc469c (code last changed in 7e168f9).
+Source: as built at commit 1e3f900 (code last changed there).
 
 Companion to [hla.md](hla.md). Message flows are in [sequences.md](sequences.md). The pre-build spec is [../architecture.md](../architecture.md); where the code differs, a "Differs from the pre-build spec" note says so.
 
@@ -40,6 +40,7 @@ flowchart LR
     transports --> audio
     session --> contracts
     harness -. "drives the app in Chromium" .-> client
+    harness -. "re-exports state/cost.ts and state/wer.ts" .-> state
     e2e -. "drives the app in Chromium" .-> client
     samples -. "round-tripped by" .-> testP
     samples -. "round-tripped by" .-> contracts
@@ -54,12 +55,14 @@ flowchart LR
 | `server/src/Workbench.Api/Config/RequiredKeys.cs` | Missing key variable names (from the factory key table). |
 | `server/src/Workbench.Api/Config/WorkbenchOptions.cs` | `ProvidersOptions`, `CascadeOptions`. |
 | `server/src/Workbench.Api/Config/RepoPaths.cs` | Repo root (folder holding `PROGRESS.md`) and clip folders. |
+| `server/src/Workbench.Api/Config/BuildInfo.cs` | `BuildInfo.Sha`: short git sha from the assembly informational version (`1.0.0+<sha>`), `unknown` if absent. No git call at runtime; uncommitted changes are not detected. |
 | `server/src/Workbench.Api/Control/CascadeSession.cs` | One cascade session per WebSocket: reader loop, single writer loop, configure, warm-up, keep-warm, turn lifecycle. |
 | `server/src/Workbench.Api/Control/CascadeProviderFactory.cs` | Provider registry by name, per-session resolution, missing and unknown provider checks, resilience wrapping. |
-| `server/src/Workbench.Api/Endpoints/HealthEndpoints.cs` | `GET /api/health` (missing keys by mode), `GET /api/config` (pairs, languages, providers, controls default). |
+| `server/src/Workbench.Api/Endpoints/HealthEndpoints.cs` | `GET /api/health` (build sha, missing keys by mode), `GET /api/config` (pairs, languages, providers, controls default). |
 | `server/src/Workbench.Api/Endpoints/RealtimeEndpoints.cs` | `POST /api/realtime/session`: mints the client secret, returns per-direction instructions, maps provider errors to typed bodies. |
 | `server/src/Workbench.Api/Endpoints/CascadeEndpoints.cs` | `/ws/cascade`: accepts the socket, creates a `CascadeSession`. |
-| `server/src/Workbench.Api/Endpoints/ClipEndpoints.cs` | `GET /api/clips`, `GET /api/clips/{id}.wav` for the Replay input. |
+| `server/src/Workbench.Api/Endpoints/ClipEndpoints.cs` | `GET /api/clips` (id, lang, text, target and reference from `harness/scripts.json`, `durationSeconds` from the WAV header), `GET /api/clips/{id}.wav` for the Replay input and Test Runs. |
+| `server/src/Workbench.Api/Endpoints/TestRunEndpoints.cs` | `GET /api/test-runs`, `GET /api/test-runs/{id}`, `POST /api/test-runs`: one JSON file per run in `TestRuns:Directory` (default `harness/results/test-runs/`). |
 | `server/src/Workbench.Api/appsettings.json` | `Cascade`, `Providers`, `Languages`, `TranslationControls` sections. |
 | `server/src/Workbench.Core/Contracts/Providers.cs` | `ISttProvider`, `ITranslationProvider`, `ITtsProvider`, `ICommitPolicy`, `IWarmable`, records, `TurnMeter`. |
 | `server/src/Workbench.Core/Commit/CommitPolicies.cs` | `SegmentCommitPolicy`, `ClauseCommitPolicy`, `ICommitPolicyFactory`. |
@@ -82,16 +85,21 @@ flowchart LR
 
 | File | Responsibility |
 |---|---|
-| `client/src/App.tsx` | Reads URL params (`mode`, `strategy`, `providers`, `controls`), creates one `WorkbenchController`, lays out panels. |
-| `client/src/api.ts` | `GET /api/health`, `/api/config`, `/api/clips`. |
-| `client/src/session/controller.ts` | `WorkbenchController`: mode-agnostic session layer; owns audio engine, turn machine, metrics, active transport. |
+| `client/src/App.tsx` | Reads URL params (`mode`, `strategy`, `providers`, `controls`), creates one `WorkbenchController` and one `TestRunner`, lays out three tabs (Workbench, Test Runs, Documentation; open tab kept in the URL hash). |
+| `client/src/api.ts` | `GET /api/health`, `/api/config`, `/api/clips`, `/api/test-runs`, `/api/test-runs/{id}`; `saveTestRun` (POST). `SavedTestRun` type. |
+| `client/src/session/controller.ts` | `WorkbenchController`: mode-agnostic session layer; owns audio engine, turn machine, metrics, active transport. Test Run hooks: `applySetup`, `lockSetup`, `untilReady`, `runId`. |
+| `client/src/session/TestRunner.ts` | Runs one Test Run plan on the controller (setup, clips, passes), collects turns, saves the run. Lives outside React. |
+| `client/src/session/testRun.ts` | Pure: `SETUPS` (four configurations), `estimate`, `summarizeRun`, `compareRuns`. |
 | `client/src/state/turnMachine.ts` | Pure turn/floor reducer `(state, action) -> { state, effects }`. |
 | `client/src/state/metrics.ts` | Per-turn marks, stage durations, run conditions, p50/p95, export. |
+| `client/src/state/cost.ts` | `turnCost(usage, pricing, translation)`: USD per turn from `harness/pricing.json`. Shared with the harness. |
+| `client/src/state/wer.ts` | `normalize`, `wer`. Shared with the harness. |
 | `client/src/transports/types.ts` | `InterpreterTransport`, `TransportSink`, `ConnectionState`. |
 | `client/src/transports/factory.ts` | Picks the transport per mode; `?transport=fake`, `?faults=`. |
 | `client/src/transports/cascade/CascadeTransport.ts` | WebSocket transport, reconnect 1-5, consecutive playback. |
 | `client/src/transports/realtime/RealtimeTransport.ts` | WebRTC transport, data channel, response-start timeout, reconnect 1-5. |
 | `client/src/transports/realtime/eventMapper.ts` | Maps OpenAI Realtime server events to normalized events and marks; prunes context to 2 turns. |
+| `client/src/transports/realtime/rtcStats.ts` | `readInboundAudio` (inbound-rtp audio counters from `getStats()`), `playbackStatsBetween` (jitter-buffer ms, concealed %, packets lost over an interval). |
 | `client/src/transports/fake/FakeTransport.ts` | Client-only simulator, no backend. |
 | `client/src/audio/captureEngine.ts` | Mic or replay clip into the capture worklet, PTT gate, `MicDeniedError`. |
 | `client/src/audio/energyDetector.ts` | Speech start and speech end (T0): -45 dBFS, 2 start frames, 300 ms hangover. |
@@ -99,9 +107,12 @@ flowchart LR
 | `client/src/audio/remoteTap.ts` | AnalyserNode on the remote WebRTC track: first audible (peak 0.01), silence after 700 ms. |
 | `client/src/audio/denyTone.ts` | Two-note deny tone straight to `ctx.destination`, never through the OutputTap. |
 | `client/src/contracts/events.ts` | TS mirror of the event schema, `parseEvent` validation. |
-| `client/src/ui/*.tsx` | Header (mode, strategy, pair, input, Clinic terms), speaker stage, talk buttons, transcripts, latency panel, banners, config panel. |
+| `client/src/ui/*.tsx` | Header (mode, strategy, pair, input, Clinic terms; locked during a Test Run), speaker stage, talk buttons, transcripts (4 cards visible, the rest scroll), latency panel, banners, config panel. |
+| `client/src/ui/ModeComparison.tsx` | Latest turn per mode side by side (latency, input, cost); replaced the single "Last turn" card. |
+| `client/src/ui/TestRuns.tsx` | Test Runs tab: plan form with estimate (rates from `harness/results/cost-per-minute.json`), progress and cancel, saved list, detail, compare two runs. |
+| `client/src/ui/Documentation.tsx` | Documentation tab: static how-to for testers. |
 | `contracts/event-samples.json` | Sample events round-tripped by both sides' contract tests. |
-| `harness/*.ts` | Clip generation, four-configuration runs, soak, onboarding, report, controls report. |
+| `harness/*.ts` | Clip generation, four-configuration runs, soak, onboarding, report, controls report. `metrics.ts` re-exports `wer` and `turnCost` from the client. `report.ts` also writes `harness/results/cost-per-minute.json` and has human spot-check and live-voice sections. |
 | `e2e/*.spec.ts` | Playwright: audio engine, cascade with fakes and real providers, Realtime, error states, mic denied, UI walkthrough. |
 
 ## 2. Contracts
@@ -128,6 +139,7 @@ classDiagram
         +mark(string turnId, MarkName name, number perfMs) void
         +playbackStarted(string turnId) void
         +playbackEnded(string turnId) void
+        +playbackStats(string turnId, PlaybackStats stats) void
     }
     class RealtimeTransport {
         +kind WebRTC
@@ -200,6 +212,8 @@ public sealed record TranslationContext(string SourceLang, string TargetLang,
 ```
 
 - In TypeScript, `resumeAudio?()` is optional (only `RealtimeTransport` implements it) and `connection()` takes `attempt` and `maxAttempts` as optional. The UI sees only `TransportSink` signals and normalized events.
+- `TransportSink.playbackStats?()` is optional and Realtime only. `RealtimeTransport` snapshots the `getStats()` inbound audio counters at release and again after playback ends, and reports the difference (`jitterBufferMs`, `concealedPct`, `packetsLost`). It may arrive after `playbackEnded`; the controller stores it as `TurnRecord.playback`. The transport also samples every 2 s for `diagnostics()` (`rtJitterBufferMs`, `rtConcealedSamples`, `rtTotalSamples`, `rtPacketsLost`, cumulative since the peer connection opened).
+- `RunConditions` gained `runId` (8 hex chars, one per page session, `controller.runId`) and `build` (from `/api/health`). Both are absent in runs recorded before them. `TurnRecord` gained `playback?`.
 - `IWarmable` is implemented by Deepgram, OpenAI translation, DeepL and ElevenLabs. Deepgram warm-up resolves DNS and checks the key over REST; its STT socket opens per turn on press.
 - `TurnMeter` collects per-turn usage and records which translator served and the first failover.
 - Commit policies are pure (no I/O, no clocks) and created fresh per turn. `segment` commits each STT final (dropping empty finals and a finalize duplicate); `clause` commits stable interim prefixes at `, ; : . ? !` or before a conjunction, min 3 words unless the clause ends in `. ? !`.
@@ -459,7 +473,47 @@ stateDiagram-v2
 
 On a reconnect the cascade transport drops the current turn and its audio; the controller cancels the turn via `ERROR socket_drop`. `Closed` is emitted on deliberate close (mode switch, re-warm).
 
-## 9. Timing marks
+## 9. Test Runs
+
+**Controller API used by Test Runs (`session/controller.ts`)**
+
+| Member | Behaviour |
+|---|---|
+| `applySetup(setup)` | Only in `Ready`, else rejects. Sets strategy, Clinic terms and provider overrides (an all-fake session stays all-fake); switches mode or re-warms if anything changed; resolves when `Ready`. |
+| `lockSetup(locked)` | Sets snapshot `setupLocked`, which disables the header's setup controls. |
+| `untilReady(timeoutMs = 30000)` | Resolves when the phase is `Ready`; rejects on `Error` or timeout. |
+| `runReplayTurn(speaker, buffer?)` | Now resolves with the `turnId` once the clip has played and the turn is released, or `null` if the turn did not start. |
+| `runId` | Readonly page-session id, copied into every turn's `RunConditions`. |
+
+**Runner lifecycle (`session/TestRunner.ts`)**
+
+```mermaid
+stateDiagram-v2
+    [*] --> idle
+    idle --> running : start(plan), lockSetup(true), applySetup
+    running --> running : per clip, selectInput, untilReady, runReplayTurn, untilReady(45 s)
+    running --> saving : all clips and passes done, or cancel after the current turn
+    running --> failed : no turns recorded
+    saving --> saved : POST /api/test-runs returns id
+    saving --> failed : POST rejected
+    saved --> running : start(next plan)
+    failed --> running : start(next plan)
+```
+
+- `cancel()` sets a flag; the runner stops after the turn in progress. An error mid-run also stops it. Either way, the turns recorded so far are saved with status `cancelled` (fewer turns than planned), else `completed`. `lockSetup(false)` runs before saving.
+- The saved body holds `name`, `status`, `setup` (key, label, mode, strategy, controls, providers), `clips`, `passes`, `pair`, `build`, `runId`, `summary` (`summarizeRun`: mouth-to-ear p50 and p95 vs the setup target, access and stage p50s, source and target WER, cost per voiced minute) and `turns` (full `TurnRecord`s).
+
+**API**
+
+| Endpoint | Behaviour |
+|---|---|
+| `GET /api/test-runs` | All runs with `turns` removed, newest first by `createdAt`. Unparseable files are skipped. Empty list if the folder is missing. |
+| `GET /api/test-runs/{id}` | The full file. 404 unless `id` matches `^[a-z0-9-]{1,80}$` and the file exists. |
+| `POST /api/test-runs` | Validates: body under 10 MB, JSON object, `name` 1 to 200 chars, `setup.mode` is `realtime` or `cascade`, `turns` is an array; else 400 with `error`. Adds `id` (`yyyyMMdd-HHmmssfff-<slug>`) and `createdAt`, writes a temp file, then moves it into place. 201 with `{ id }`. |
+
+The turn and floor machine (section 8b) is unchanged: a Test Run drives it through the same `PRESS` and `RELEASE` actions as the Replay input.
+
+## 10. Timing marks
 
 All marks are browser `performance.now()` values in `MetricsStore` (`client/src/state/metrics.ts`). Marks are first-write-wins except stage marks (latest segment wins).
 
@@ -476,7 +530,7 @@ All marks are browser `performance.now()` values in `MetricsStore` (`client/src/
 | `rtResponseStart` | `transports/realtime/eventMapper.ts` on `response.created` | Realtime only |
 | `firstAudible` | Cascade: `audio/worklets/playback.worklet.ts` OutputTap -> `Player.onFirstAudible` -> `CascadeTransport`. Realtime: `audio/remoteTap.ts` AnalyserNode (peak >= 0.01, armed on release) -> `RealtimeTransport` | Interpreted audio only; the deny tone bypasses both taps |
 
-Headline: mouth-to-ear = `firstAudible - t0`. Access time = `access - press`. Realtime internal stages are not observable and are shown as hidden.
+Headline: mouth-to-ear = `firstAudible - t0`. Access time = `access - press`. Realtime internal stages are not observable and are shown as hidden. Realtime playback health (`TurnRecord.playback`) is not a mark: it is a `getStats()` difference between release and the end of playback.
 
 ## Related
 

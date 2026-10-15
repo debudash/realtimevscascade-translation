@@ -1,0 +1,981 @@
+{
+  "name": "Test run 10/15/2026, 1:03:35 PM",
+  "status": "completed",
+  "setup": {
+    "key": "cascade-segment",
+    "label": "Cascade \u00B7 segment",
+    "mode": "cascade",
+    "strategy": "segment",
+    "controls": true
+  },
+  "clips": [
+    "es-01",
+    "es-02",
+    "es-03",
+    "es-04",
+    "es-05",
+    "es-06",
+    "es-07",
+    "es-08",
+    "es-09",
+    "es-10",
+    "es-11",
+    "es-12"
+  ],
+  "passes": 1,
+  "pair": "en-es",
+  "build": "1e3f900",
+  "runId": "83c696a8",
+  "summary": {
+    "turns": 12,
+    "completed": 12,
+    "failed": 0,
+    "p50Ms": 1614,
+    "p95Ms": 1875,
+    "targetMs": 3000,
+    "meetsTarget": true,
+    "accessP50Ms": 26,
+    "releaseToAudibleP50Ms": 1195,
+    "stageP50Ms": {
+      "release": 417,
+      "sttFinal": 598,
+      "translateFirstToken": 1147,
+      "translateDone": 1381,
+      "ttsFirstByte": 1512,
+      "firstAudible": 1614
+    },
+    "sourceWer": 0,
+    "targetWer": 0.126,
+    "costUsd": 0.025018499999999996,
+    "voicedMinutes": 0.6045149999999752,
+    "usdPerMinute": 0.041386069824571804
+  },
+  "turns": [
+    {
+      "turnId": "6e478162",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-01",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:06:32.225Z",
+      "marks": {
+        "press": 369647.200000003,
+        "access": 369655.799999997,
+        "speechStart": 369890.3689922466,
+        "release": 372095.8999999985,
+        "t0": 371690.2689922451,
+        "sttFinal": 372302.8999999985,
+        "translateFirstToken": 372975.5,
+        "translateDone": 373082.5,
+        "ttsFirstByte": 373215.8999999985,
+        "firstAudible": 373303.1743333304
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 109.7805,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 372302.8999999985
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 686.7841,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 372975.5
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 793.6523,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 373082.5
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 133.2575,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 373215.8999999985
+        }
+      ],
+      "sourceText": "Tengo una cita a las 3 con la doctora.",
+      "targetText": "I have an appointment at 3 with the doctor.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.2,
+        "translationInputTokens": 334,
+        "translationOutputTokens": 11,
+        "translationCharacters": 38,
+        "ttsCharacters": 43
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    },
+    {
+      "turnId": "6290e810",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-02",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:06:38.303Z",
+      "marks": {
+        "press": 375725.5,
+        "access": 375735.1000000015,
+        "speechStart": 375970.46899224806,
+        "release": 378529.200000003,
+        "t0": 378115.200000003,
+        "sttFinal": 378714.1000000015,
+        "translateFirstToken": 379491.6000000015,
+        "translateDone": 379718.6000000015,
+        "ttsFirstByte": 379849.299999997,
+        "firstAudible": 379926.21199999854
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 76.0016,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 378714.1000000015
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 788.8671,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 379491.6000000015
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 1015.5014,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 379718.6000000015
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 129.742,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 379849.299999997
+        }
+      ],
+      "sourceText": "No entiendo las instrucciones de la receta.",
+      "targetText": "I do not understand the instructions on the prescription.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.54,
+        "translationInputTokens": 330,
+        "translationOutputTokens": 10,
+        "translationCharacters": 43,
+        "ttsCharacters": 57
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    },
+    {
+      "turnId": "e579d201",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-03",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:06:45.348Z",
+      "marks": {
+        "press": 382770.8999999985,
+        "access": 382784.5,
+        "speechStart": 383019.1666666667,
+        "release": 385618.700000003,
+        "t0": 385216.7000000029,
+        "sttFinal": 385774.700000003,
+        "translateFirstToken": 386341.5,
+        "translateDone": 386481.1000000015,
+        "ttsFirstByte": 386615.200000003,
+        "firstAudible": 386697.81599999854
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 61.8901,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 385774.700000003
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 578.1904,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 386341.5
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 718.2726,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 386481.1000000015
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 132.8125,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 386615.200000003
+        }
+      ],
+      "sourceText": "Mi esposa necesita un int\u00E9rprete ma\u00F1ana.",
+      "targetText": "My wife needs an interpreter tomorrow.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.58,
+        "translationInputTokens": 330,
+        "translationOutputTokens": 7,
+        "translationCharacters": 40,
+        "ttsCharacters": 38
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    },
+    {
+      "turnId": "2ad39674",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-04",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:06:51.364Z",
+      "marks": {
+        "press": 388786.3999999985,
+        "access": 388795.1000000015,
+        "speechStart": 389024.93565891177,
+        "release": 391258.3999999985,
+        "t0": 390864.9356589117,
+        "sttFinal": 391413.5,
+        "translateFirstToken": 392092.700000003,
+        "translateDone": 392310,
+        "ttsFirstByte": 392440.299999997,
+        "firstAudible": 392518.5160000015
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 56.7511,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 391413.5
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 693.5806,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 392092.700000003
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 911.0085,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 392310
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 130.2974,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 392440.299999997
+        }
+      ],
+      "sourceText": "\u00BFCu\u00E1ntas veces al d\u00EDa debe tomarlo?",
+      "targetText": "How many times a day should I take it?",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.24,
+        "translationInputTokens": 332,
+        "translationOutputTokens": 10,
+        "translationCharacters": 35,
+        "ttsCharacters": 38
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    },
+    {
+      "turnId": "8050a95b",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-05",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:06:57.006Z",
+      "marks": {
+        "press": 394429,
+        "access": 394464.799999997,
+        "speechStart": 394703.3356589177,
+        "release": 397136.6000000015,
+        "t0": 396715.10000000143,
+        "sttFinal": 397306.3999999985,
+        "translateFirstToken": 397936.3999999985,
+        "translateDone": 398085.3999999985,
+        "ttsFirstByte": 398224.8999999985,
+        "firstAudible": 398306.804000003
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 74.9713,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 397306.3999999985
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 640.4841,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 397936.3999999985
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 787.3334,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 398085.3999999985
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 140.6809,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 398224.8999999985
+        }
+      ],
+      "sourceText": "Me duele mucho la cabeza desde ayer,",
+      "targetText": "I have had a severe headache since yesterday.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.44,
+        "translationInputTokens": 331,
+        "translationOutputTokens": 9,
+        "translationCharacters": 36,
+        "ttsCharacters": 45
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    },
+    {
+      "turnId": "93010b7c",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-06",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:07:03.036Z",
+      "marks": {
+        "press": 400458.6000000015,
+        "access": 400484.5,
+        "speechStart": 400722.93565891177,
+        "release": 402926.700000003,
+        "t0": 402504.99999999994,
+        "sttFinal": 403099.299999997,
+        "translateFirstToken": 403585.3999999985,
+        "translateDone": 403730.1000000015,
+        "ttsFirstByte": 403864,
+        "firstAudible": 403947.0533333364
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 73.2814,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 403099.299999997
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 500.275,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 403585.3999999985
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 645.4696,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 403730.1000000015
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 133.4832,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 403864
+        }
+      ],
+      "sourceText": "Mi hija es al\u00E9rgica a la penicilina.",
+      "targetText": "My daughter is allergic to penicillin.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.2,
+        "translationInputTokens": 335,
+        "translationOutputTokens": 8,
+        "translationCharacters": 36,
+        "ttsCharacters": 38
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    },
+    {
+      "turnId": "0cf37a4d",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-07",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:07:08.531Z",
+      "marks": {
+        "press": 405954,
+        "access": 405984.700000003,
+        "speechStart": 406194.2000000029,
+        "release": 409579.5,
+        "t0": 409154.7000000029,
+        "sttFinal": 409840.3999999985,
+        "translateFirstToken": 410681.1000000015,
+        "translateDone": 410853.8999999985,
+        "ttsFirstByte": 411010.3999999985,
+        "firstAudible": 411108.325000003
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 160.5679,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 409840.3999999985
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 847.2147,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 410681.1000000015
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 1019.9544,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 410853.8999999985
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 155.5877,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 411010.3999999985
+        }
+      ],
+      "sourceText": "\u00BFPuedo tomar este medicamento con el est\u00F3mago vac\u00EDo?",
+      "targetText": "Can I take this medication on an empty stomach?",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.36,
+        "translationInputTokens": 335,
+        "translationOutputTokens": 10,
+        "translationCharacters": 52,
+        "ttsCharacters": 47
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    },
+    {
+      "turnId": "8583527f",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-08",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:07:16.136Z",
+      "marks": {
+        "press": 413558.1000000015,
+        "access": 413594.700000003,
+        "speechStart": 413804.5,
+        "release": 416849.8999999985,
+        "t0": 416430.46899224806,
+        "sttFinal": 417013.1000000015,
+        "translateFirstToken": 417544.1000000015,
+        "translateDone": 417667.299999997,
+        "ttsFirstByte": 417798.3999999985,
+        "firstAudible": 417887.45000000304
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 67.0417,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 417013.1000000015
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 545.3392,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 417544.1000000015
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 668.6072,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 417667.299999997
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 130.5513,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 417798.3999999985
+        }
+      ],
+      "sourceText": "Tengo diabetes y tomo insulina todas las ma\u00F1anas.",
+      "targetText": "I have diabetes and I take insulin every morning.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.02,
+        "translationInputTokens": 333,
+        "translationOutputTokens": 10,
+        "translationCharacters": 49,
+        "ttsCharacters": 49
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    },
+    {
+      "turnId": "59de4435",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-09",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:07:23.017Z",
+      "marks": {
+        "press": 420439.6000000015,
+        "access": 420465.3999999985,
+        "speechStart": 420683.53565891326,
+        "release": 423741.3999999985,
+        "t0": 423345.3999999985,
+        "sttFinal": 423957.299999997,
+        "translateFirstToken": 424475.799999997,
+        "translateDone": 424720.700000003,
+        "ttsFirstByte": 424856.200000003,
+        "firstAudible": 424992.33666666516
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 106.9362,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 423957.299999997
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 533.1682,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 424475.799999997
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 778.2941,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 424720.700000003
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 134.9434,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 424856.200000003
+        }
+      ],
+      "sourceText": "El ni\u00F1o se cay\u00F3 y se lastim\u00F3 el brazo izquierdo.",
+      "targetText": "The child fell and hurt his left arm.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.04,
+        "translationInputTokens": 335,
+        "translationOutputTokens": 9,
+        "translationCharacters": 48,
+        "ttsCharacters": 37
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    },
+    {
+      "turnId": "7631a11b",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-10",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:07:29.540Z",
+      "marks": {
+        "press": 426962.700000003,
+        "access": 426984.299999997,
+        "speechStart": 427202.9356589117,
+        "release": 429977.1000000015,
+        "t0": 429544.299999997,
+        "sttFinal": 430175.8999999985,
+        "translateFirstToken": 430683.5,
+        "translateDone": 430931.3999999985,
+        "ttsFirstByte": 431057.8999999985,
+        "firstAudible": 431159.8666666696
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 94.0458,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 430175.8999999985
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 522.3899,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 430683.5
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 769.3838,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 430931.3999999985
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 127.1292,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 431057.8999999985
+        }
+      ],
+      "sourceText": "\u00BFCu\u00E1nto tiempo tengo que esperar para ver al m\u00E9dico?",
+      "targetText": "How long do I have to wait to see the doctor?",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.74,
+        "translationInputTokens": 333,
+        "translationOutputTokens": 12,
+        "translationCharacters": 52,
+        "ttsCharacters": 45
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    },
+    {
+      "turnId": "b99449ec",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-11",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:07:35.880Z",
+      "marks": {
+        "press": 433302.1000000015,
+        "access": 433329.6000000015,
+        "speechStart": 433566.06899224955,
+        "release": 436961.5,
+        "t0": 436562.5023255843,
+        "sttFinal": 437159.5,
+        "translateFirstToken": 437697.6000000015,
+        "translateDone": 438028.700000003,
+        "ttsFirstByte": 438168.6000000015,
+        "firstAudible": 438250.9166666667
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 90.9517,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 437159.5
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 542.6243,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 437697.6000000015
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 873.9713,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 438028.700000003
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 139.1833,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 438168.6000000015
+        }
+      ],
+      "sourceText": "No tengo seguro m\u00E9dico, pero puedo pagar en efectivo.",
+      "targetText": "I do not have health insurance, but I can pay in cash.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.4,
+        "translationInputTokens": 333,
+        "translationOutputTokens": 14,
+        "translationCharacters": 53,
+        "ttsCharacters": 54
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    },
+    {
+      "turnId": "f2e33466",
+      "speaker": "es",
+      "conditions": {
+        "mode": "cascade",
+        "strategy": "segment",
+        "providers": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-12",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:07:43.852Z",
+      "marks": {
+        "press": 441274.3999999985,
+        "access": 441309.700000003,
+        "speechStart": 441545.06899224955,
+        "release": 444904.5,
+        "t0": 444484.2666666682,
+        "sttFinal": 445101.700000003,
+        "translateFirstToken": 445638.1000000015,
+        "translateDone": 445814.200000003,
+        "ttsFirstByte": 445949.5,
+        "firstAudible": 446031.99533333484
+      },
+      "stages": [
+        {
+          "stage": "stt_final",
+          "durationMs": 99.4743,
+          "segment": 0,
+          "provider": "deepgram",
+          "receivedAt": 445101.700000003
+        },
+        {
+          "stage": "translate_first_token",
+          "durationMs": 546.7779,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 445638.1000000015
+        },
+        {
+          "stage": "translate_done",
+          "durationMs": 720.293,
+          "segment": 0,
+          "provider": "openai",
+          "receivedAt": 445814.200000003
+        },
+        {
+          "stage": "tts_first_byte",
+          "durationMs": 136.9067,
+          "segment": 0,
+          "provider": "elevenlabs",
+          "receivedAt": 445949.5
+        }
+      ],
+      "sourceText": "Necesito una receta nueva porque se me acabaron las pastillas.",
+      "targetText": "I need a new prescription because I ran out of the pills.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.36,
+        "translationInputTokens": 336,
+        "translationOutputTokens": 13,
+        "translationCharacters": 62,
+        "ttsCharacters": 57
+      },
+      "providersUsed": [
+        "deepgram",
+        "openai",
+        "elevenlabs"
+      ]
+    }
+  ],
+  "id": "20261015-180751484-test-run-10-15-2026-1-03-35-pm",
+  "createdAt": "2026-10-15T18:07:51.4840945\u002B00:00"
+}

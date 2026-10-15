@@ -164,7 +164,7 @@ Providers sit behind `ISttProvider`, `ITranslationProvider`, `ITtsProvider` (`se
   out a slow leak.
 - **Browsers.** Automated runs use Playwright's Chromium with an autoplay flag. Audio that a browser
   blocks before a user gesture is started from the first press, but a manual check in desktop Chrome
-  is part of MORNING.md. Safari and Firefox are untested.
+  is part of HANDOFF.md. Safari and Firefox are untested.
 
 ## Reading the git history
 
