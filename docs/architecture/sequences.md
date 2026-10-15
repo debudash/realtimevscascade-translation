@@ -1,6 +1,6 @@
 # Sequence diagrams (as built)
 
-Source: as built at commit fdc469c (code last changed in 7e168f9).
+Source: as built at commit 1e3f900 (code last changed there).
 
 Related: [hla.md](hla.md) (high-level architecture) and [lla.md](lla.md) (low-level architecture).
 
@@ -27,7 +27,8 @@ Contents:
 8. [429 retry and DeepL failover](#8-429-retry-and-deepl-failover)
 9. [Provider timeout](#9-provider-timeout)
 10. [Socket drop and reconnect](#10-socket-drop-and-reconnect)
-11. [Timing marks reference](#timing-marks-reference)
+11. [Test Run](#11-test-run)
+12. [Timing marks reference](#timing-marks-reference)
 
 ## 1. Warm-up
 
@@ -45,13 +46,13 @@ sequenceDiagram
     Note over C: phase Warming, talk buttons show Not ready
     par config
         C->>API: GET /api/health
-        API-->>C: missing key names, missingByMode
+        API-->>C: build sha, missing key names, missingByMode
     and
         C->>API: GET /api/config
         API-->>C: pairs, languages, providers, translationControls
     and
         C->>API: GET /api/clips
-        API-->>C: replay clip list (empty on failure)
+        API-->>C: replay clips with target, reference, durationSeconds (empty on failure)
     end
     C->>AE: capture.init() and player.init() (load worklets)
     C->>AE: selectInput(mic) getUserMedia
@@ -177,6 +178,7 @@ sequenceDiagram
     Note over C: T0 = min(lastVoicedEnd, release)
     C->>RT: release(turnId)
     RT->>TAP: arm(), poll every 5 ms
+    RT->>RT: getStats() snapshot, inbound audio counters at release
     RT->>OA: input_audio_buffer.commit
     RT->>OA: response.create (direction instructions)
     Note over RT: 5 s timer waits for response.created
@@ -211,6 +213,9 @@ sequenceDiagram
     end
     RT->>C: playbackEnded
     C->>C: turn.end and playback both done, TURN_DONE, Ready
+    RT->>RT: getStats() again, playbackStatsBetween(release, now)
+    RT->>C: playbackStats (jitterBufferMs, concealedPct, packetsLost)
+    Note over C: stored as TurnRecord.playback, may land after TURN_DONE
 ```
 
 The mic track is attached to the peer connection for the whole session. Push-to-talk
@@ -218,7 +223,10 @@ works by opening and closing a GainNode gate in `CaptureEngine`, not by toggling
 `track.enabled`. Commit and `response.create` are sent from `completeRelease`, up
 to 80 ms after pointerup. `eventMapper.ts` maps data-channel events and prunes
 context to `CONTEXT_TURNS = 2`. The source transcript comes from the side
-transcription model and may land after the audio.
+transcription model and may land after the audio. Playback stats come from WebRTC
+`getStats()` inbound-rtp audio counters (`rtcStats.ts`): the browser owns the jitter
+buffer, so only its average delay and the concealed share over the turn are
+observable. A 2 s background sample feeds `diagnostics()` for the soak.
 
 ## 4. A cascade turn, segment commit
 
@@ -558,6 +566,64 @@ triggers one. `RECOVER` also applies a queued mode switch. The soak test calls
 `forceDrop()` to exercise this path. On the server, a closed socket cancels the
 active pipeline in `CascadeSession.RunAsync`.
 
+## 11. Test Run
+
+```mermaid
+sequenceDiagram
+    actor Q as Tester
+    participant TR as TestRuns tab
+    participant R as TestRunner
+    participant C as Controller
+    participant T as Transport
+    participant API as Backend API
+    participant F as test-runs folder
+
+    Q->>TR: pick setup, clips, passes, name, Start
+    TR->>TR: estimate (clip durations, cost-per-minute.json)
+    TR->>R: start(plan)
+    R->>C: lockSetup(true), header controls disabled
+    R->>C: applySetup(mode, strategy, controls, providers)
+    alt setup changed
+        C->>T: SWITCH_MODE or rewarm, warm-up (diagram 1 or 2)
+        T-->>C: Connected, WARM_DONE
+    end
+    C-->>R: untilReady resolves
+    loop each pass, each clip, until cancelled
+        R->>C: selectInput(clip id), loads the clip
+        R->>C: untilReady()
+        R->>C: runReplayTurn(clip lang)
+        C->>C: PRESS, playClip through capture, RELEASE
+        Note over C: runConditions attached at PRESS (runId, build, setup, input)
+        C->>T: turn as in diagram 3 or 4
+        C-->>R: turnId
+        R->>C: untilReady(45 s), turn done
+        R->>C: metrics.get(turnId), copy TurnRecord
+        R-->>TR: progress done of total
+    end
+    opt tester clicks Cancel
+        Q->>TR: Cancel
+        TR->>R: cancel(), stops after the current turn
+    end
+    R->>C: lockSetup(false)
+    R->>R: summarizeRun(turns), status completed or cancelled
+    Note over R: run body carries build (health) and runId (controller)
+    R->>API: POST /api/test-runs (name, setup, clips, passes, pair, build, runId, summary, turns)
+    API->>API: validate name, setup.mode, turns, 10 MB cap
+    API->>F: write id.json.tmp, move to id.json
+    API-->>R: 201, id
+    R-->>TR: saved, list reloads
+    TR->>API: GET /api/test-runs
+    API-->>TR: summaries without turns, newest first
+```
+
+The runner drives the same controller and transports as a person at the
+Workbench tab, through the Replay input path the harness uses, so a Test Run turn
+is an ordinary turn with the same marks. Each turn's `RunConditions` get `runId`
+and `build` when the turn starts (`controller.conditions`, called from `startTurn`); the saved run repeats
+them at the top level. If no turn was recorded, nothing is saved and the run ends
+`failed`. `GET /api/test-runs/{id}` returns the full file for the detail and
+compare views.
+
 ## Timing marks reference
 
 | mark | captured in (file:function) | clock | appears in diagrams # |
@@ -575,6 +641,8 @@ active pipeline in `CascadeSession.RunAsync`.
 | first_audible | cascade: `client/src/audio/worklets/playback.worklet.ts:process` (OutputTap) mapped by `client/src/audio/player.ts` via `clock.ts:ctxTimeToPerf`. Realtime: `client/src/audio/remoteTap.ts:arm` (AnalyserNode poll) | cascade: AudioContext time mapped to `performance.now()` with `getOutputTimestamp`. Realtime: `performance.now()` in a 5 ms poll | 3, 4 |
 
 Headline metric: mouth-to-ear = `first_audible - T0`. Access time = `access - press`.
+Test Runs (diagram 11) record the same marks. Realtime playback stats (`TurnRecord.playback`,
+diagram 3) are not marks: they are a `getStats()` difference from release to the end of playback.
 Both are computed in `client/src/state/metrics.ts`. Stage marks keep the latest
 segment's receipt time. All other marks are first-write-wins, except T0, which
 `setMark` overwrites at release.
