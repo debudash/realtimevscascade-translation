@@ -24,7 +24,7 @@ public sealed class DeepgramOptions
     public string Model { get; set; } = "nova-3";
     /// <summary>Silence (ms) that ends a segment mid-turn; segment-commit mode commits on these finals.</summary>
     public int EndpointingMs { get; set; } = 300;
-    /// <summary>After release, how long to wait for the Finalize response before closing anyway.</summary>
+    /// <summary>After release, end the turn if Deepgram sends nothing for this long.</summary>
     public int FinalizeTimeoutMs { get; set; } = 1500;
     public string ListenUrl { get; set; } = "wss://api.deepgram.com/v1/listen";
     public string RestBaseUrl { get; set; } = "https://api.deepgram.com";
@@ -41,7 +41,42 @@ public sealed class DeepgramSttProvider(
     private static readonly byte[] KeepAliveMsg = """{"type":"KeepAlive"}"""u8.ToArray();
 
     public string Name => "deepgram";
-    private const int SampleRate = 16000;
+
+    /// <summary>One socket per turn, opened on press (press-to-warm). Sends are serialized: ClientWebSocket allows one at a time.</summary>
+    private sealed class Stream(ClientWebSocket ws, int sampleRate)
+    {
+        private readonly SemaphoreSlim _sendLock = new(1, 1);
+        private long _bytesSent;
+
+        public ClientWebSocket Ws { get; } = ws;
+        /// <summary>Completes when the audio channel is done (button release) and Finalize, if any, has been sent.</summary>
+        public TaskCompletionSource Released { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public double SecondsSent => Interlocked.Read(ref _bytesSent) / (2.0 * sampleRate);
+
+        public async Task SendAsync(ReadOnlyMemory<byte> data, WebSocketMessageType type, CancellationToken ct)
+        {
+            await _sendLock.WaitAsync(ct);
+            try
+            {
+                await Ws.SendAsync(data, type, true, ct);
+                if (type == WebSocketMessageType.Binary) Interlocked.Add(ref _bytesSent, data.Length);
+            }
+            finally
+            {
+                _sendLock.Release();
+            }
+        }
+
+        /// <summary>Best effort; never throws.</summary>
+        public async Task TrySendAsync(byte[] data)
+        {
+            try
+            {
+                if (Ws.State == WebSocketState.Open) await SendAsync(data, WebSocketMessageType.Text, CancellationToken.None);
+            }
+            catch (Exception) { }
+        }
+    }
 
     public async IAsyncEnumerable<SttResult> TranscribeAsync(ChannelReader<AudioFrame> audio, SttOptions opts, [EnumeratorCancellation] CancellationToken ct)
     {
@@ -64,63 +99,57 @@ public sealed class DeepgramSttProvider(
             throw ws.HttpStatusCode switch
             {
                 HttpStatusCode.TooManyRequests => new RateLimitedException(Name, "stt", "Deepgram returned 429"),
+                HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
+                    new ProviderErrorException(Name, "stt", $"Deepgram rejected the API key ({(int)ws.HttpStatusCode})", (int)ws.HttpStatusCode),
                 0 => new ProviderErrorException(Name, "stt", $"Deepgram connection failed: {e.Message}", inner: e),
                 var s => new ProviderErrorException(Name, "stt", $"Deepgram returned {(int)s}", (int)s),
             };
         }
 
+        var stream = new Stream(ws, opts.SampleRate);
         var results = Channel.CreateUnbounded<SttResult>();
-        var finalizeSent = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var sent = new SentAudio();
         using var turnCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        var sender = SendAsync(ws, audio, sent, finalizeSent, turnCts.Token);
-        var receiver = ReceiveAsync(ws, results.Writer, sent, finalizeSent.Task, turnCts.Token);
-
-        await foreach (var r in results.Reader.ReadAllAsync(ct)) yield return r;
-
-        await receiver; // surfaces receive errors
-        turnCts.Cancel();
-        await sender.ContinueWith(_ => { }, TaskScheduler.Default);
-        if (ws.State == WebSocketState.Open)
+        var sender = SendLoopAsync(stream, audio, turnCts.Token);
+        var receiver = ReceiveLoopAsync(stream, results.Writer, turnCts.Token);
+        try
         {
+            await foreach (var r in results.Reader.ReadAllAsync(ct)) yield return r;
+        }
+        finally
+        {
+            // Runs even if the consumer stops early: stop both loops before the socket is disposed.
+            turnCts.Cancel();
+            await Task.WhenAll(sender, receiver).ContinueWith(_ => { }, TaskScheduler.Default);
             try
             {
-                await ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "done", CancellationToken.None);
+                if (ws.State == WebSocketState.Open) await ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "done", CancellationToken.None);
             }
-            catch (WebSocketException) { }
+            catch (Exception) { }
         }
     }
 
-    /// <summary>Streams frames as they arrive; on release sends Finalize, then CloseStream after the final arrives.</summary>
-    /// <summary>Seconds of audio sent so far (written by the sender, read by the receiver).</summary>
-    private sealed class SentAudio
-    {
-        private long _bytes;
-        public void Add(int bytes) => Interlocked.Add(ref _bytes, bytes);
-        public double Seconds(int sampleRate) => Interlocked.Read(ref _bytes) / (2.0 * sampleRate);
-    }
-
-    private static async Task SendAsync(ClientWebSocket ws, ChannelReader<AudioFrame> audio, SentAudio sent, TaskCompletionSource finalizeSent, CancellationToken ct)
+    /// <summary>Streams frames as they arrive; on release sends Finalize (skipped when no audio was sent).</summary>
+    private static async Task SendLoopAsync(Stream s, ChannelReader<AudioFrame> audio, CancellationToken ct)
     {
         try
         {
-            while (await WaitForFrameOrKeepAlive(audio, ws, ct))
+            while (await WaitForFrameOrKeepAlive(s, audio, ct))
             {
-                while (audio.TryRead(out var frame))
-                {
-                    await ws.SendAsync(frame.Pcm16, WebSocketMessageType.Binary, true, ct);
-                    sent.Add(frame.Pcm16.Length);
-                }
+                while (audio.TryRead(out var frame)) await s.SendAsync(frame.Pcm16, WebSocketMessageType.Binary, ct);
             }
-            // Release: flush what Deepgram has buffered and get the last finals now.
-            await ws.SendAsync(FinalizeMsg, WebSocketMessageType.Text, true, ct);
-            finalizeSent.TrySetResult();
+            // Release: flush what Deepgram has buffered and get the last finals now. With no audio there
+            // is nothing to finalize (Deepgram would not reply), so the receiver ends at once.
+            if (s.SecondsSent > 0) await s.SendAsync(FinalizeMsg, WebSocketMessageType.Text, ct);
         }
-        catch (Exception e) when (e is OperationCanceledException or WebSocketException) { }
+        catch (Exception e) when (e is OperationCanceledException or WebSocketException or ObjectDisposedException or InvalidOperationException) { }
+        finally
+        {
+            s.Released.TrySetResult();
+        }
     }
 
     /// <summary>Waits for audio; sends a KeepAlive if none arrives for 4 s (Deepgram closes idle sockets at 10 s).</summary>
-    private static async Task<bool> WaitForFrameOrKeepAlive(ChannelReader<AudioFrame> audio, ClientWebSocket ws, CancellationToken ct)
+    private static async Task<bool> WaitForFrameOrKeepAlive(Stream s, ChannelReader<AudioFrame> audio, CancellationToken ct)
     {
         while (true)
         {
@@ -132,7 +161,7 @@ public sealed class DeepgramSttProvider(
             }
             catch (OperationCanceledException) when (!ct.IsCancellationRequested)
             {
-                await ws.SendAsync(KeepAliveMsg, WebSocketMessageType.Text, true, ct);
+                await s.SendAsync(KeepAliveMsg, WebSocketMessageType.Text, ct);
             }
         }
     }
@@ -140,39 +169,53 @@ public sealed class DeepgramSttProvider(
     /// <summary>
     /// Deepgram works through audio at about real-time pace even when it arrives in a burst (e.g. the
     /// frames buffered while the socket connected), and the Finalize response only covers what it has
-    /// processed so far. So the turn ends when, after Finalize, a final result's end time reaches the
-    /// end of the audio we sent (measured 2026-10-15: 66 ms after Finalize with real-time pacing).
+    /// processed so far. So the turn ends when, after release, a final result's end time reaches the end
+    /// of the audio sent (measured 2026-10-15: 66 ms after Finalize with real-time pacing), or when
+    /// Deepgram goes quiet for FinalizeTimeoutMs after release.
     /// </summary>
-    private async Task ReceiveAsync(ClientWebSocket ws, ChannelWriter<SttResult> results, SentAudio sent, Task finalizeSent, CancellationToken ct)
+    private async Task ReceiveLoopAsync(Stream s, ChannelWriter<SttResult> results, CancellationToken ct)
     {
         var o = options.Value;
         var buffer = new byte[64 * 1024];
-        // Once Finalize is sent (release), stop if Deepgram goes quiet for FinalizeTimeoutMs
-        // (an inactivity timeout, so a backlog that is still being worked through is not cut off).
-        using var finalizeWait = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        _ = finalizeSent.ContinueWith(_ => finalizeWait.CancelAfter(o.FinalizeTimeoutMs), TaskScheduler.Default);
+        using var quiet = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        // Arm the quiet timer at release (immediately if no audio was sent at all).
+        _ = s.Released.Task.ContinueWith(_ =>
+        {
+            try
+            {
+                quiet.CancelAfter(s.SecondsSent == 0 ? 0 : o.FinalizeTimeoutMs);
+            }
+            catch (ObjectDisposedException) { }
+        }, TaskScheduler.Default);
+
         Exception? error = null;
         try
         {
-            while (ws.State is WebSocketState.Open or WebSocketState.CloseSent)
+            while (true)
             {
-                var (type, text) = await ReceiveMessage(ws, buffer, finalizeWait.Token);
-                if (type == WebSocketMessageType.Close) break;
-                if (finalizeSent.IsCompleted) finalizeWait.CancelAfter(o.FinalizeTimeoutMs);
+                var (type, text) = await ReceiveMessage(s.Ws, buffer, quiet.Token);
+                if (s.Released.Task.IsCompleted) quiet.CancelAfter(o.FinalizeTimeoutMs); // activity resets the quiet timer
+
+                if (type == WebSocketMessageType.Close)
+                {
+                    // A close before release, or with an error status (e.g. idle NET-0001, 1008, 1011), is a failure.
+                    var status = s.Ws.CloseStatus;
+                    if (!s.Released.Task.IsCompleted || status is not (WebSocketCloseStatus.NormalClosure or null))
+                    {
+                        error = new ProviderErrorException(Name, "stt", $"Deepgram closed the stream ({(int?)status} {s.Ws.CloseStatusDescription})");
+                    }
+                    break;
+                }
                 if (type != WebSocketMessageType.Text) continue;
 
                 using var doc = JsonDocument.Parse(text);
                 var root = doc.RootElement;
                 var msgType = root.TryGetProperty("type", out var t) ? t.GetString() : null;
-                if (msgType == "Results")
+                if (msgType == "Results" && TryParseResult(root, out var transcript, out var isFinal, out var fromFinalize, out var end))
                 {
-                    var transcript = root.GetProperty("channel").GetProperty("alternatives")[0].GetProperty("transcript").GetString() ?? "";
-                    var isFinal = root.TryGetProperty("is_final", out var f) && f.GetBoolean();
-                    var fromFinalize = root.TryGetProperty("from_finalize", out var ff) && ff.GetBoolean();
-                    var end = root.GetProperty("start").GetDouble() + root.GetProperty("duration").GetDouble();
                     await results.WriteAsync(new SttResult(transcript, isFinal, fromFinalize), ct);
-                    // Released, and the finals now cover everything we sent: done.
-                    if (isFinal && finalizeSent.IsCompleted && end >= sent.Seconds(SampleRate) - 0.05) break;
+                    // Released, and the finals now cover everything sent: done.
+                    if (isFinal && s.Released.Task.IsCompleted && end >= s.SecondsSent - 0.05) break;
                 }
                 else if (msgType == "Error")
                 {
@@ -180,26 +223,34 @@ public sealed class DeepgramSttProvider(
                     error = new ProviderErrorException(Name, "stt", $"Deepgram: {desc}");
                     break;
                 }
-
             }
         }
-        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        catch (OperationCanceledException)
         {
-            // Finalize response did not come (little or no buffered audio): end with what we have.
+            // Quiet after release (Finalize unanswered, e.g. very little audio), or the turn was cancelled.
         }
-        catch (Exception e) when (e is WebSocketException or JsonException && !ct.IsCancellationRequested)
+        catch (Exception e) when (e is WebSocketException or JsonException or ObjectDisposedException or InvalidOperationException)
         {
-            error = new ProviderErrorException(Name, "stt", $"Deepgram stream failed: {e.Message}", inner: e);
+            if (!ct.IsCancellationRequested) error = new ProviderErrorException(Name, "stt", $"Deepgram stream failed: {e.Message}", inner: e);
         }
         finally
         {
-            try
-            {
-                if (ws.State == WebSocketState.Open) await ws.SendAsync(CloseMsg, WebSocketMessageType.Text, true, CancellationToken.None);
-            }
-            catch (WebSocketException) { }
-            results.TryComplete(error);
+            results.TryComplete(error); // first: the consumer must never hang
+            await s.TrySendAsync(CloseMsg);
         }
+    }
+
+    private static bool TryParseResult(JsonElement root, out string transcript, out bool isFinal, out bool fromFinalize, out double end)
+    {
+        transcript = "";
+        isFinal = root.TryGetProperty("is_final", out var f) && f.ValueKind == JsonValueKind.True;
+        fromFinalize = root.TryGetProperty("from_finalize", out var ff) && ff.ValueKind == JsonValueKind.True;
+        end = (root.TryGetProperty("start", out var st) && st.TryGetDouble(out var sv) ? sv : 0)
+            + (root.TryGetProperty("duration", out var du) && du.TryGetDouble(out var dv) ? dv : 0);
+        if (!root.TryGetProperty("channel", out var ch) || !ch.TryGetProperty("alternatives", out var alts)
+            || alts.ValueKind != JsonValueKind.Array || alts.GetArrayLength() == 0) return false;
+        transcript = alts[0].TryGetProperty("transcript", out var tr) ? tr.GetString() ?? "" : "";
+        return true;
     }
 
     private static async Task<(WebSocketMessageType, string)> ReceiveMessage(ClientWebSocket ws, byte[] buffer, CancellationToken ct)
@@ -215,13 +266,18 @@ public sealed class DeepgramSttProvider(
         return (r.MessageType, Encoding.UTF8.GetString(buffer, 0, count));
     }
 
-    /// <summary>Warm-up: resolve DNS and open a pooled TLS connection to Deepgram (also validates the key).</summary>
+    /// <summary>
+    /// Warm-up: resolves DNS and checks the key. The STT socket itself opens on press (press-to-warm);
+    /// its connect time is hidden behind the speaker's first words while frames are buffered.
+    /// </summary>
     public async Task WarmUpAsync(CancellationToken ct)
     {
         var o = options.Value;
         if (string.IsNullOrWhiteSpace(o.ApiKey)) return;
         using var req = new HttpRequestMessage(HttpMethod.Get, $"{o.RestBaseUrl}/v1/projects");
         req.Headers.Authorization = new("Token", o.ApiKey);
-        using var _ = await http.CreateClient(HttpClientName).SendAsync(req, ct);
+        using var res = await http.CreateClient(HttpClientName).SendAsync(req, ct);
+        if (res.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+            throw new ProviderErrorException(Name, "stt", $"Deepgram rejected the API key ({(int)res.StatusCode})", (int)res.StatusCode);
     }
 }

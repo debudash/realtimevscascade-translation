@@ -63,6 +63,11 @@ public sealed class RealtimeSessionClient(HttpClient http, IOptions<OpenAIOption
         using var res = await http.SendAsync(req, ct);
         if (res.StatusCode == HttpStatusCode.TooManyRequests)
             throw new RateLimitedException(Provider, "session", "OpenAI returned 429 while minting the client secret");
+        if (res.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+        {
+            // Never pass auth error text through: OpenAI echoes a masked key fragment in it.
+            throw new ProviderErrorException(Provider, "session", $"OpenAI rejected the API key ({(int)res.StatusCode})", (int)res.StatusCode);
+        }
         if (!res.IsSuccessStatusCode)
         {
             var detail = await SafeErrorMessage(res, ct);

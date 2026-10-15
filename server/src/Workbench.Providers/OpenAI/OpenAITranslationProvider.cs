@@ -45,12 +45,18 @@ public sealed class OpenAITranslationProvider(IHttpClientFactory http, IOptions<
         using var reader = new StreamReader(stream, Encoding.UTF8);
         while (await reader.ReadLineAsync(ct) is { } line)
         {
-            if (!line.StartsWith("data: ", StringComparison.Ordinal)) continue;
-            var data = line.AsSpan(6);
+            if (!line.StartsWith("data:", StringComparison.Ordinal)) continue;
+            var data = line.AsSpan(5).TrimStart();
             if (data.SequenceEqual("[DONE]")) yield break;
 
             using var doc = JsonDocument.Parse(data.ToString());
             var root = doc.RootElement;
+            if (root.TryGetProperty("error", out var streamError) && streamError.ValueKind == JsonValueKind.Object)
+            {
+                var code = streamError.TryGetProperty("code", out var c) ? c.ToString() : "stream_error";
+                if (code == "rate_limit_exceeded") throw new RateLimitedException(Name, "translation", "OpenAI rate limit during the stream");
+                throw new ProviderErrorException(Name, "translation", $"OpenAI stream error ({code})");
+            }
             if (root.TryGetProperty("usage", out var usage) && usage.ValueKind == JsonValueKind.Object)
             {
                 ctx.Meter?.AddTokens(usage.GetProperty("prompt_tokens").GetInt32(), usage.GetProperty("completion_tokens").GetInt32());
@@ -87,6 +93,9 @@ public sealed class OpenAITranslationProvider(IHttpClientFactory http, IOptions<
         if (res.IsSuccessStatusCode) return;
         var status = (int)res.StatusCode;
         if (res.StatusCode == HttpStatusCode.TooManyRequests) throw new RateLimitedException(Name, "translation", "OpenAI returned 429");
+        // Never pass auth error text through: OpenAI echoes a masked key fragment in it.
+        if (res.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+            throw new ProviderErrorException(Name, "translation", $"OpenAI rejected the API key ({status})", status);
         string detail;
         try
         {

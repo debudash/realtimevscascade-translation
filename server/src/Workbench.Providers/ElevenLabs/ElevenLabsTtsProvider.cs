@@ -42,6 +42,8 @@ public sealed class ElevenLabsTtsProvider(IHttpClientFactory http, IOptions<Elev
 
         using var res = await http.CreateClient(HttpClientName).SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
         if (res.StatusCode == HttpStatusCode.TooManyRequests) throw new RateLimitedException(Name, "tts", "ElevenLabs returned 429");
+        if (res.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+            throw new ProviderErrorException(Name, "tts", $"ElevenLabs rejected the API key or permission ({(int)res.StatusCode})", (int)res.StatusCode);
         if (!res.IsSuccessStatusCode)
         {
             var status = (int)res.StatusCode;

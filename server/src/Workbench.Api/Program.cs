@@ -25,11 +25,16 @@ static SocketsHttpHandler PooledHandler() => new()
     PooledConnectionIdleTimeout = TimeSpan.FromMinutes(5),
     PooledConnectionLifetime = TimeSpan.FromMinutes(15),
 };
+// The factory would otherwise rotate handlers every 2 minutes (cold TLS after an idle gap);
+// PooledConnectionLifetime already handles DNS refresh.
 builder.Services.AddHttpClient<RealtimeSessionClient>(RealtimeSessionClient.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(30))
-    .ConfigurePrimaryHttpMessageHandler(PooledHandler);
-builder.Services.AddHttpClient(DeepgramSttProvider.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(15)).ConfigurePrimaryHttpMessageHandler(PooledHandler);
-builder.Services.AddHttpClient(DeepLTranslationProvider.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(15)).ConfigurePrimaryHttpMessageHandler(PooledHandler);
-builder.Services.AddHttpClient(ElevenLabsTtsProvider.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(60)).ConfigurePrimaryHttpMessageHandler(PooledHandler);
+    .ConfigurePrimaryHttpMessageHandler(PooledHandler).SetHandlerLifetime(Timeout.InfiniteTimeSpan);
+builder.Services.AddHttpClient(DeepgramSttProvider.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(15))
+    .ConfigurePrimaryHttpMessageHandler(PooledHandler).SetHandlerLifetime(Timeout.InfiniteTimeSpan);
+builder.Services.AddHttpClient(DeepLTranslationProvider.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(15))
+    .ConfigurePrimaryHttpMessageHandler(PooledHandler).SetHandlerLifetime(Timeout.InfiniteTimeSpan);
+builder.Services.AddHttpClient(ElevenLabsTtsProvider.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(60))
+    .ConfigurePrimaryHttpMessageHandler(PooledHandler).SetHandlerLifetime(Timeout.InfiniteTimeSpan);
 
 // Real cascade adapters (stateless singletons; options bound from config + .env keys).
 builder.Services.Configure<DeepgramOptions>(builder.Configuration.GetSection("Deepgram"));

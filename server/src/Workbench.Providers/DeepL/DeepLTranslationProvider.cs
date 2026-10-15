@@ -63,6 +63,8 @@ public sealed class DeepLTranslationProvider(IHttpClientFactory http, IOptions<D
 
         var status = (int)res.StatusCode;
         if (res.StatusCode == HttpStatusCode.TooManyRequests) throw new RateLimitedException(Name, "translation", "DeepL returned 429");
+        if (res.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+            throw new ProviderErrorException(Name, "translation", $"DeepL rejected the API key ({status})", status);
         if (!res.IsSuccessStatusCode)
         {
             var detail = await res.Content.ReadAsStringAsync(ct);

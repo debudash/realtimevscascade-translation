@@ -76,7 +76,9 @@ public class ProviderContractTests
 
         Assert.Equal(401, e.HttpStatus);
         Assert.False(e.Retryable);
-        Assert.DoesNotContain("sk-invalid-for-test", e.Message);
+        // OpenAI echoes a masked key fragment in its 401 text; none of it may reach errors or logs.
+        Assert.DoesNotContain("sk-", e.Message);
+        Assert.DoesNotContain("for-test", e.Message);
     }
 
     [SkippableFact]
