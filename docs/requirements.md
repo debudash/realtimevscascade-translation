@@ -27,7 +27,7 @@ test, a measurement or a reproducible check.
 |---|---|---|---|---|---|
 | P1 | Realtime < 1.5 s speech end → first audio | Realtime transport; T0 energy detector; AnalyserNode first-audible tap | harness `run.harness.ts` (24 clips) | report §1: pooled 72 turns p50 1.09 s, p95 1.46 s; per-run p95 1.06 / 1.72 / 1.36 s | Met pooled, narrowly (one of three runs alone missed it: vendor-side variance) |
 | P2 | Cascade < 3 s, target < 2 s with full streaming | cascade pipeline, warm-up, press-to-warm, consecutive playback | harness (segment, clause, DeepL configurations) | report §1: pooled 48 turns each, segment p95 1.89 s, clause p95 1.44 s, DeepL p95 1.25 s, all under 2 s | Met (stretch met too) |
-| P3 | 5-minute back-and-forth without disconnects, audio drift or memory leaks | reconnect (1-5) in both transports, bounded channels, jitter buffer, per-turn cleanup | `soak.harness.ts` (5 min per mode, forced drop at midpoint) | report §5: 45 turns/mode, 0 failed, 0 unplanned disconnects, forced-drop recovery 2.1 s / 1.1 s, 0 underruns (cascade), heap floor +4-5 MB over 45 turns | Met for 5 min (a slow leak beyond 5 min is not ruled out) |
+| P3 | 5-minute back-and-forth without disconnects, audio drift or memory leaks | reconnect (1-5) in both transports, bounded channels, jitter buffer, per-turn cleanup | `soak.harness.ts` (5 min per mode, forced drop at midpoint) | report §5: 45 turns/mode, 0 failed, 0 unplanned disconnects, forced-drop recovery 2.1 s / 1.1 s, 0 underruns (cascade), heap floor +4.9 MB (Realtime) / +3.7 MB (cascade) over 45 turns | Met for 5 min (a slow leak beyond 5 min is not ruled out) |
 
 ## Code quality expectations
 

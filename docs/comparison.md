@@ -107,7 +107,7 @@ about 10 lines.
 Both modes completed 45 turns with no failures and no unplanned disconnects. The forced transport drop
 recovered to Ready in 2.1 s (Realtime) and 1.1 s (Cascade), with transcripts kept. The cascade had no
 playback underruns; Realtime's jitter buffer is the browser's and can't be observed. The post-GC heap
-floor grew 4-5 MB over 45 turns in both modes, consistent with retained transcripts; 5 minutes
+floor grew 4.9 MB (Realtime) and 3.7 MB (cascade) over 45 turns, consistent with retained transcripts; 5 minutes
 cannot rule out a slow leak.
 
 ## 8. Recommendation by scenario
@@ -132,6 +132,7 @@ In practice, run both behind the same UI and route per tenant or per call type.
   - Most of these sentences are a single segment, so the advantage mostly did not apply.
   - In clause mode it did: longer sentences reached first audio at 0.56-0.59 s, essentially at release.
 - **Realtime's source transcript is a side transcription process** (gpt-4o-transcribe, asynchronous, "guidance" per OpenAI), so its WER does not measure what the model understood.
+- **Push-to-talk.** Both modes use two push-to-talk buttons (deterministic turns, fair timing). That is less natural than hands-free conversation, and the latencies here exclude any voice-activity endpointing a hands-free product would add.
 - **Release lag.** Release came about 0.41 s after T0 in every configuration (clip tail plus automated release), and both architectures wait for release.
 - **Output measurement differs.** Cascade first-audible includes the device's output latency; Realtime's AnalyserNode sees samples just before it. This favors Realtime by tens of ms.
 - **Automated judge.** Quality scores come from gpt-4.1-mini; spot-check them with the human sheet in MORNING.md. Target WER against one reference is a crude proxy.
