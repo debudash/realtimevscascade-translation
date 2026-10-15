@@ -1,0 +1,16 @@
+{
+  "verifiedOn": "2026-10-15",
+  "status": "verify: read from the providers' official pricing pages on the date above (sources below); DeepL is UNVERIFIED",
+  "sources": {
+    "openai": "https://developers.openai.com/api/docs/pricing and https://developers.openai.com/api/docs/guides/realtime-costs",
+    "deepgram": "https://deepgram.com/pricing (Nova-3 monolingual streaming, pay-as-you-go, marked limited-time promotional)",
+    "elevenlabs": "https://elevenlabs.io/pricing/api (Flash, per 1K characters)",
+    "deepl": "UNVERIFIED: no public API rate on deepl.com; 25 USD per 1M characters is the legacy DeepL API Pro rate from memory. The key in use is a Free-plan key (0 USD)."
+  },
+  "realtime": { "audioInPer1M": 32, "cachedInPer1M": 0.4, "textInPer1M": 4, "audioOutPer1M": 64, "textOutPer1M": 16 },
+  "realtimeTranscriptionPerMinute": 0.006,
+  "deepgramPerMinute": 0.0048,
+  "openaiTranslation": { "model": "gpt-4.1-nano", "inPer1M": 0.1, "outPer1M": 0.4 },
+  "deeplPer1MChars": 25,
+  "elevenLabsPer1kChars": 0.04
+}
