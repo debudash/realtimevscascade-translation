@@ -1,6 +1,6 @@
 # Boostlingo AI Interpreter Workbench
 
-You are building, unattended, a browser workbench that compares two live
+You are building a browser workbench that compares two live
 interpretation architectures:
 
 - **Realtime:** OpenAI Realtime API, model `gpt-realtime`, voice in / voice out.
@@ -158,13 +158,19 @@ Rules:
   `config_error` panel naming the missing variable and pointing to `.env`.
   Tests that need that key are skipped with a clear message.
 
-## How to work overnight (autonomous protocol)
+## How to work (protocol)
+
+The work runs in two kinds of phase: a **build phase**, where the agent
+works the PROGRESS.md queue from this pack, and **owner-directed rounds**,
+where the owner reviews results and decides each change before it is built.
 
 1. **Use PROGRESS.md as your queue.**
    - Work milestones in order. Within a milestone, do the tasks in order.
-   - Do not stop to ask the user questions. They are asleep.
-   - Make the most reasonable choice consistent with this file, and record
-     it under Decisions in PROGRESS.md.
+   - In a build phase, do not stop for questions: make the most reasonable
+     choice consistent with this file, and record it under Decisions in
+     PROGRESS.md.
+   - In an owner-directed round, propose the change and get the owner's
+     confirmation before building anything the owner has not decided.
 2. **Finish each milestone the same way.**
    - Build: `dotnet build` and the client build.
    - Run the full test suite.
@@ -199,9 +205,9 @@ Rules:
    - Never install global tools, except `npx playwright install chromium`.
 7. **Context hygiene.** Keep PROGRESS.md current enough that a fresh session
    can resume from it alone. If context gets long, compact and continue.
-8. **The final milestone (M7) must leave the app running for the morning.**
+8. **The final milestone (M7) must leave the app running for the owner's review.**
    Start `npm run dev` as a background task, confirm it is healthy, and leave
-   it running. MORNING.md must still give the one command to start it, in
+   it running. HANDOFF.md must still give the one command to start it, in
    case it has stopped.
 
 ## Standing rules (added after the conformity check, 2026-10-15)
@@ -288,12 +294,17 @@ media modules split into separate services.
 
 The prompts actually sent, with timestamps, are in
 [`docs/agent-log/`](docs/agent-log/): `00-planning-session.md`,
-`01-overnight-run.md`, `02-conformance-fix.md`.
+`01-initial-build.md`, `02-conformance-fix.md`, `03-product-followups.md`,
+`04-test-runs-tab.md`.
 
 
 - The user prepared this pack (brief, locked decisions, architecture, UI
-  design, milestone plan) in a planning session with Claude, then started one
-  unattended Claude Code run using KICKOFF.md.
+  design, milestone plan) in a planning session with Claude. Claude Code
+  then ran the first build phase (M0-M7) from the pack, started with
+  KICKOFF.md. After that, the owner reviewed the results and directed each
+  following round (translation controls, conformance, product gaps, Test
+  Runs, Documentation, live voice), deciding every change before it was
+  built.
 - **Agent:** append one line per milestone, saying what was built, which
   decisions you made, and what you deferred.
 - **M0 (agent):** scaffolded .NET 10 solution (Api/Core/Providers/Tests), Vite
@@ -329,7 +340,7 @@ The prompts actually sent, with timestamps, are in
   heap floors instead of raw start/end. Deferred: longer soaks.
 - **M7 (agent):** subagent architecture review (13 gaps, fixed or disclosed),
   pooled report with run-to-run variance, comparison.md, requirements
-  traceability, README, MORNING.md. Decided: disclose rather than estimate
+  traceability, README, HANDOFF.md. Decided: disclose rather than estimate
   the output-latency asymmetry; spend the remaining Realtime harness run to
   settle its variance. Left `npm run dev` running.
 - **Follow-up (agent, at the user's request):** translation controls

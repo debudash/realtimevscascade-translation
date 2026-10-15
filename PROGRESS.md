@@ -223,7 +223,7 @@ Decisions). Soak runs used: 1 of 1 per mode. The run-1 numbers above were
 superseded by the pooled report in M7 (Realtime p50/p95 1.09/1.46 s over 72
 turns; segment 1.43/1.89, clause 1.21/1.44, DeepL 1.15/1.25 over 48).
 
-## M7 · Review, docs, and morning handoff (≈1.5 h)
+## M7 · Review, docs, and handoff (≈1.5 h)
 - [x] Architecture review pass (use a subagent if available): check every
       CLAUDE.md must-have, locked decision, and code quality expectation
       against the code. Fix any gaps, and list what is not fixable.
@@ -246,7 +246,7 @@ turns; segment 1.43/1.89, clause 1.21/1.44, DeepL 1.15/1.25 over 48).
       every disclosure listed there.
 - [x] Append the agent log to the "How I directed the agent" section of
       CLAUDE.md.
-- [x] `MORNING.md` for the user:
+- [x] `HANDOFF.md` for the user:
       - the URL
       - one command to start, in case the app has stopped
       - a 5-minute guided test script (what to click, what to expect)
@@ -411,7 +411,7 @@ Realtime's vendor-side variance; the comparison reflects it. Final suite:
 where it stopped.)
 
 - 2026-10-14 23:57 → 2026-10-15 02:16 local (corrected from "~07:30", which was UTC):
-  M0-M7 in one session; stopped after M7 with `npm run dev` running.
+  build phase M0-M7; stopped after M7 with `npm run dev` running.
 - 2026-10-15 daytime, follow-ups at the user's request: translation controls
   (+ `harness/results-controls/`, docs/translation-controls.md), the user's
   planning docs committed (00-planning-session, decisions, measurement-protocol),
@@ -419,7 +419,7 @@ where it stopped.)
   **Resume notes:** nothing pushed yet (pushing is the user's to do:
   `git push -u origin main`). Harness budget used: realtime 3/3, cascade
   baselines 2/3 each, each `*-controls` config 1/3, soaks 1/1 per mode.
-  Open idea: test the glossary on held-out sentences (MORNING.md next steps).
+  Open idea: test the glossary on held-out sentences (HANDOFF.md next steps).
 - 2026-10-15 08:42-13:20 local, conformance fix and two product rounds at the
   owner's request: doc pack completed; the owner decided each open gap
   (all closed or documented, see docs/status.md); Compare modes row, Test

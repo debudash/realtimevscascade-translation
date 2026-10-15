@@ -12,7 +12,7 @@ Status: **Met** (evidence linked) · **Partial** (evidence for part) ·
 **Missing** · **Justified** (a deliberate, documented deviation).
 
 Checks run for this pass:
-- every relative link in README, MORNING, CLAUDE, PROGRESS, `docs/**`,
+- every relative link in README, HANDOFF, CLAUDE, PROGRESS, `docs/**`,
   `harness/README.md` and `harness/live-voice.md` resolves (0 broken);
 - no dash-only placeholder evidence cell in `docs/requirements.md`;
 - no em dash or prose double hyphen in authored prose (only `docs/brief.md`,
@@ -61,7 +61,7 @@ Checks run for this pass:
 | `docs/status.md` | Met | End-of-round snapshot: metrics, closed gaps, open items, no WIP | - |
 | `README.md` | Met | Setup, run, architecture, language rationale, git history guide, Test Runs | - |
 | `docs/comparison.md` | Met | Matrix cells, stability, disclosures including push-to-talk and release lag | - |
-| `docs/agent-log/` | Partial | `00` planning, `01` overnight prompts, `02` conformance prompts, `03` and `04` plans written before the work with results | Per-milestone M0-M7 prompts never existed (one unattended run) |
+| `docs/agent-log/` | Partial | `00` planning, `01` initial-build prompts, `02` conformance prompts, `03` and `04` plans written before the work with results | Per-milestone M0-M7 prompts never existed (one build phase from the pack) |
 | Style: no em dashes or double hyphens | Justified | Swept | The source brief and verbatim prompts keep their text |
 | Guardrail: locked-decision changes routed to the owner | Justified | C-01 and C-03 logged after the fact; every later change (C-12, C-22 to C-24) was requested or confirmed by the owner first | - |
 
@@ -97,7 +97,7 @@ Full status and evidence: [`decisions.md`](decisions.md).
 | D-24 Synthetic clips | Partial | Clips cached and disclosed; live English session | Spanish to English never tested live |
 | D-25 DeepL swap and onboarding runs | Met | report §4, onboarding.md | - |
 | D-26 UI follows the design | Justified | Changed with the owner: Compare modes row (C-22), tabs (C-23, C-24); e2e for error states and layout | - |
-| D-27 One unattended run | Met | KICKOFF.md, PROGRESS.md, build-plan.md | - |
+| D-27 Build phase, then owner-directed rounds | Met | KICKOFF.md, PROGRESS.md, build-plan.md | - |
 
 ## Remaining gaps (product or owner decisions only)
 

@@ -316,10 +316,11 @@ Brief = `docs/brief.md` (governs). PRD = `docs/prd-summary.md`.
 - **Status:** Implemented
 - **Evidence:** `client/src/ui/Header.tsx` (logo, disclaimer); `client/src/styles.css` `.columns` (three columns from 1200 px, two below, one under 760 px); `client/src/ui/LatencyPanel.tsx` ("final segment from T0" waterfall, p50/p95 table, Export); `e2e/error-states.spec.ts` (one test per error code); `e2e/ui-walkthrough.spec.ts` "phone width...".
 
-### D-27 · Development process: one unattended run driven by PROGRESS.md
-- **Decision:** a single overnight Claude Code run from a prepared pack
-  (CLAUDE.md, PROGRESS.md, architecture, UI spec, design), with PROGRESS.md
-  as the queue and memory.
+### D-27 · Development process: a build phase from the pack, then owner-directed rounds
+- **Decision:** Claude Code runs the first build phase (M0-M7) from a
+  prepared pack (CLAUDE.md, PROGRESS.md, architecture, UI spec, design),
+  with PROGRESS.md as the queue and memory; the owner then reviews the
+  results and directs each following round.
 - **Alternatives:** the control-room loop (DOCS / NEXT / REVIEW per
   milestone in the Claude Project).
 - **Consequences:**
@@ -346,7 +347,7 @@ decisions.
 |---|---|---|---|---|---|
 | C-01 | D-11 | Floor deny also covers Capturing (the control-room prompt said Finalizing or Playing). Made in the UI design session and carried into CLAUDE.md. Not routed. | The other speaker pressing while one holds the floor must not start an overlapping turn. | None negative: turns stay deterministic. | `client/src/state/turnMachine.test.ts` "deny in Capturing" |
 | C-02 | D-07 | Two events beyond the planned schema: `segment.commit` (Commit chip) and `provider.failover` (failover note). `audio.chunk` carries base64 PCM16 in JSON. | The UI shows what the policy released and when failover happened. | Supports criterion 7 and the controllability cell. | `EventContractTests`, `contracts/event-samples.json` |
-| C-03 | D-27 | The milestone order differs from the control-room plan (table below). Not routed. | One unattended run; the UI came before the harness so the harness could drive the real UI. | Order only: every planned item was built. | `docs/build-plan.md` |
+| C-03 | D-27 | The milestone order differs from the control-room plan (table below). Not routed. | One build phase from the queue; the UI came before the harness so the harness could drive the real UI. | Order only: every planned item was built. | `docs/build-plan.md` |
 | C-04 | D-08 | Translation model `gpt-4.1-nano`, which planning left open. | Lowest measured first-token time (about 360-400 ms) with the same output. | Helps cascade latency (criterion 3; < 2 s stretch met). | PROGRESS.md M4, `OpenAI:TranslationModel` |
 | C-05 | D-13 | Deepgram end of turn by audio coverage (a final's end time reaches the audio sent), not by the Finalize reply alone. | Measured: Finalize only covers audio already processed. | Prevents truncated last segments. | `server/src/Workbench.Providers/Deepgram/DeepgramSttProvider.cs`, `ProviderContractTests.Deepgram_transcribes_the_fixture_and_finalizes_on_release` |
 | C-06 | D-08 | A custom `FailoverCircuit` (open for 60 s after the 429 retry budget) instead of Polly's breaker; Polly still retries with jitter. | Polly's breaker needs a sampling window that does not fit "open after repeated 429s". | Meets the resilience expectation. | `Workbench.Providers/Resilience/`, `CascadeSocketTests.Injected_fake_429s_fail_over_and_surface_on_the_socket` |
@@ -380,7 +381,7 @@ decisions.
 | M4 | Real adapters with segment commit, < 3 s | Real adapters (all four); clip generation pulled forward |
 | M5 | Clause commit and the DeepL adapter, toward < 2 s | Full UI per spec with every error state (clause and DeepL were already built in M3 and M4) |
 | M6 | Error handling and floor-deny UX | Evaluation harness, soak and onboarding (error handling came in M3 and M5, floor deny in M1) |
-| M7 | Soak, harness report, comparison write-up | Review, pooled report, comparison, README, MORNING (the soak moved to M6) |
+| M7 | Soak, harness report, comparison write-up | Review, pooled report, comparison, README, handoff note (the soak moved to M6) |
 
 Detail for C-12:
 

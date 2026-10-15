@@ -3,8 +3,8 @@
 Two plans existed. The **control-room plan** (milestones M0-M7 in the
 control-room prompt, recorded in [`agent-log/02-conformance-fix.md`](agent-log/02-conformance-fix.md))
 was never turned into a per-milestone build plan, because planning switched
-to one unattended run (D-27). The **PROGRESS.md plan** is what the run
-executed. This page sets both against what was built and committed.
+to a build phase run by the agent from the pack (D-27). The **PROGRESS.md
+plan** is what that phase executed. This page sets both against what was built and committed.
 
 - Commits are from `git log` (local time, UTC-5).
 - Elapsed times are **approximate**: they are differences between commit
@@ -48,7 +48,7 @@ this milestone's last commit.
 | M4 | Real cascade providers | 2 h | As planned; clip generation pulled forward from M6 | 2873432, df174b9, 2f24196, fdc2ce4, 439ac5f | 01:07 | 0.1 h |
 | M5 | Full UI per spec | 2 h | As planned | e6e3961 | 01:13 | 0.1 h |
 | M6 | Evaluation harness, soak, onboarding | 2 h | As planned; first harness run of all four configs (01:17-01:28), soak per mode, EN-FR onboarding | e9f631f, 2c42b5f, 75b4a86, 1379e15 | 01:45 | 0.5 h |
-| M7 | Review, docs, morning handoff | 1.5 h | As planned; second run of every config (01:59-02:07) and a third Realtime run (02:11) to settle variance; architecture review fixes (28e4ab0, a2992e0) | 6d5b3e0, 28e4ab0, a2992e0, 3566a34, ba42cc1 | 02:16 | 0.5 h |
+| M7 | Review, docs, handoff | 1.5 h | As planned; second run of every config (01:59-02:07) and a third Realtime run (02:11) to settle variance; architecture review fixes (28e4ab0, a2992e0) | 6d5b3e0, 28e4ab0, a2992e0, 3566a34, ba42cc1 | 02:16 | 0.5 h |
 | **Total** | | **13.75 h** | | 38 commits incl. the pack commit 18958de | | **about 2.3 h** |
 
 The run took about 2.3 hours of agent wall clock from kickoff (23:57) to the
@@ -78,7 +78,7 @@ the UTC time, corrected there.
 |---|---|---|
 | Planning session (brief analysis, decisions, design, pack) | not recorded | claude.ai conversation, not in this repo |
 | Pre-kickoff setup | 0.6 | transcript timestamps |
-| Unattended run M0-M7 | 2.3 | commit and transcript timestamps |
+| Build phase M0-M7 (agent, from the pack) | 2.3 | commit and transcript timestamps |
 | Follow-ups, conformance and product rounds | 5.0 | commit and transcript timestamps (section 3) |
 | **Recorded total** | **about 7.9** | |
 
