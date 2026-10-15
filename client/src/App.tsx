@@ -18,7 +18,8 @@ declare global {
 function parseProviders(params: URLSearchParams): Record<string, string> | undefined {
   const p = params.get("providers");
   if (!p) return undefined;
-  if (p === "fake") return { stt: "fake", translation: "fake", translationFallback: "fake", tts: "fake" };
+  // All-fake cascade; the server pairs the fake translator with a distinct fake fallback.
+  if (p === "fake") return { stt: "fake", translation: "fake", tts: "fake" };
   // e.g. ?providers=translation:deepl,tts:elevenlabs
   return Object.fromEntries(p.split(",").map((kv) => kv.split(":") as [string, string]));
 }

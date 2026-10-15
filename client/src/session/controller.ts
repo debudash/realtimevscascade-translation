@@ -172,7 +172,7 @@ export class WorkbenchController {
 
   private usesOnlyFakes(): boolean {
     const o = this.snap.providerOverride;
-    return !!o && Object.values(o).every((v) => v === "fake");
+    return !!o && ["stt", "translation", "tts"].every((k) => o[k] === "fake");
   }
 
   get pair(): PairInfo | undefined {
