@@ -70,6 +70,7 @@ app.MapHealthEndpoints();
 app.MapClipEndpoints();
 app.MapRealtimeEndpoints();
 app.MapCascadeEndpoints();
+app.MapTestRunEndpoints();
 
 app.Run();
 
