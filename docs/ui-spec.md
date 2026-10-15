@@ -88,15 +88,7 @@ on {current}".
        "gpt-realtime")
      - a failover note if one occurred
      - the translation controls used: "Clinic terms on" or "Clinic terms off"
-3. **Latency panel:**
-   - **"Last turn · final segment from T0":**
-     - a large headline value with the caption "speech end → first audible"
-     - a line: "T0 = last voiced frame, not release" · "Access time X.XX s"
-     - waterfall rows on a shared axis:
-       - Realtime: Release, Response start, STT / LLM / TTS (dashed track,
-         "hidden"), First audible
-       - Cascade: Release, STT final, Translate 1st tok, TTS first byte,
-         First audible
+3. **Latency panel** (right column):
    - **"Session p50 / p95" table:**
      - columns: Mode, n, p50, p95, Target
      - rows: Realtime (< 1.5 s), Cascade · segment (< 3.0 s), Cascade · clause
@@ -104,6 +96,23 @@ on {current}".
      - the Target cell is green when p95 is under target, red when over
    - **"Export session metrics" button:** downloads JSON of all turns, marks,
      and run conditions.
+4. **"Compare modes" row** (full width under the columns; added after the
+   build, replacing the single "Last turn" card, see decisions C-22):
+   - two blocks side by side, Realtime and Cascade, each showing that mode's
+     latest completed turn (final segment from T0); one column on phones
+   - each block: mode tag, the input ("Microphone" or "Replay: en-03"),
+     direction, the headline "speech end → first audible" with the
+     difference to the other mode, then Access time, Release lag, Release →
+     first audible, Segments committed (cascade), Turn cost and the per-minute
+     equivalent (logged usage × `harness/pricing.json`)
+   - waterfall rows on a shared axis:
+     - Realtime: Release, Response start, STT / LLM / TTS (dashed track,
+       "hidden"), First audible
+     - Cascade: Release, STT final, Translate 1st tok, Translate done, TTS
+       first byte, First audible
+   - the turn's source and interpreted text and the providers used
+   - a note above the blocks: "Same input in both" or "Different inputs",
+     naming both inputs; a mode with no turn yet says how to fill it
 
 ## Error and transition states (one per error code)
 

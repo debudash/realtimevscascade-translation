@@ -63,7 +63,7 @@ test, a measurement or a reproducible check.
 ## Planning decisions (D-01 to D-27)
 
 Status and evidence per decision are in [`decisions.md`](decisions.md);
-this table is the summary. Code-vs-plan differences are C-01 to C-21 in
+this table is the summary. Code-vs-plan differences are C-01 to C-22 in
 its "Changes during the build".
 
 | # | Decision | Evidence (short) | Status |

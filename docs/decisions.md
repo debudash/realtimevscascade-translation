@@ -308,7 +308,7 @@ Brief = `docs/brief.md` (governs). PRD = `docs/prd-summary.md`.
 - **Decision:**
   - Boostlingo logo plus a "not an official Boostlingo product" disclaimer.
   - Three-column layout.
-  - Waterfall labelled "final segment from T0."
+  - Waterfall labelled "final segment from T0" (now one per mode, side by side: C-22).
   - p50/p95 table colored against targets.
   - Export button.
   - One state per error code.
@@ -365,6 +365,7 @@ decisions.
 | C-19 | D-07 | No separate session state machine (the spec's Idle -> Warming -> Ready -> Closed). Session state is the turn phase plus the error code plus the transport connection state. | One reducer (`turnMachine.ts`) already carries Warming, Ready and Error; a second machine would duplicate it. | None on the criteria; documented in `docs/architecture/lla.md`. | `client/src/state/turnMachine.ts`, `client/src/session/controller.ts` |
 | C-20 | D-08 | The DeepL key is optional: without it the cascade runs with no failover, and Realtime needs only the OpenAI key. | A missing failover key should not block the primary path (M7 review). | Resilience degrades to retry-only without the key; `/api/health` reports it per mode. | `HealthEndpointTests.A_missing_DeepL_key_blocks_neither_mode_and_Realtime_needs_only_OpenAI` |
 | C-21 | D-20 | Cascade warm-up is best effort (5 s): pooled HTTP connections plus a key check per provider (the Deepgram socket opens on press), with a keep-warm every 45 s while idle. | Deepgram streams are per turn; idle sockets would time out. | Cold starts stay out of p95 (press-to-warm). | `docs/architecture/lla.md` resilience and warm-up sections |
+| C-22 | D-26 | The single "Last turn" card became a full-width "Compare modes" row: one block per mode (latest turn of each), with its input, extra timing marks (release lag, release to first audible, translate done, segments), turn cost and text. Requested by the owner. | A workbench should let the same clip be read across both architectures side by side; one card showed only the last mode used. | Strengthens criterion 7 and the latency and cost cells; no scope change. | `client/src/ui/ModeComparison.tsx`, `e2e/ui-walkthrough.spec.ts` |
 
 ### Milestone order: control-room plan vs. run
 

@@ -2,7 +2,7 @@ import { mouthToEarMs, type TurnRecord } from "../state/metrics";
 import type { LiveTurnView } from "../session/controller";
 import { useController, useSnapshot } from "./useController";
 
-const PROVIDER_LABEL: Record<string, string> = {
+export const PROVIDER_LABEL: Record<string, string> = {
   deepgram: "Deepgram",
   openai: "OpenAI",
   elevenlabs: "ElevenLabs",

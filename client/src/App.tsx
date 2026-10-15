@@ -6,6 +6,7 @@ import { ConfigErrorPanel } from "./ui/ConfigErrorPanel";
 import { SpeakerStage } from "./ui/SpeakerStage";
 import { Header } from "./ui/Header";
 import { LatencyPanel } from "./ui/LatencyPanel";
+import { ModeComparison } from "./ui/ModeComparison";
 import { ConnectionBanner, MicDeniedPanel, PendingSwitchBanner, SessionErrorBanner, Toast } from "./ui/StatusBanners";
 import { Transcripts } from "./ui/Transcripts";
 import { ControllerContext, useSnapshot } from "./ui/useController";
@@ -77,6 +78,7 @@ function Shell({ startError }: { startError: string | null }) {
           <Transcripts />
           <LatencyPanel />
         </div>
+        <ModeComparison />
       </main>
       <Toast />
     </div>

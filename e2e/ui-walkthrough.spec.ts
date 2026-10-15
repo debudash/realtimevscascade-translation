@@ -21,8 +21,16 @@ test.describe("UI walkthrough", () => {
     const [first] = await turns(page);
     expect(first.conditions.runId).toMatch(/^[0-9a-f]{8}$/);
     expect(first.conditions.build).toBe(health.build);
-    await expect(page.getByTestId("headline-latency")).toHaveText(/\d\.\d\d s/);
-    await expect(page.getByTestId("waterfall")).toContainText("TTS first byte");
+    // Mode comparison: one block per mode, each showing the latest turn of that mode and its input.
+    const cascadeBlock = page.getByTestId("compare-cascade");
+    await expect(cascadeBlock.getByTestId("headline-latency")).toHaveText(/\d\.\d\d s/);
+    await expect(cascadeBlock).toContainText("Replay: en-01");
+    await expect(cascadeBlock.getByTestId("waterfall")).toContainText("TTS first byte");
+    await expect(cascadeBlock.getByTestId("waterfall")).toContainText("Translate done");
+    await expect(cascadeBlock).toContainText("Release lag");
+    await expect(cascadeBlock).toContainText("Fake · Fake · Fake");
+    await expect(cascadeBlock.getByTestId("turn-cost")).toHaveText(/\$\d\.\d{4}/);
+    await expect(page.getByTestId("compare-realtime")).toContainText("No Realtime turn yet");
     await expect(page.locator('[data-key="cascade-segment"] td').nth(1)).toHaveText("1");
 
     // Commit policy switch between turns.
@@ -75,7 +83,14 @@ test.describe("UI walkthrough", () => {
     expect(rt.status).toBe("completed");
     expect(rt.conditions).toMatchObject({ mode: "realtime", direction: "es-en" });
     await expect(page.getByTestId("turn-card").first()).toContainText("REALTIME");
-    await expect(page.getByTestId("waterfall")).toContainText("hidden");
+    const realtimeBlock = page.getByTestId("compare-realtime");
+    await expect(realtimeBlock).toContainText("Replay: es-04");
+    await expect(realtimeBlock.getByTestId("waterfall")).toContainText("hidden");
+    await expect(realtimeBlock).toContainText("gpt-realtime");
+    await expect(realtimeBlock.getByTestId("turn-cost")).toHaveText(/\$\d\.\d{4}/);
+    // The cascade block keeps its own latest turn, and the different inputs are called out.
+    await expect(page.getByTestId("compare-cascade")).toContainText("Replay: en-03");
+    await expect(page.getByTestId("compare-note")).toContainText("Different inputs");
     // The jitter buffer is the browser's, but WebRTC getStats() gives its average delay and concealment per turn.
     await expect
       .poll(async () => (await turns(page)).find((t) => t.turnId === rt.turnId)?.playback, { timeout: 10_000 })
