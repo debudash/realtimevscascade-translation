@@ -4,7 +4,9 @@ import type { Mode } from "./state/turnMachine";
 import { createTransportFactory } from "./transports/factory";
 import { ConfigErrorPanel } from "./ui/ConfigErrorPanel";
 import { SpeakerStage } from "./ui/SpeakerStage";
-import { ControllerContext, useController, useSnapshot } from "./ui/useController";
+import { Header } from "./ui/Header";
+import { Transcripts } from "./ui/Transcripts";
+import { ControllerContext, useSnapshot } from "./ui/useController";
 
 declare global {
   interface Window {
@@ -47,34 +49,23 @@ export function App() {
 }
 
 function Shell({ startError }: { startError: string | null }) {
-  const c = useController();
   const s = useSnapshot();
   const missing = s.sessionError?.code === "config_error" ? (s.health?.missing ?? []) : [];
 
   return (
-    <div className="app">
-      <header className="header">
-        <img src="/boostlingo-logo.png" alt="Boostlingo" width={152} height={28} />
-        <span className="divider" aria-hidden />
-        <h1>Interpreter Workbench</h1>
-        <div className="header__controls">
-          <select aria-label="Input" value={s.input} onChange={(e) => void c.selectInput(e.target.value)} data-testid="input-select">
-            <option value="mic">Microphone</option>
-            {s.clips.map((clip) => (
-              <option key={clip.id} value={clip.id}>
-                Replay: {clip.id}
-              </option>
-            ))}
-          </select>
-          <span className="pill" data-testid="connection-pill">
-            {s.connection.kind} {s.connection.state}
-          </span>
-        </div>
-      </header>
-      <main>
-        {startError && <p role="alert">Backend unreachable: {startError}</p>}
+    <div className={`app app--${s.turn.mode}`}>
+      <Header />
+      <main className="main">
+        {startError && (
+          <p className="banner banner--error" role="alert">
+            Backend unreachable: {startError}
+          </p>
+        )}
         {missing.length > 0 && <ConfigErrorPanel missing={missing} />}
-        <SpeakerStage />
+        <div className="columns">
+          <SpeakerStage />
+          <Transcripts />
+        </div>
       </main>
     </div>
   );

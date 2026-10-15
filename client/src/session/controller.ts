@@ -4,11 +4,12 @@
 
 import { api, type AppConfig, type ClipInfo, type Health, type PairInfo } from "../api";
 import { CaptureEngine, MicDeniedError, type CapturedFrame } from "../audio/captureEngine";
+import { CAPTURE_RATE, int16ToFloat } from "../audio/dsp";
 import { EnergyDetector } from "../audio/energyDetector";
 import { Player } from "../audio/player";
 import type { ErrorCode, WorkbenchEvent } from "../contracts/events";
 import { MetricsStore, type RunConditions, type Strategy } from "../state/metrics";
-import { initialTurnState, turnReducer, type Mode, type TurnAction, type TurnEffect, type TurnState } from "../state/turnMachine";
+import { initialTurnState, isBusy, turnReducer, type Mode, type TurnAction, type TurnEffect, type TurnState } from "../state/turnMachine";
 import type { ConnectionState, InterpreterTransport, TransportSink } from "../transports/types";
 
 export type ChipId = "capture" | "stt" | "commit" | "translate" | "tts" | "model" | "playing";
@@ -78,8 +79,13 @@ export type TransportFactory = (args: TransportFactoryArgs) => InterpreterTransp
 const DENY_SHOW_MS = 1400;
 const REPLAY_TAIL_MS = 250;
 const TURN_SAFETY_TIMEOUT_MS = 30000;
+/** Turns whose captured audio is kept for "Retry turn". */
+const RETRY_KEEP_TURNS = 5;
+/** Max wait for in-flight pre-release frames before finalizing. */
+const RELEASE_FLUSH_MAX_MS = 80;
 
 const SESSION_LEVEL_ERRORS: ErrorCode[] = ["socket_drop", "config_error", "mic_denied"];
+const KNOWN_CODES: ErrorCode[] = [...SESSION_LEVEL_ERRORS, "provider_timeout", "rate_limited", "empty_result", "provider_error", "internal"];
 
 function newTurnId(): string {
   return crypto.randomUUID().slice(0, 8);
@@ -197,15 +203,20 @@ export class WorkbenchController {
       this.dispatch({ type: "WARM_DONE" });
     } catch (e) {
       if (gen !== this.transportGen) return;
-      this.failSession("internal", (e as Error).message);
+      const code = (e as { code?: string }).code as ErrorCode | undefined;
+      this.failSession(code && KNOWN_CODES.includes(code) ? code : "internal", (e as Error).message);
     }
   }
 
   // ---- user intents ----
-  async press(speaker: string): Promise<void> {
-    await Promise.all([this.capture.resume(), this.player.resume()]);
+  /**
+   * Dispatches synchronously so a quick tap's release can never overtake its press.
+   * Audio contexts resume in the background (browsers start them suspended).
+   */
+  press(speaker: string): void {
+    void Promise.all([this.capture.resume(), this.player.resume()]);
     if (this.snap.input !== "mic") {
-      await this.runReplayTurn(speaker);
+      void this.runReplayTurn(speaker);
       return;
     }
     this.dispatch({ type: "PRESS", speaker, turnId: newTurnId() });
@@ -217,8 +228,8 @@ export class WorkbenchController {
   }
 
   /** Replay: plays the selected clip through the capture path with press/release automated around it. */
-  async runReplayTurn(speaker: string): Promise<void> {
-    if (!this.clipBuffer) return;
+  async runReplayTurn(speaker: string, buffer: AudioBuffer | null = this.clipBuffer): Promise<void> {
+    if (!buffer) return;
     if (this.replayRunning) {
       this.dispatch({ type: "PRESS", speaker, turnId: newTurnId() }); // will be denied / not ready
       return;
@@ -228,12 +239,26 @@ export class WorkbenchController {
     if (this.snap.turn.turnId !== turnId) return;
     this.replayRunning = true;
     try {
-      await this.capture.playClip(this.clipBuffer);
+      await Promise.all([this.capture.resume(), this.player.resume()]);
+      await this.capture.playClip(buffer);
       await new Promise((r) => setTimeout(r, REPLAY_TAIL_MS));
       this.dispatch({ type: "RELEASE", speaker });
     } finally {
       this.replayRunning = false;
     }
+  }
+
+  /** "Retry turn": re-sends the failed turn's captured audio through the same capture path. */
+  retryTurn(turnId: string): void {
+    const rec = this.metrics.get(turnId);
+    const frames = this.capturedAudio.get(turnId);
+    if (!rec || !frames?.length || this.snap.turn.phase !== "Ready") return;
+    const pcm = new Float32Array(frames.length * frames[0].length);
+    frames.forEach((f, i) => pcm.set(int16ToFloat(f), i * f.length));
+    const buffer = this.capture.ctx.createBuffer(1, pcm.length, CAPTURE_RATE);
+    buffer.copyToChannel(pcm, 0);
+    void Promise.all([this.capture.resume(), this.player.resume()]);
+    void this.runReplayTurn(rec.speaker, buffer);
   }
 
   switchMode(mode: Mode): void {
@@ -245,7 +270,7 @@ export class WorkbenchController {
   }
 
   setStrategy(strategy: Strategy): void {
-    if (strategy === this.snap.strategy) return;
+    if (strategy === this.snap.strategy || isBusy(this.snap.turn.phase)) return;
     this.set({ strategy });
     // The commit policy is chosen per cascade session; re-warm when idle.
     if (this.snap.turn.mode === "cascade") void this.rewarm();
@@ -265,6 +290,7 @@ export class WorkbenchController {
   }
 
   async selectInput(input: string): Promise<void> {
+    if (isBusy(this.snap.turn.phase)) return;
     this.set({ input });
     if (input === "mic") {
       this.clipBuffer = null;
@@ -325,12 +351,7 @@ export class WorkbenchController {
       case "releaseTurn":
         return this.releaseTurn(effect.turnId);
       case "cancelTurn":
-        this.capture.setGate(false);
-        this.capture.stopClip();
-        this.transport?.cancel(effect.turnId);
-        this.metrics.update(effect.turnId, { status: "cancelled" });
-        this.clearTurnFlags(effect.turnId);
-        return;
+        return this.abortTurn(effect.turnId, "cancelled");
       case "floorDenied":
         this.player.denyTone();
         console.info("floor.denied", effect.speaker); // log only, not a tracked metric
@@ -371,6 +392,18 @@ export class WorkbenchController {
   }
 
   private lastProviders: Record<string, string> | null = null;
+  /** Captured PCM of the most recent turns, for "Retry turn". */
+  private capturedAudio = new Map<string, Int16Array[]>();
+
+  private keepAudio(turnId: string, pcm: Int16Array): void {
+    let frames = this.capturedAudio.get(turnId);
+    if (!frames) {
+      this.capturedAudio.set(turnId, (frames = []));
+      while (this.capturedAudio.size > RETRY_KEEP_TURNS) this.capturedAudio.delete(this.capturedAudio.keys().next().value!);
+    }
+    frames.push(pcm.slice());
+  }
+  private releasing: { turnId: string; at: number; timer: ReturnType<typeof setTimeout> } | null = null;
 
   private startTurn(speaker: string, turnId: string): void {
     const pair = this.pair;
@@ -378,6 +411,7 @@ export class WorkbenchController {
     const now = performance.now();
     this.metrics.startTurn(turnId, speaker, this.conditions(speaker, target), now);
     this.turnFlags.set(turnId, { ended: false, played: false });
+    this.player.reset(); // drop anything left from a previous turn
     this.detector.reset();
     this.capture.setGate(true);
     this.transport?.startTurn({ turnId, speaker, source: speaker, target });
@@ -399,34 +433,62 @@ export class WorkbenchController {
   }
 
   private releaseTurn(turnId: string): void {
-    const now = performance.now();
+    const at = performance.now();
     this.capture.setGate(false);
-    const t0 = this.detector.lastVoicedEnd;
-    if (t0 !== null) this.metrics.setMark(turnId, "t0", Math.min(t0, now));
-    this.metrics.mark(turnId, "release", now);
-    this.transport?.release(turnId);
+    this.metrics.mark(turnId, "release", at);
     this.set({ listeningSince: null, activeChip: this.snap.turn.mode === "realtime" ? "model" : this.snap.activeChip });
+    // Frames captured before the release are still in flight from the worklet (up to one
+    // frame plus port latency). Keep feeding them, then finalize.
+    this.releasing = { turnId, at, timer: setTimeout(() => this.completeRelease(turnId), RELEASE_FLUSH_MAX_MS) };
+  }
+
+  private completeRelease(turnId: string): void {
+    const r = this.releasing;
+    if (!r || r.turnId !== turnId) return;
+    clearTimeout(r.timer);
+    this.releasing = null;
+    const t0 = this.detector.lastVoicedEnd;
+    if (t0 !== null) this.metrics.setMark(turnId, "t0", Math.min(t0, r.at));
+    this.transport?.release(turnId);
     const flags = this.turnFlags.get(turnId);
     if (flags) {
       flags.timer = setTimeout(() => {
         // Safety net: never leave the floor locked if a transport fails to report.
-        if (this.snap.turn.turnId === turnId) {
-          this.metrics.update(turnId, { status: "failed", error: { code: "internal", message: "Turn did not finish in 30 s" } });
-          this.dispatch({ type: "TURN_DONE" });
-        }
+        if (this.snap.turn.turnId !== turnId) return;
+        this.abortTurn(turnId, "failed", { code: "internal", message: "Turn did not finish in 30 s" });
+        this.dispatch({ type: "TURN_DONE" });
       }, TURN_SAFETY_TIMEOUT_MS);
     }
+  }
+
+  /** Ends a turn early: closes capture, tells the transport, drops queued audio, clears bookkeeping. */
+  private abortTurn(turnId: string, status: "cancelled" | "failed", error?: { code: string; message: string }): void {
+    this.capture.setGate(false);
+    this.capture.stopClip();
+    if (this.releasing?.turnId === turnId) {
+      clearTimeout(this.releasing.timer);
+      this.releasing = null;
+    }
+    this.transport?.cancel(turnId);
+    this.player.reset();
+    this.metrics.update(turnId, { status, ...(error ? { error } : {}) });
+    this.clearTurnFlags(turnId);
+    if (this.snap.live?.turnId === turnId) this.set({ live: null });
   }
 
   private onFrame(f: CapturedFrame): void {
     const { phase, turnId } = this.snap.turn;
     const capturing = phase === "Capturing" && turnId;
-    if (capturing) {
+    const r = this.releasing;
+    const feedTurn = capturing ? turnId : r && f.startMs < r.at ? r.turnId : null;
+    if (feedTurn) {
       for (const ev of this.detector.push(f.pcm, f.startMs, f.endMs - f.startMs)) {
-        if (ev.type === "speech_start") this.metrics.mark(turnId, "speechStart", ev.t);
+        if (ev.type === "speech_start") this.metrics.mark(feedTurn, "speechStart", ev.t);
       }
-      this.transport?.sendFrame(turnId, f.pcm);
+      this.transport?.sendFrame(feedTurn, f.pcm);
+      this.keepAudio(feedTurn, f.pcm);
     }
+    if (r && f.endMs >= r.at) this.completeRelease(r.turnId);
     const now = performance.now();
     if (now - this.lastLevelAt > 50) {
       this.lastLevelAt = now;
@@ -512,6 +574,7 @@ export class WorkbenchController {
         });
         return;
       case "turn.end": {
+        if (this.metrics.get(e.turnId!)?.status === "cancelled") return;
         this.metrics.update(e.turnId!, {
           status: e.status === "completed" ? "completed" : e.status,
           usage: e.usage,

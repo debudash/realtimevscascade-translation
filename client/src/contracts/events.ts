@@ -21,12 +21,22 @@ export interface ProviderSet {
   tts: string;
 }
 
+export interface RealtimeUsage {
+  inputAudioTokens: number;
+  inputTextTokens: number;
+  cachedInputTokens: number;
+  outputAudioTokens: number;
+  outputTextTokens: number;
+}
+
 export interface TurnUsage {
+  /** Cascade: audio streamed to STT. Realtime: captured audio (priced as input transcription). */
   sttAudioSeconds: number;
   translationInputTokens: number;
   translationOutputTokens: number;
   translationCharacters: number;
   ttsCharacters: number;
+  realtime?: RealtimeUsage;
 }
 
 interface Base {
@@ -81,6 +91,9 @@ export type WorkbenchEvent =
   | ErrorEvent;
 
 export type EventType = WorkbenchEvent["type"];
+
+/** An event without its timestamp, for emitters that stamp `t` themselves. */
+export type EventInput = WorkbenchEvent extends infer E ? (E extends WorkbenchEvent ? Omit<E, "t"> : never) : never;
 
 type FieldKind = "string" | "number" | "boolean" | "object" | "array";
 
