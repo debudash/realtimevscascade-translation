@@ -86,7 +86,7 @@ accuracy, 4.88-5.00 completeness and 4.71-5.00 fluency.
 Things the judge under-weighted overnight: register (DeepL used informal *tú*) and terminology
 ("receta" → *recipe* instead of *prescription* in Realtime and DeepL). Both are now fixed by the
 translation controls, which are on by default; see
-[`docs/translation-controls.md`](docs/translation-controls.md). Use `?controls=off` to hear the baseline.
+[`docs/translation-controls.md`](docs/translation-controls.md). Use the header's **Clinic terms | Off** toggle (or `?controls=off`) to hear the baseline; each turn card says which was used.
 
 ## Blocked or partial
 

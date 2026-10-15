@@ -35,6 +35,8 @@ export interface RunConditions {
   direction: string;
   /** "mic" or the replay clip id. */
   inputSource: string;
+  /** Translation controls (formal register + clinic glossary) on for this turn. */
+  controls?: boolean;
 }
 
 export interface StageDuration {

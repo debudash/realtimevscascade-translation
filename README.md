@@ -54,8 +54,8 @@ npm run e2e      # Playwright (fake-provider specs are free; real-provider specs
 npm run report   # rebuild harness/results/report.md from saved harness runs
 ```
 
-Useful URL parameters: `?mode=realtime`, `?strategy=clause`, `?controls=off` (turn off the translation
-controls: formal register + clinic glossary, on by default; see
+Useful URL parameters: `?mode=realtime`, `?strategy=clause`, `?controls=off` (initial value of the header's
+**Clinic terms** toggle for the translation controls: formal register + clinic glossary, on by default; see
 [`docs/translation-controls.md`](docs/translation-controls.md)), `?providers=fake` (server-side fake
 providers, no keys, no cost), `?providers=fake&faults=translation:429` (inject failures: `429`,
 `timeout`, `empty`, `500`, `400` for `stt`/`translation`/`tts`), `?transport=fake` (client-only

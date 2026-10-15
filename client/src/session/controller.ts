@@ -46,6 +46,8 @@ export interface Snapshot {
   clips: ClipInfo[];
   turn: TurnState;
   strategy: Strategy;
+  /** Translation controls (formal register + clinic glossary), the header's "Clinic terms" toggle. */
+  controls: boolean;
   pairId: string;
   /** "mic" or a clip id. */
   input: string;
@@ -73,6 +75,7 @@ export interface TransportFactoryArgs {
   pairId: string;
   strategy: Strategy;
   providers?: Record<string, string>;
+  controls: boolean;
 }
 
 export type TransportFactory = (args: TransportFactoryArgs) => InterpreterTransport;
@@ -112,6 +115,8 @@ export class WorkbenchController {
     initialMode: Mode = "cascade",
     providerOverride?: Record<string, string>,
     initialStrategy: Strategy = "segment",
+    /** From `?controls=on|off`; undefined = the server's default. */
+    private readonly initialControls?: boolean,
   ) {
     this.snap = {
       health: null,
@@ -119,6 +124,7 @@ export class WorkbenchController {
       clips: [],
       turn: initialTurnState(initialMode),
       strategy: initialStrategy,
+      controls: initialControls ?? true,
       pairId: "en-es",
       input: "mic",
       connection: { state: "Connecting", kind: "" },
@@ -161,7 +167,8 @@ export class WorkbenchController {
 
   private async doStart(): Promise<void> {
     const [health, config, clips] = await Promise.all([api.health(), api.config(), api.clips().catch(() => [])]);
-    this.set({ health, config, clips, pairId: config.defaultPair });
+    const controls = this.initialControls ?? config.translationControls?.enabled ?? true;
+    this.set({ health, config, clips, pairId: config.defaultPair, controls });
     await Promise.all([this.capture.init(), this.player.init()]);
     await this.selectInput(this.snap.input);
     if (this.missingKeysFor(this.snap.turn.mode).length > 0) {
@@ -211,6 +218,7 @@ export class WorkbenchController {
       pairId: this.snap.pairId,
       strategy: this.snap.strategy,
       providers: this.snap.providerOverride,
+      controls: this.snap.controls,
     });
     this.transport = transport;
     this.set({ connection: { state: "Connecting", kind: transport.kind } });
@@ -292,6 +300,13 @@ export class WorkbenchController {
     this.set({ strategy });
     // The commit policy is chosen per cascade session; re-warm when idle.
     if (this.snap.turn.mode === "cascade") void this.rewarm();
+  }
+
+  /** Clinic terms on/off. Both modes fix it per session (configure / client secret), so re-warm. */
+  setControls(controls: boolean): void {
+    if (controls === this.snap.controls || this.snap.turn.phase !== "Ready") return;
+    this.set({ controls });
+    void this.rewarm();
   }
 
   async setPair(pairId: string): Promise<void> {
@@ -408,6 +423,7 @@ export class WorkbenchController {
       pair: this.snap.pairId,
       direction: `${speaker}-${target}`,
       inputSource: this.snap.input,
+      controls: this.snap.controls,
     };
   }
 

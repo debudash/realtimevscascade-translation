@@ -29,6 +29,10 @@ their templating syntax (`{{...}}`, `<sc-if>`, `<sc-for>`, `DCLogic`).
 
 - Mode toggle (Realtime | Cascade)
 - Commit toggle (Segment | Clause; dimmed in Realtime mode)
+- Clinic terms toggle (Clinic terms | Off): formal register + clinic
+  glossary, both modes, changeable between turns (re-warms). Default from
+  config; `?controls=on|off` sets the initial value. Added after the build
+  (D-23 change); see `docs/translation-controls.md`.
 - Pair selector (English ↔ Spanish)
 - Input selector (Microphone | Replay: each cached clip)
 - Connection pill ("WebRTC connected" / "WebSocket connected" /
@@ -83,6 +87,7 @@ on {current}".
      - the providers used (e.g. "Deepgram · OpenAI · ElevenLabs" or
        "gpt-realtime")
      - a failover note if one occurred
+     - the translation controls used: "Clinic terms on" or "Clinic terms off"
 3. **Latency panel:**
    - **"Last turn · final segment from T0":**
      - a large headline value with the caption "speech end → first audible"

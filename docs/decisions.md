@@ -309,3 +309,13 @@ Brief = `docs/brief.md` (governs). PRD = `docs/prd-summary.md`.
 ## Changes during the build
 (Filled from PROGRESS.md "Decisions made during the run" and git history:
 ID, what changed, why, brief impact.)
+
+- **D-23 change · Clinic terms toggle (after the build, at the user's request).**
+  The evaluation found two clinic errors (informal *tú*, "receta" →
+  *recipe*), fixed by the translation controls
+  ([translation-controls.md](translation-controls.md)). A header On/Off toggle
+  and a per-turn "Clinic terms on" / "Clinic terms off" tag make that fix
+  visible and demonstrable. Still out of scope: glossary editing in the UI
+  and highlighting glossary terms in transcripts. Evidence:
+  `client/src/ui/Header.tsx`, `client/src/ui/Transcripts.tsx`,
+  `e2e/ui-walkthrough.spec.ts`.

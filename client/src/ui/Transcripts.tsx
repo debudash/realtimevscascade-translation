@@ -67,6 +67,9 @@ function TurnCard({ turn, n }: { turn: TurnRecord; n: number }) {
       {turn.error && turn.status === "failed" && <TurnError turn={turn} onRetry={() => c.retryTurn(turn.turnId)} />}
       <footer className="card__foot">
         <span>{providers}</span>
+        {turn.conditions.controls !== undefined && (
+          <span data-testid="controls-tag">{turn.conditions.controls ? "Clinic terms on" : "Clinic terms off"}</span>
+        )}
         {turn.failoverNote && <span className="failover">Failover: {turn.failoverNote}</span>}
       </footer>
     </article>

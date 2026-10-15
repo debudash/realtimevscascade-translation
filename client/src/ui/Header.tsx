@@ -83,6 +83,17 @@ export function Header() {
             { value: "clause", label: "Clause" },
           ]}
         />
+        <Segmented<"on" | "off">
+          label="Clinic terms: formal register and glossary"
+          testId="controls-toggle"
+          value={s.controls ? "on" : "off"}
+          disabled={busy}
+          onChange={(v) => c.setControls(v === "on")}
+          options={[
+            { value: "on", label: "Clinic terms" },
+            { value: "off", label: "Off" },
+          ]}
+        />
         <select aria-label="Language pair" value={s.pairId} disabled={busy} onChange={(e) => void c.setPair(e.target.value)} data-testid="pair-select">
           {s.config?.pairs.map((p) => (
             <option key={p.id} value={p.id}>

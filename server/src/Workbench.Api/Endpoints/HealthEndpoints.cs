@@ -31,7 +31,7 @@ public static class HealthEndpoints
         });
 
         // Languages and pairs drive the UI's pair selector and talk-button labels.
-        app.MapGet("/api/config", (IOptions<LanguagesOptions> langs, IOptions<ProvidersOptions> providers) =>
+        app.MapGet("/api/config", (IOptions<LanguagesOptions> langs, IOptions<ProvidersOptions> providers, IOptions<TranslationControlsOptions> controls) =>
         {
             var l = langs.Value;
             return Results.Ok(new
@@ -40,6 +40,8 @@ public static class HealthEndpoints
                 pairs = l.Pairs.Select(p => new { p.Id, p.A, p.B, p.Label }),
                 languages = l.Languages.Select(x => new { x.Code, x.Name, x.NativeName, x.SpeakerLabel }),
                 providers = providers.Value,
+                // Default for the header's "Clinic terms" toggle (formal register + glossary).
+                translationControls = new { enabled = controls.Value.Enabled },
             });
         });
     }

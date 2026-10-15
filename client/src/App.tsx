@@ -31,7 +31,9 @@ function createController(): WorkbenchController {
   const params = new URLSearchParams(window.location.search);
   const mode = (params.get("mode") as Mode | null) ?? "cascade";
   const strategy = params.get("strategy") === "clause" ? "clause" : "segment";
-  const c = new WorkbenchController(createTransportFactory(params), mode, parseProviders(params), strategy);
+  // Translation controls (formal register + glossary), e.g. ?controls=off for the baseline.
+  const controls = params.get("controls") === "on" ? true : params.get("controls") === "off" ? false : undefined;
+  const c = new WorkbenchController(createTransportFactory(params), mode, parseProviders(params), strategy, controls);
   window.__workbench = c;
   return c;
 }

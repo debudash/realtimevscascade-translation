@@ -15,6 +15,7 @@ test.describe("UI walkthrough", () => {
     await expect(card).toContainText("EN → ES");
     await expect(card).toContainText(/first audio \d\.\d\d s/);
     await expect(card).toContainText("Fake · Fake · Fake");
+    await expect(card.getByTestId("controls-tag")).toHaveText("Clinic terms on");
     await expect(page.getByTestId("headline-latency")).toHaveText(/\d\.\d\d s/);
     await expect(page.getByTestId("waterfall")).toContainText("TTS first byte");
     await expect(page.locator('[data-key="cascade-segment"] td').nth(1)).toHaveText("1");
@@ -27,12 +28,20 @@ test.describe("UI walkthrough", () => {
     await expect(page.getByTestId("turn-card").first()).toContainText("CASCADE · CLAUSE");
     await expect(page.locator('[data-key="cascade-clause"] td').nth(1)).toHaveText("1");
 
+    // Clinic terms (translation controls) switch between turns; the turn records it.
+    await page.getByTestId("controls-toggle").getByRole("button", { name: "Off" }).click();
+    await waitReady(page);
+    const off = await replayTurn(page, "en-02", "en");
+    expect(off.conditions).toMatchObject({ controls: false });
+    await expect(page.getByTestId("turn-card").first().getByTestId("controls-tag")).toHaveText("Clinic terms off");
+
     // Export downloads JSON of all turns with marks and run conditions.
     const [download] = await Promise.all([page.waitForEvent("download"), page.getByTestId("export-metrics").click()]);
     const body = JSON.parse(await (await download.createReadStream())!.toArray().then((c) => Buffer.concat(c).toString()));
-    expect(body.turns).toHaveLength(2);
+    expect(body.turns).toHaveLength(3);
     expect(body.turns[0].marks.press).toBeGreaterThan(0);
     expect(body.turns[1].conditions.strategy).toBe("clause");
+    expect(body.turns[2].conditions.controls).toBe(false);
   });
 
   test("mode switch mid-turn is queued, then Realtime runs a turn, then back to Cascade", async ({ page }) => {

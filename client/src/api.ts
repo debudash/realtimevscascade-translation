@@ -29,6 +29,8 @@ export interface AppConfig {
   pairs: PairInfo[];
   languages: LanguageInfo[];
   providers: ProviderSet;
+  /** Translation controls (formal register + clinic glossary) default. */
+  translationControls?: { enabled: boolean };
 }
 
 export interface ClipInfo {

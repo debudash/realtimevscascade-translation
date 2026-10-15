@@ -29,7 +29,8 @@ Two controls, configured once and applied in each pipeline the way that pipeline
 - **Configuration:** `TranslationControls` in [`appsettings.json`](../server/src/Workbench.Api/appsettings.json):
   `Enabled`, `Formal`, and `Glossary` per direction (`"en-es"`, `"es-en"`). Source term → required
   target term.
-- **Default:** on. Turn it off per session with `?controls=off` in the URL (`?controls=on` forces it on).
+- **Default:** on. Switch it with the header's **Clinic terms | Off** toggle (between turns, both modes), or set
+  the initial value with `?controls=off` / `?controls=on` in the URL. Each turn card shows "Clinic terms on/off".
   The baseline harness configurations pin `controls=off`, so the original runs stay reproducible.
 - **Code:**
   - `TranslationControls` in `Workbench.Core/Contracts`. It travels on each turn
