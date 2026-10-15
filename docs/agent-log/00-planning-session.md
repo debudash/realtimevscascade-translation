@@ -42,3 +42,10 @@ the sequence diagrams were never queued for the run. The post-run conformity
 check found them missing. This entry, `docs/decisions.md`, and
 `docs/measurement-protocol.md` were produced afterwards in the planning
 session to close that gap.
+
+## Prompts actually sent (from the transcripts)
+- [01-overnight-run.md](01-overnight-run.md): pre-kickoff setup and the
+  kickoff prompt, with timestamps.
+- [02-conformance-fix.md](02-conformance-fix.md): the morning follow-ups,
+  the conformity check (with the full control-room prompt) and the
+  conformance fix.
