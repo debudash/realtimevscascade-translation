@@ -54,7 +54,7 @@ export function App() {
 
 function Shell({ startError }: { startError: string | null }) {
   const s = useSnapshot();
-  const missing = s.sessionError?.code === "config_error" ? (s.health?.missing ?? []) : [];
+  const missing = s.sessionError?.code === "config_error" ? (s.health?.missingByMode?.[s.turn.mode] ?? s.health?.missing ?? []) : [];
 
   return (
     <div className={`app app--${s.turn.mode}`}>

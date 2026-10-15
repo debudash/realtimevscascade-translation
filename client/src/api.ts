@@ -5,6 +5,8 @@ export interface Health {
   configOk: boolean;
   /** Names of missing variables (never values). */
   missing: string[];
+  /** Missing variables that block each mode (DeepL is optional: it is only the failover). */
+  missingByMode?: Record<"realtime" | "cascade", string[]>;
   providers: ProviderSet;
 }
 

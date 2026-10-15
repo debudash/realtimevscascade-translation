@@ -50,4 +50,6 @@ export interface InterpreterTransport {
   close(): Promise<void>;
   /** Jitter buffer depth etc., for the soak test. */
   diagnostics(): Record<string, number>;
+  /** Called from a user gesture (press): start any audio the browser blocks before one. */
+  resumeAudio?(): void;
 }

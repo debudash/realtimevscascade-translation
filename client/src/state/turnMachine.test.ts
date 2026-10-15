@@ -67,6 +67,7 @@ const rows: Row[] = [
     check: (s) => expect(s.errorCode).toBeNull() },
   { name: "switch during a session error is queued", from: at("Error", { errorCode: "socket_drop" }), action: { type: "SWITCH_MODE", mode: "realtime" }, phase: "Error", effects: ["switchQueued"],
     check: (s) => expect(s.pendingMode).toBe("realtime") },
+  { name: "switch escapes a config error (the other mode may have its keys)", from: at("Error", { errorCode: "config_error" }), action: { type: "SWITCH_MODE", mode: "realtime" }, phase: "Warming", effects: ["applyMode"] },
   { name: "switch escapes a failed warm-up", from: at("Error", { errorCode: "internal" }), action: { type: "SWITCH_MODE", mode: "realtime" }, phase: "Warming", effects: ["applyMode"] },
   { name: "recovery applies a queued switch", from: at("Error", { pendingMode: "realtime" }), action: { type: "RECOVER" }, phase: "Warming", effects: ["applyMode"] },
   { name: "TURN_DONE in Error is ignored", from: at("Error"), action: { type: "TURN_DONE" }, phase: "Error", effects: [] },

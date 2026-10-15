@@ -12,6 +12,7 @@ import { RealtimeEventMapper, type MapperOutput } from "./eventMapper";
 
 const OPENAI_CALLS_URL = "https://api.openai.com/v1/realtime/calls";
 const MAX_RECONNECTS = 5;
+const RESPONSE_START_TIMEOUT_MS = 5000;
 
 interface SessionInfo {
   clientSecret: string;
@@ -45,6 +46,7 @@ export class RealtimeTransport implements InterpreterTransport {
   private closed = false;
   private reconnecting = false;
   private responseActive = false;
+  private responseTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private readonly sink: TransportSink,
@@ -118,7 +120,9 @@ export class RealtimeTransport implements InterpreterTransport {
     this.audioEl.srcObject = stream;
     await this.tap?.close();
     this.tap = new RemoteAudioTap(stream);
-    await this.tap.resume();
+    // Not awaited: before a user gesture a browser keeps this pending (resumeAudio() runs on press).
+    void this.tap.resume();
+    void this.audioEl.play().catch(() => {});
     this.tap.onFirstAudible = (t) => this.currentTurn && this.sink.mark(this.currentTurn.turnId, "firstAudible", t);
     this.tap.onSilence = () => this.currentTurn && this.apply(this.mapper.silence(this.currentTurn.turnId));
 
@@ -184,6 +188,12 @@ export class RealtimeTransport implements InterpreterTransport {
     this.sink.event({ type: "turn.start", turnId: spec.turnId, t: performance.now() - this.t0, speaker: spec.speaker, direction: `${spec.source}-${spec.target}` }, performance.now());
   }
 
+  /** From the press gesture: autoplay policies may have held back the remote audio and the tap. */
+  resumeAudio(): void {
+    void this.tap?.resume();
+    if (this.audioEl?.paused) void this.audioEl.play().catch(() => {});
+  }
+
   sendFrame(): void {
     /* Realtime audio travels on the WebRTC track, not as frames. */
   }
@@ -196,6 +206,18 @@ export class RealtimeTransport implements InterpreterTransport {
     const dir = this.session?.directions.find((d) => d.source === this.currentTurn!.source && d.target === this.currentTurn!.target);
     this.send({ type: "response.create", response: dir ? { instructions: dir.instructions } : {} });
     this.responseActive = true;
+    this.responseTimer = setTimeout(() => this.onResponseTimeout(turnId), RESPONSE_START_TIMEOUT_MS);
+  }
+
+  /** No response.created within the timeout: fail the turn as provider_timeout and free the floor. */
+  private onResponseTimeout(turnId: string): void {
+    if (this.currentTurn?.turnId !== turnId) return;
+    const t = performance.now() - this.t0;
+    const dir = `${this.currentTurn.source}-${this.currentTurn.target}`;
+    this.sink.event({ type: "error", turnId, t, code: "provider_timeout", message: `No response from gpt-realtime within ${RESPONSE_START_TIMEOUT_MS / 1000} s`, retryable: true, provider: "openai-realtime", stage: "response" }, performance.now());
+    this.sink.event({ type: "turn.end", turnId, t, speaker: this.currentTurn.speaker, direction: dir, status: "failed" }, performance.now());
+    this.cancel(turnId);
+    this.sink.playbackEnded(turnId);
   }
 
   cancel(turnId: string): void {
@@ -215,6 +237,10 @@ export class RealtimeTransport implements InterpreterTransport {
       raw = JSON.parse(data);
     } catch {
       return;
+    }
+    if (raw.type === "response.created" && this.responseTimer) {
+      clearTimeout(this.responseTimer);
+      this.responseTimer = null;
     }
     if (raw.type === "response.done") this.responseActive = false;
     this.apply(this.mapper.handle(raw, performance.now()));

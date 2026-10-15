@@ -5,6 +5,7 @@
 import { api, type AppConfig, type ClipInfo, type Health, type PairInfo } from "../api";
 import { CaptureEngine, MicDeniedError, type CapturedFrame } from "../audio/captureEngine";
 import { CAPTURE_RATE, int16ToFloat } from "../audio/dsp";
+import { DENY_TONE_MS } from "../audio/denyTone";
 import { EnergyDetector } from "../audio/energyDetector";
 import { Player } from "../audio/player";
 import type { ErrorCode, WorkbenchEvent } from "../contracts/events";
@@ -162,18 +163,25 @@ export class WorkbenchController {
     const [health, config, clips] = await Promise.all([api.health(), api.config(), api.clips().catch(() => [])]);
     this.set({ health, config, clips, pairId: config.defaultPair });
     await Promise.all([this.capture.init(), this.player.init()]);
-    if (!health.configOk && !this.usesOnlyFakes()) {
-      this.set({ sessionError: { code: "config_error", message: health.missing.join(", ") } });
-      this.dispatch({ type: "ERROR", code: "config_error" });
+    await this.selectInput(this.snap.input);
+    if (this.missingKeysFor(this.snap.turn.mode).length > 0) {
+      this.failSession("config_error", this.missingKeysFor(this.snap.turn.mode).join(", "));
       return;
     }
-    await this.selectInput(this.snap.input);
     await this.warm(this.snap.turn.mode);
   }
 
   private usesOnlyFakes(): boolean {
     const o = this.snap.providerOverride;
     return !!o && ["stt", "translation", "tts"].every((k) => o[k] === "fake");
+  }
+
+  /** Keys the given mode needs that are missing (names only). A missing DeepL key does not block Realtime. */
+  missingKeysFor(mode: Mode): string[] {
+    const h = this.snap.health;
+    if (!h) return [];
+    if (mode === "cascade" && this.usesOnlyFakes()) return [];
+    return h.missingByMode?.[mode] ?? h.missing;
   }
 
   get pair(): PairInfo | undefined {
@@ -183,6 +191,14 @@ export class WorkbenchController {
   /** Warm-up: open the transport (WebRTC or WebSocket) and provider connections before Ready. */
   private async warm(mode: Mode): Promise<void> {
     const gen = ++this.transportGen;
+    const missing = this.missingKeysFor(mode);
+    if (missing.length > 0) {
+      await this.transport?.close();
+      this.transport = null;
+      this.failSession("config_error", missing.join(", "));
+      return;
+    }
+    if (this.snap.sessionError?.code === "config_error") this.set({ sessionError: null });
     const old = this.transport;
     this.transport = null;
     await old?.close();
@@ -216,6 +232,7 @@ export class WorkbenchController {
    */
   press(speaker: string): void {
     void Promise.all([this.capture.resume(), this.player.resume()]);
+    this.transport?.resumeAudio?.();
     if (this.snap.input !== "mic") {
       void this.runReplayTurn(speaker);
       return;
@@ -355,6 +372,8 @@ export class WorkbenchController {
         return this.abortTurn(effect.turnId, "cancelled");
       case "floorDenied":
         this.player.denyTone();
+        // The tone can leak into the floor holder's open mic; keep it out of the energy detector (T0).
+        this.denyToneWindow = { from: performance.now(), to: performance.now() + DENY_TONE_MS + 120 };
         console.info("floor.denied", effect.speaker); // log only, not a tracked metric
         this.flash("denied", effect.speaker);
         return;
@@ -405,6 +424,8 @@ export class WorkbenchController {
     frames.push(pcm.slice());
   }
   private releasing: { turnId: string; at: number; timer: ReturnType<typeof setTimeout> } | null = null;
+  /** Capture frames overlapping the deny tone are kept out of the energy detector. */
+  private denyToneWindow = { from: -Infinity, to: -Infinity };
 
   private startTurn(speaker: string, turnId: string): void {
     const pair = this.pair;
@@ -483,8 +504,12 @@ export class WorkbenchController {
     const r = this.releasing;
     const feedTurn = capturing ? turnId : r && f.startMs < r.at ? r.turnId : null;
     if (feedTurn) {
-      for (const ev of this.detector.push(f.pcm, f.startMs, f.endMs - f.startMs)) {
-        if (ev.type === "speech_start") this.metrics.mark(feedTurn, "speechStart", ev.t);
+      const w = this.denyToneWindow;
+      const overlapsDenyTone = f.endMs >= w.from && f.startMs <= w.to;
+      if (!overlapsDenyTone) {
+        for (const ev of this.detector.push(f.pcm, f.startMs, f.endMs - f.startMs)) {
+          if (ev.type === "speech_start") this.metrics.mark(feedTurn, "speechStart", ev.t);
+        }
       }
       this.transport?.sendFrame(feedTurn, f.pcm);
       this.keepAudio(feedTurn, f.pcm);
