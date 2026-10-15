@@ -1,6 +1,6 @@
 # Evaluation report
 
-Generated 2026-10-15T15:34:45.428Z by `npm run report` from every saved harness run, pooled per configuration.
+Generated 2026-10-15T16:22:24.036Z by `npm run report` from every saved harness run, pooled per configuration.
 All numbers are measured; p50/p95 use linear interpolation. Clips are synthetic speech (ElevenLabs), 24 clinic sentences (12 EN, 12 ES).
 
 | Configuration | Runs | Build | Turns |
@@ -73,9 +73,18 @@ Measured on the server; translation and TTS durations run from the stage's own s
 | Cascade · clause (Deepgram · OpenAI · ElevenLabs) | 0.000 | 0.088 | 4.83 | 4.88 | 4.71 | 0% (0/48) |
 | Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs) | 0.000 | 0.293 | 4.96 | 5.00 | 4.96 | 0% (0/48) |
 
-Rubric scores are 1-5 from an **automated judge** (gpt-4.1-mini, temperature 0) comparing each output with the source and the reference translation; spot-check them with the human sheet in MORNING.md.
+Rubric scores are 1-5 from an **automated judge** (gpt-4.1-mini, temperature 0) comparing each output with the source and the reference translation; the blind human spot-check below checks it.
 Target WER against a single reference translation penalizes valid paraphrases, so it is a crude proxy. Realtime's source transcript comes from OpenAI's side transcription (gpt-4o-transcribe), not from what the speech-to-speech model understood.
 "Answered instead of interpreted" = flagged by the heuristic (a question rendered as a statement, output > 1.8x the reference, or output in the wrong language) or by the judge. Flags are a review list, not a verdict.
+
+### Human spot-check (blind)
+
+| Configuration | Turns | Human acc / comp / flu | Judge acc / comp / flu (same turns) | Answered instead (human) |
+|---|---|---|---|---|
+| Realtime (gpt-realtime) | 10 | 4.70 / 4.60 / 4.60 | 5.00 / 4.90 / 5.00 | 0 / 10 |
+| Cascade · segment (Deepgram · OpenAI · ElevenLabs) | 10 | 5.00 / 4.60 / 4.80 | 5.00 / 5.00 / 5.00 | 0 / 10 |
+
+Agreement over 60 individual scores: 44 identical, 60 within one point, 16 where the human scored lower than the judge. Scored blind by the project owner (configuration hidden, random order); source: `human-scores.json`. Ten turns per configuration can check the judge, not rank the configurations.
 
 ## 3. Cost per minute of input speech
 
