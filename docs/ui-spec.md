@@ -116,6 +116,9 @@ on {current}".
   No first token within 2.0 s after one retry", with a "Retry turn" button.
 - **`rate_limited`:** a toast, "Translation provider busy / Got 429 three
   times. Switched to DeepL for 60 s. This is recorded on the turn."
+  When the stage has no fallback (TTS, or translation without a DeepL key),
+  the turn fails inline like the timeout row: "Rate limited at {stage}
+  (HTTP 429)" with "Retry turn".
 - **`empty_result`:** neutral, not an error. "No speech detected. Hold the
   button while you talk."
 - **`config_error`:** a startup panel, "Configuration missing", listing the

@@ -30,6 +30,17 @@ test.describe("error and transition states", () => {
     await expect(page.getByTestId("turn-card").first()).toContainText("Failover: translation: fake → fake-deepl");
   });
 
+  test("rate_limited with no fallback: inline 'Rate limited' title with Retry turn", async ({ page }) => {
+    // TTS has no secondary provider, so repeated 429s end the turn as rate_limited.
+    await page.goto("/?providers=fake&faults=tts:429");
+    await waitReady(page);
+    const turn = await replayTurn(page, "en-01", "en");
+    expect(turn.error?.code).toBe("rate_limited");
+    const err = page.getByTestId("turn-error").first();
+    await expect(err).toContainText("Rate limited at speech synthesis (HTTP 429)");
+    await expect(err.getByRole("button", { name: "Retry turn" })).toBeVisible();
+  });
+
   test("empty_result: neutral note, not an error", async ({ page }) => {
     await page.goto("/?providers=fake&faults=stt:empty");
     await waitReady(page);

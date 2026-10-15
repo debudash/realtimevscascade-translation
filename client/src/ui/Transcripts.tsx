@@ -89,7 +89,12 @@ function TurnError({ turn, onRetry }: { turn: TurnRecord; onRetry: () => void })
       </div>
     );
   }
-  const title = e.code === "provider_timeout" ? `Timed out at ${stage}` : `Provider error at ${stage}${e.httpStatus ? ` (HTTP ${e.httpStatus})` : ""}`;
+  const title =
+    e.code === "provider_timeout"
+      ? `Timed out at ${stage}`
+      : e.code === "rate_limited"
+        ? `Rate limited at ${stage} (HTTP 429)`
+        : `Provider error at ${stage}${e.httpStatus ? ` (HTTP ${e.httpStatus})` : ""}`;
   return (
     <div className="card__error" role="alert" data-testid="turn-error">
       <strong>{title}</strong>
