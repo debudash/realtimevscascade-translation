@@ -29,6 +29,7 @@ class PlaybackProcessor extends AudioWorkletProcessor {
       } else if (m.type === "end") this.ended = true;
       else if (m.type === "reset") {
         this.buffer.clear();
+        this.tap.disarm();
         this.playRequested = this.started = this.ended = false;
       }
     };

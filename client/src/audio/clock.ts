@@ -1,6 +1,7 @@
 /**
- * Maps an AudioContext time (seconds) onto the browser clock (performance.now() ms), so audio
- * marks (T0, first audible) share a timeline with UI and network marks.
+ * Maps a playback AudioContext time (seconds) onto the browser clock (performance.now() ms):
+ * when that sample reaches the speaker, per getOutputTimestamp(). Used for first_audible.
+ * Capture timestamps use their own mapping (captureEngine.ts).
  */
 export function ctxTimeToPerf(ctx: AudioContext, ctxTime: number): number {
   const ts = ctx.getOutputTimestamp();

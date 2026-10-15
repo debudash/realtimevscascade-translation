@@ -42,6 +42,7 @@ describe("Framer", () => {
     const frames = f.push(new Float32Array(400));
     expect(frames).toHaveLength(2);
     expect(frames[0]).toHaveLength(320);
+    expect(f.lastEndOffsets).toEqual([20, 340]); // 300 carried + 20 completes frame 1
   });
 
   it("clips and converts to int16", () => {

@@ -1,5 +1,4 @@
 import captureWorkletUrl from "./worklets/capture.worklet.ts?worker&url";
-import { ctxTimeToPerf } from "./clock";
 
 export class MicDeniedError extends Error {
   constructor(message = "Microphone access is blocked") {
@@ -32,6 +31,8 @@ export class CaptureEngine {
   private micStream: MediaStream | null = null;
   private replaySource: AudioBufferSourceNode | null = null;
   private ready: Promise<void> | null = null;
+  /** Mic hardware/OS input latency reported by the track (0 for replay, which starts inside the graph). */
+  private inputLatencyMs = 0;
 
   onFrame: (frame: CapturedFrame) => void = () => {};
 
@@ -48,7 +49,10 @@ export class CaptureEngine {
       await this.ctx.audioWorklet.addModule(captureWorkletUrl);
       this.worklet = new AudioWorkletNode(this.ctx, "capture-processor", { numberOfOutputs: 1 });
       this.worklet.port.onmessage = (e: MessageEvent<{ pcm: Int16Array; ctxEnd: number }>) => {
-        const endMs = ctxTimeToPerf(this.ctx, e.data.ctxEnd);
+        // Capture-side clock: when the frame was processed, minus the mic's input latency.
+        // (Not getOutputTimestamp, which maps to when a sample would reach the speaker.)
+        const processedAgoMs = (this.ctx.currentTime - e.data.ctxEnd) * 1000;
+        const endMs = performance.now() - processedAgoMs - this.inputLatencyMs;
         this.onFrame({ pcm: e.data.pcm, startMs: endMs - FRAME_MS, endMs });
       };
       // Keep the worklet pulled by the graph without making it audible.
@@ -82,11 +86,14 @@ export class CaptureEngine {
       if (name === "NotAllowedError" || name === "SecurityError" || name === "NotFoundError") throw new MicDeniedError();
       throw e;
     }
+    const settings = this.micStream.getAudioTracks()[0]?.getSettings() as MediaTrackSettings & { latency?: number };
+    this.inputLatencyMs = (settings?.latency ?? 0) * 1000;
     this.micSource = this.ctx.createMediaStreamSource(this.micStream);
     this.micSource.connect(this.gate);
   }
 
   releaseMic(): void {
+    this.inputLatencyMs = 0;
     this.micSource?.disconnect();
     this.micSource = null;
     this.micStream?.getTracks().forEach((t) => t.stop());

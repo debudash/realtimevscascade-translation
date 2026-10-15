@@ -97,7 +97,10 @@ export function turnReducer(s: TurnState, a: TurnAction): Transition {
 
     case "SWITCH_MODE":
       if (a.mode === s.mode) return same({ ...s, pendingMode: null });
-      if (s.phase === "Ready" || s.phase === "Warming" || s.phase === "Error") return applyMode(s, a.mode);
+      if (s.phase === "Ready" || s.phase === "Warming") return applyMode(s, a.mode);
+      // A failed warm-up ("internal") is escaped by switching modes; other session errors
+      // (socket drop, mic denied, config) must recover first, so the switch waits.
+      if (s.phase === "Error" && s.errorCode === "internal") return applyMode(s, a.mode);
       return same({ ...s, pendingMode: a.mode }, [{ type: "switchQueued", mode: a.mode }]);
 
     case "CANCEL_SWITCH":

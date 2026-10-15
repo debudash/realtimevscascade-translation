@@ -55,6 +55,8 @@ export class Resampler {
 export class Framer {
   private buf: Int16Array;
   private fill = 0;
+  /** For each frame returned by the last push: the index in `samples` just past its last sample. */
+  lastEndOffsets: number[] = [];
 
   constructor(readonly size: number = FRAME_SAMPLES) {
     this.buf = new Int16Array(size);
@@ -62,10 +64,12 @@ export class Framer {
 
   push(samples: Float32Array): Int16Array[] {
     const frames: Int16Array[] = [];
+    this.lastEndOffsets = [];
     for (let i = 0; i < samples.length; i++) {
       this.buf[this.fill++] = floatToInt16(samples[i]);
       if (this.fill === this.size) {
         frames.push(this.buf);
+        this.lastEndOffsets.push(i + 1);
         this.buf = new Int16Array(this.size);
         this.fill = 0;
       }
@@ -164,6 +168,10 @@ export class OutputTap {
 
   arm(): void {
     this.armed = true;
+  }
+
+  disarm(): void {
+    this.armed = false;
   }
 
   get isArmed(): boolean {

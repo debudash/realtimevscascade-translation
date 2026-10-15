@@ -10,11 +10,14 @@ class CaptureProcessor extends AudioWorkletProcessor {
   process(inputs: Float32Array[][]): boolean {
     const channel = inputs[0]?.[0];
     if (channel) {
-      const frames = this.framer.push(this.resampler.process(channel));
-      const quantumEnd = currentTime + channel.length / sampleRate;
-      for (const pcm of frames) {
-        this.port.postMessage({ pcm, ctxEnd: quantumEnd }, [pcm.buffer]);
-      }
+      const resampled = this.resampler.process(channel);
+      const frames = this.framer.push(resampled);
+      const quantumS = channel.length / sampleRate;
+      frames.forEach((pcm, i) => {
+        // Interpolate where in this render quantum the frame's last sample falls.
+        const ctxEnd = currentTime + (this.framer.lastEndOffsets[i] / Math.max(1, resampled.length)) * quantumS;
+        this.port.postMessage({ pcm, ctxEnd }, [pcm.buffer]);
+      });
     }
     return true;
   }
