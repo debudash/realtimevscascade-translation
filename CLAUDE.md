@@ -260,3 +260,12 @@ media modules split into separate services.
   data-channel event mapper, remote-track first_audible, reconnect 1-5),
   verified on the live API by Playwright. Decided: per-turn session.update
   for direction, prune context to last 2 turns.
+- **M3 (agent):** cascade core: segment/clause commit policies, pipeline
+  with bounded channels and per-turn cancellation, fakes with fault
+  injection, Polly retry + DeepL failover breaker, /ws/cascade with a single
+  writer, WebSocket client transport. A subagent review caught two session
+  lifecycle hangs; fixed. Deferred: nothing.
+- **M4 (agent):** real adapters (Deepgram, OpenAI streamed translation,
+  DeepL, ElevenLabs) with doc URLs, contract tests, live e2e in both
+  directions. Decided: gpt-4.1-nano from measured TTFT; Deepgram end-of-turn
+  by audio coverage (measured behaviour). Pulled clip generation forward.

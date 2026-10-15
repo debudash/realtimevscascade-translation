@@ -97,40 +97,56 @@ target text + audio, all marks recorded. Provider-boundary xUnit tests cover
 the minted session config, key never returned, config_error and 429 mapping.
 
 ## M3 · Cascade core with fakes (≈2 h)
-- [ ] The orchestrator: bounded channels, a per-turn CancellationTokenSource,
+- [x] The orchestrator: bounded channels, a per-turn CancellationTokenSource,
       and a single writer per socket.
-- [ ] CommitPolicy `segment` and `clause` as pure classes, with xUnit tests:
+- [x] CommitPolicy `segment` and `clause` as pure classes, with xUnit tests:
       - revisions
       - empty finals
       - run-on speech
       - EN/ES reordering examples
       - no duplicate commits
-- [ ] Fake providers with configurable latency, 429s, timeouts, and empty
+- [x] Fake providers with configurable latency, 429s, timeouts, and empty
       output.
-- [ ] Pipeline tests: streaming starts before the end of the turn,
+- [x] Pipeline tests: streaming starts before the end of the turn,
       cancellation, ordering, timeout -> `provider_timeout`, empty ->
       `empty_result`, and 429 -> retry, then failover.
-- [ ] `/ws/cascade` endpoint plus the CascadeTransport client. Audio is
+- [x] `/ws/cascade` endpoint plus the CascadeTransport client. Audio is
       buffered until release (consecutive playback).
-- [ ] Warm-up on connect: the server pre-connects its provider clients.
+- [x] Warm-up on connect: the server pre-connects its provider clients.
       Press-to-warm: the STT stream opens on press.
 
 **Acceptance:** all pipeline tests are green, and a cascade turn works end to
 end with fakes.
 
+**Notes (M3):** 65 xUnit (16 commit-policy, 14 pipeline, 4 socket, 5 contract,
+others) + 3 Playwright over /ws/cascade with server fakes (end to end, 429
+failover, translation timeout). Subagent review found 2 must-fix lifecycle
+bugs (Cancel on a disposed turn could skip session cleanup; a dead writer
+could hang a turn on a full channel) - both fixed - plus clause-policy
+alignment after STT revisions, watchdog race, retryable 408/425, stale
+playback messages across turns (worklet generation tags), warm-up timer
+cleanup.
+
 ## M4 · Real cascade providers (≈2 h)
-- [ ] Read the current docs for Deepgram streaming, ElevenLabs streaming, and
+- [x] Read the current docs for Deepgram streaming, ElevenLabs streaming, and
       DeepL. Record the URLs in each adapter.
-- [ ] Deepgram STT adapter (interim + final; finalize on release).
-- [ ] OpenAI streaming translation adapter (context = last 2 segments).
-- [ ] ElevenLabs streaming TTS adapter.
-- [ ] DeepL translation adapter (secondary and failover).
-- [ ] Polly retry with jitter, plus a circuit breaker -> DeepL failover,
+- [x] Deepgram STT adapter (interim + final; finalize on release).
+- [x] OpenAI streaming translation adapter (context = last 2 segments).
+- [x] ElevenLabs streaming TTS adapter.
+- [x] DeepL translation adapter (secondary and failover).
+- [x] Polly retry with jitter, plus a circuit breaker -> DeepL failover,
       recorded on the turn.
-- [ ] Contract tests per adapter, skipped when the key is missing.
+- [x] Contract tests per adapter, skipped when the key is missing.
 
 **Acceptance:** an EN clip and an ES clip each work end to end on real
 providers in cascade-segment mode.
+
+**Notes (M4):** contract tests pass against all four real APIs. Playwright
+on real providers, cascade-segment: en-01 -> "Mi hijo ha tenido fiebre desde
+anoche." mouth-to-ear 1918 ms; es-01 -> "I have an appointment at 3 with the
+doctor." 1460 ms (single runs, for the acceptance check only; the report
+uses p50/p95). Evaluation clips were generated here (M6 items 1-2 pulled
+forward) because M4 needs a Spanish clip and no offline Spanish voice exists.
 
 ## M5 · Full UI per spec (≈2 h)
 - [ ] Implement `docs/ui-spec.md` completely:
@@ -271,6 +287,38 @@ configurations, plus the soak, provider-swap, and onboarding results.
 - **M2 · Model:** locked `gpt-realtime` (snapshot gpt-realtime-2025-08-28,
   still GA). Newer `gpt-realtime-2.x` and `gpt-realtime-translate` exist;
   noted for the write-up, not used (locked decision).
+- **M3 · Fallback naming:** a fake primary fails over to a distinct fake
+  (`fake-deepl`) so the 429 -> failover path is demonstrable without keys
+  (`?providers=fake&faults=translation:429`). Faults apply to fakes only.
+- **M3 · Circuit breaker:** custom `FailoverCircuit` (open for 60 s once the
+  Polly retry budget for 429s is exhausted), shared per real provider across
+  sessions; Polly does the retries with exponential backoff + jitter. Polly's
+  own breaker needs >= 2 samples and a sampling window, which does not match
+  "open after 429 three times" cleanly.
+- **M3 · STT final timeout:** no retry (after release there is no audio to
+  resend). On timeout the policy flushes what was heard; if nothing was
+  heard, `provider_timeout` at stt. Deviation from §6 "one retry".
+- **M3 · Clause policy:** stable = unchanged across two consecutive
+  partials; boundary = clause punctuation or before a conjunction, min 3
+  words unless . ? !. Words already committed are not re-sent if STT later
+  revises them; the final is aligned on the last committed word.
+- **M4 · Translation model:** `gpt-4.1-nano`. Measured 2026-10-15
+  (3 streamed calls each, warm): gpt-4.1-nano TTFT ~360-400 ms,
+  gpt-4o-mini ~420-870 ms, gpt-4.1-mini ~860 ms, gpt-6-luna ~960-1060 ms;
+  same translation for the test sentence. Config: `OpenAI:TranslationModel`.
+- **M4 · Deepgram end of turn:** Deepgram works through audio at ~real-time
+  pace even when it arrives in a burst, and the Finalize response only
+  covers what it has processed so far (measured). The adapter ends the turn
+  when a final's end time reaches the audio sent, with an inactivity
+  timeout after Finalize. With real-time pacing the final arrived 66 ms
+  after Finalize.
+- **M4 · TTS:** ElevenLabs HTTP streaming (`/stream`, pcm_24000,
+  eleven_flash_v2_5, voice Matilda) - the docs recommend HTTP over the
+  WebSocket when the full text is known, which is the case per segment.
+  Odd bytes split across network reads are carried to the next chunk.
+- **M4 · Clips:** synthetic speakers are ElevenLabs multilingual_v2 voices
+  (EN George, ES Sarah), distinct from the cascade output voice. Clips are
+  trimmed to 250 ms lead-in / 150 ms tail.
 
 ## Blockers
 (The agent appends here.)
