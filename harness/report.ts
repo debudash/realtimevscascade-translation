@@ -292,7 +292,7 @@ async function main() {
     );
   }
   line();
-  line(`Rubric scores are 1-5 from an **automated judge** (${JUDGE_MODEL}, temperature 0) comparing each output with the source and the reference translation; spot-check them with the human sheet in MORNING.md.`);
+  line(`Rubric scores are 1-5 from an **automated judge** (${JUDGE_MODEL}, temperature 0) comparing each output with the source and the reference translation; the blind human spot-check below checks it.`);
   line("Target WER against a single reference translation penalizes valid paraphrases, so it is a crude proxy. Realtime's source transcript comes from OpenAI's side transcription (gpt-4o-transcribe), not from what the speech-to-speech model understood.");
   line("\"Answered instead of interpreted\" = flagged by the heuristic (a question rendered as a statement, output > 1.8x the reference, or output in the wrong language) or by the judge. Flags are a review list, not a verdict.");
   line();
@@ -304,6 +304,32 @@ async function main() {
     review.forEach((r) => line(r));
     line();
   }
+
+  // Human spot-check: blind scores for a sample of turns, beside the judge's scores for the same outputs.
+  const humanPath = join(resultsDir, "human-scores.json");
+  line("### Human spot-check (blind)");
+  line();
+  if (existsSync(humanPath)) {
+    type Scores = { accuracy: number; completeness: number; fluency: number; answeredInsteadOfInterpreted: boolean };
+    const items = (JSON.parse(readFileSync(humanPath, "utf8")).items ?? []) as { config: string; human: Scores; judge: Scores }[];
+    const dims = ["accuracy", "completeness", "fluency"] as const;
+    line("| Configuration | Turns | Human acc / comp / flu | Judge acc / comp / flu (same turns) | Answered instead (human) |");
+    line("|---|---|---|---|---|");
+    for (const config of [...new Set(items.map((i) => i.config))]) {
+      const mine = items.filter((i) => i.config === config);
+      const avg = (who: "human" | "judge") => dims.map((d) => fix(mean(mine.map((i) => i[who][d])))).join(" / ");
+      line(`| ${CONFIGS[config]?.label ?? config} | ${mine.length} | ${avg("human")} | ${avg("judge")} | ${mine.filter((i) => i.human.answeredInsteadOfInterpreted).length} / ${mine.length} |`);
+    }
+    const pairs = items.flatMap((i) => dims.map((d) => i.human[d] - i.judge[d]));
+    const exact = pairs.filter((x) => x === 0).length;
+    const within1 = pairs.filter((x) => Math.abs(x) <= 1).length;
+    const lower = pairs.filter((x) => x < 0).length;
+    line();
+    line(`Agreement over ${pairs.length} individual scores: ${exact} identical, ${within1} within one point, ${lower} where the human scored lower than the judge. Scored blind by the project owner (configuration hidden, random order); source: \`human-scores.json\`. Ten turns per configuration can check the judge, not rank the configurations.`);
+  } else {
+    line("Not done yet.");
+  }
+  line();
 
   // Cost
   line("## 3. Cost per minute of input speech");
