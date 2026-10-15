@@ -135,7 +135,7 @@ first write wins).
 | `translate_first_token` / `translate_done` | `marks.translateFirstToken` / `translateDone` | Server Stopwatch per segment in `CascadeTurnPipeline.cs` (translate loop); mapped on receipt | same |
 | `tts_first_byte` | `marks.ttsFirstByte` | Server Stopwatch per segment in `CascadeTurnPipeline.cs` (TTS loop); mapped on receipt | same |
 | `rt_response_start` | `marks.rtResponseStart` | `client/src/transports/realtime/eventMapper.ts` on `response.created` over the data channel | `eventMapper.test.ts` "maps a full turn to normalized events, marks and playback signals" |
-| `first_audible` | `marks.firstAudible` | Cascade: `client/src/audio/player.ts` `onFirstAudible` via the playback-tap `OutputTap` (`dsp.ts`), time from `getOutputTimestamp` (`audio/clock.ts`). Realtime: AnalyserNode tap on the remote track in `RealtimeTransport.ts`, polled every 5 ms | `dsp.test.ts` "OutputTap", `e2e/realtime.spec.ts` |
+| `first_audible` | `marks.firstAudible` | Cascade: `client/src/audio/player.ts` `onFirstAudible` via the playback-tap `OutputTap` (`dsp.ts`), time from `getOutputTimestamp` (`audio/clock.ts`). Realtime: AnalyserNode tap on the remote track, `client/src/audio/remoteTap.ts` (polled every 5 ms), wired in `RealtimeTransport.ts` | `dsp.test.ts` "OutputTap", `e2e/realtime.spec.ts` |
 
 **Exclusion rule:** `client/src/audio/denyTone.ts` connects straight to the
 destination, never through the playback tap. `controller.ts`

@@ -98,7 +98,7 @@ flowchart LR
 - **Turn model.** Consecutive playback: the cascade translates and synthesizes while the speaker is
   still talking and starts playing on release. A press while the floor is busy is denied (two-note
   tone, shake, "Floor busy"), never queued.
-- Details: [`docs/architecture.md`](docs/architecture.md), decisions log in [`PROGRESS.md`](PROGRESS.md).
+- Details: [`docs/architecture.md`](docs/architecture.md) (index of the as-built HLA, LLA and sequence diagrams), decisions in [`docs/decisions.md`](docs/decisions.md), run log in [`PROGRESS.md`](PROGRESS.md).
 
 ## Why C# / .NET
 

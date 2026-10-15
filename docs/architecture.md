@@ -1,6 +1,28 @@
 # Architecture
 
-## 1. Components
+This page is the index. The architecture **as built** is in three files,
+each generated from the code and stating its source commit:
+
+| Doc | What it covers |
+|---|---|
+| [architecture/hla.md](architecture/hla.md) | High level: system context (browser, backend, four providers, OpenAI Realtime), the Realtime and cascade paths side by side, the control plane / media plane split |
+| [architecture/lla.md](architecture/lla.md) | Low level: module and project map, `InterpreterTransport` and provider interfaces, DI and config selection, channels and cancellation, resilience (Polly retry, circuit breaker, DeepL failover), event schema as built, error taxonomy, state machines |
+| [architecture/sequences.md](architecture/sequences.md) | Sequence diagrams for warm-up, Realtime minting and connect, a Realtime turn, cascade segment and clause turns, floor deny, queued mode switch, 429 failover, provider timeout, socket drop, with every timing mark annotated |
+
+Related: decisions in [decisions.md](decisions.md) (including "Changes
+during the build"), measurement in
+[measurement-protocol.md](measurement-protocol.md), translation controls in
+[translation-controls.md](translation-controls.md).
+
+## Design-time spec (pre-build)
+
+> This is the target architecture written before the build and handed to
+> the coding agent. It is kept for the record. Where the code differs, the
+> as-built docs above describe the code and flag the difference. One
+> post-build edit was made here: the translation controls bullet in 6
+> (commit 04b0e30).
+
+### 1. Components
 
 ```
 Browser (Vite + React + TS)
@@ -41,7 +63,7 @@ ASP.NET Core backend (one process)
     Stopwatch stage durations, emitted as stage.timing events
 ```
 
-## 2. Backend contracts (C#)
+### 2. Backend contracts (C#)
 
 ```csharp
 public interface ISttProvider {
@@ -66,7 +88,7 @@ UI's run conditions:
 "Providers": { "Stt": "deepgram", "Translation": "openai", "TranslationFallback": "deepl", "Tts": "elevenlabs" }
 ```
 
-## 3. Normalized event schema (shared by both transports)
+### 3. Normalized event schema (shared by both transports)
 
 Every event carries `turnId` and `t` (a monotonic timestamp, browser or server
 side as noted).
@@ -86,7 +108,7 @@ Define these as C# records. Generate the TS types from them, or hand-maintain
 the TS types with a contract test that round-trips sample events from both
 sides.
 
-## 4. State machines
+### 4. State machines
 
 **Turn / floor (browser, authoritative):**
 `Warming -> Ready -> Capturing(speaker) -> Finalizing -> Playing -> Ready`
@@ -107,7 +129,7 @@ sides.
 
 Unit-test the turn and floor machine with table-driven tests (vitest).
 
-## 5. Realtime mode details (verify against current OpenAI docs)
+### 5. Realtime mode details (verify against current OpenAI docs)
 
 - **Session config** comes from the backend:
   - model `gpt-realtime`
@@ -130,7 +152,7 @@ Unit-test the turn and floor machine with table-driven tests (vitest).
   after the interpreted audio. Show it when it arrives. Never delay the
   target to line the columns up.
 
-## 5a. Warm-up
+### 5a. Warm-up
 
 - **On page load and after a mode switch:**
   - Realtime: mint a session and open WebRTC.
@@ -141,7 +163,7 @@ Unit-test the turn and floor machine with table-driven tests (vitest).
 - **On press (press-to-warm):** the cascade opens the STT stream immediately.
   Finalize on release.
 
-## 6. Cascade details
+### 6. Cascade details
 
 - **STT:** stream frames as they arrive. Use the provider's interim and final
   results. On release, send the provider's finalize or flush message if it
@@ -166,7 +188,7 @@ Unit-test the turn and floor machine with table-driven tests (vitest).
   60 s, translation fails over to DeepL, and the failover is recorded on the
   turn.
 
-## 7. Timing marks (per turn)
+### 7. Timing marks (per turn)
 
 | Mark | Captured where |
 |---|---|
@@ -188,7 +210,7 @@ Unit-test the turn and floor machine with table-driven tests (vitest).
 Each turn also records its run conditions: mode, strategy, providers,
 direction, and input source.
 
-## 8. Evaluation
+### 8. Evaluation
 
 **Clips (synthetic):**
 - Write 12 EN and 12 ES clinic-style sentences (see `docs/ui-spec.md` for
@@ -244,7 +266,7 @@ buffer depth over time, and browser heap at start vs. end. Also force one
 transport drop mid-soak, and measure recovery time: drop -> Ready, with the
 transcript intact.
 
-## 9. Repo layout
+### 9. Repo layout
 
 ```
 /client                      Vite + React + TS
