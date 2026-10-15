@@ -357,3 +357,7 @@ The prompts actually sent, with timestamps, are in
   with estimate, confirmation, detail and per-clip compare (C-23). Built
   test-first in five scoped commits. Plan in
   docs/agent-log/04-test-runs-tab.md.
+- **Live voice and Documentation (agent, owner request):** live session in
+  English only (no Spanish speaker), analysed in report section 7; a
+  Documentation tab with a plain how-to (C-24); end-of-round wrap-up of
+  status, conformance, hours and the as-built architecture docs.

@@ -420,3 +420,8 @@ where it stopped.)
   `git push -u origin main`). Harness budget used: realtime 3/3, cascade
   baselines 2/3 each, each `*-controls` config 1/3, soaks 1/1 per mode.
   Open idea: test the glossary on held-out sentences (MORNING.md next steps).
+- 2026-10-15 08:42-13:20 local, conformance fix and two product rounds at the
+  owner's request: doc pack completed; the owner decided each open gap
+  (all closed or documented, see docs/status.md); Compare modes row, Test
+  Runs tab, Documentation tab; live voice in English; four owner Test Runs.
+  First push 6eb52f2; merge request !1 open; wrap-up on `docs/round-wrap-up`.
