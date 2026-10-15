@@ -338,12 +338,19 @@ async function main() {
   line();
   line("| Configuration | Speech minutes | Total USD | USD per minute |");
   line("|---|---|---|---|");
+  const perMinute: Record<string, number> = {};
   for (const r of runs) {
     const ok = r.turns.filter((t) => t.usage);
     const minutes = ok.reduce((a, t) => a + ((t.marks.release ?? 0) - (t.marks.press ?? 0)), 0) / 60000;
     const usd = ok.reduce((a, t) => a + turnCost(t.usage!, pricing, (t.providersUsed ?? [])[1] ?? t.conditions.providers[1] ?? ""), 0);
+    if (minutes) perMinute[r.config] = Number((usd / minutes).toFixed(4));
     line(`| ${r.label} | ${minutes.toFixed(2)} | ${usd.toFixed(4)} | ${minutes ? (usd / minutes).toFixed(4) : "–"} |`);
   }
+  // The UI's Test Runs tab estimates a run's cost from these measured rates (press-to-release minutes).
+  writeFileSync(
+    join(resultsDir, "cost-per-minute.json"),
+    JSON.stringify({ source: "harness/results/report.md section 3", pricesReadOn: pricing.verifiedOn, usdPerMinute: perMinute }, null, 2) + "\n",
+  );
   line();
   const rt = runs.find((r) => r.config === "realtime");
   if (rt) {
