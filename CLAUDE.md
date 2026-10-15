@@ -345,3 +345,15 @@ The prompts actually sent, with timestamps, are in
   HLA/LLA/sequence diagrams, requirements rows per decision and matrix cell,
   build-plan, status, agent-log from transcripts, standing rules, style
   sweep, conformance check. No product code changed.
+- **Product follow-ups (agent, owner decided each gap):** rate-limited
+  turn title; runId and build sha on every turn; WebRTC getStats playback
+  health for Realtime; prices verified (DeepL still unverified); memory and
+  segment-level TTS documented in docs/production.md; blind human scoring
+  page (20 turns) added beside the judge; live-voice script. Then, at the
+  owner's request: a side-by-side "Compare modes" row (C-22) and a
+  scrolling transcript list. Plan in docs/agent-log/03-product-followups.md.
+- **Test Runs tab (agent, owner-confirmed design):** run chosen replay clips
+  on one setup, saved to harness/results/test-runs/ through a small API,
+  with estimate, confirmation, detail and per-clip compare (C-23). Built
+  test-first in five scoped commits. Plan in
+  docs/agent-log/04-test-runs-tab.md.

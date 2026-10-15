@@ -14,7 +14,7 @@ test, a measurement or a reproducible check.
 |---|---|---|---|---|---|
 | F1 | Browser SPA with microphone capture and audio playback | `client/src/audio/captureEngine.ts` (mic → capture worklet), `audio/player.ts` + `worklets/playback.worklet.ts`, `transports/realtime/RealtimeTransport.ts` (remote audio element) | e2e `audio-engine.spec.ts` "keyboard hold (Space) runs a turn" (fake mic device); every replay spec plays through the same capture graph | Playwright passes on every e2e spec (capture and playback through the real audio graph); harness runs: 72 Realtime and 144 cascade turns played back with `firstAudible` recorded (report §1) | Met |
 | F2 | Realtime mode with `gpt-realtime`, voice in / voice out | `server/.../OpenAI/RealtimeSessionClient.cs` (client secret, model `gpt-realtime`), `RealtimeTransport.ts` (WebRTC to `/v1/realtime/calls`), `eventMapper.ts` | e2e `realtime.spec.ts` "EN clip -> Spanish audio and transcripts, first_audible recorded"; xUnit `Mints_a_push_to_talk_session_and_never_returns_the_api_key`; vitest `eventMapper.test.ts` | report §1 Realtime rows (24 live turns) | Met |
-| F3 | Cascade mode: STT → Translation → TTS with streaming, no full-utterance blocking | `server/src/Workbench.Core/Pipeline/CascadeTurnPipeline.cs`, `Commit/CommitPolicies.cs`, adapters in `Workbench.Providers` | xUnit `Translation_and_tts_stream_before_the_turn_ends`, `Events_are_ordered_and_every_event_carries_the_turn`; e2e `cascade-real.spec.ts` | report §1 cascade rows and server stage durations; segments are translated and synthesized while the speaker talks (clause mode reached first audio at release on longer sentences) | Met at segment granularity: TTS starts per committed segment once its translation is complete, not mid-segment |
+| F3 | Cascade mode: STT → Translation → TTS with streaming, no full-utterance blocking | `server/src/Workbench.Core/Pipeline/CascadeTurnPipeline.cs`, `Commit/CommitPolicies.cs`, adapters in `Workbench.Providers` | xUnit `Translation_and_tts_stream_before_the_turn_ends`, `Events_are_ordered_and_every_event_carries_the_turn`; e2e `cascade-real.spec.ts` | report §1 cascade rows and server stage durations; segments are translated and synthesized while the speaker talks (clause mode reached first audio at release on longer sentences) | Met at segment granularity: TTS starts per committed segment once its translation is complete, not mid-segment (cost and production approach in [`production.md`](production.md) section 2) |
 | F4 | UI toggle to switch modes, pre-session or mid-session | `ui/Header.tsx` (mode toggle), `state/turnMachine.ts` (switch queued until Ready), `ui/StatusBanners.tsx` (pending banner, "Stay on …") | vitest `turnMachine.test.ts` ("switch mid-turn is queued", "queued switch applies when the turn ends"); e2e `ui-walkthrough.spec.ts` "mode switch mid-turn is queued, then Realtime runs a turn, then back to Cascade" | Playwright | Met |
 | F5 | Language pair selection, minimum EN ↔ ES | `appsettings.json` `Languages`, `GET /api/config`, `ui/Header.tsx` pair selector, per-speaker direction | xUnit `Config_lists_the_default_english_spanish_pair`; e2e `cascade-real.spec.ts` (both directions) | report §1 "By direction"; onboarding.md (EN ↔ FR added by config) | Met |
 | F6 | Live source and target transcripts as produced | `ui/Transcripts.tsx` (live card: stable vs partial words, streaming target with caret), `source.partial/final`, `target.partial/final` events | xUnit `Events_are_ordered...` (cumulative partials); e2e walkthrough + realtime spec (source text arrives after audio and is shown when it arrives) | Playwright | Met |
@@ -54,8 +54,8 @@ test, a measurement or a reproducible check.
 | # | Cell | Realtime evidence | Cascade evidence | Where written up | Status |
 |---|---|---|---|---|---|
 | M1 | Latency | report §1: p50 1.09 s / p95 1.46 s (72 turns); stages "hidden" | report §1: segment 1.43 / 1.89 s, clause 1.21 / 1.44 s, DeepL 1.15 / 1.25 s (48 turns each); server stage durations | comparison.md §1 | Met |
-| M2 | Quality (subjective + WER) | report §2: target WER 0.097, judge 4.96 / 4.97 / 4.99, answered-instead 0/72 | report §2: source WER 0.000, target WER 0.059-0.293, judge scores, answered-instead 0/48 per config | comparison.md §2 | Partial: "subjective" rests on the automated judge only; the human sheet in MORNING.md is blank |
-| M3 | Cost per minute | report §3: $0.210/min (with split) | report §3: $0.043/min (OpenAI), $0.066/min (DeepL) | comparison.md §3 | Partial: prices read 2026-10-15 and marked "verify"; the DeepL rate is unverified |
+| M2 | Quality (subjective + WER) | report §2: target WER 0.097, judge 4.96 / 4.97 / 4.99, answered-instead 0/72 | report §2: source WER 0.000, target WER 0.059-0.293, judge scores, answered-instead 0/48 per config | comparison.md §2 | Met: automated judge plus a blind human spot-check of 20 turns (44/60 scores identical, all within one point; report §2, `harness/results/human-scores.json`) |
+| M3 | Cost per minute | report §3: $0.210/min (with split) | report §3: $0.043/min (OpenAI), $0.066/min (DeepL) | comparison.md §3 | Partial: OpenAI, Deepgram and ElevenLabs verified 2026-10-15 (Deepgram rate is a promotion); DeepL unverified |
 | M4 | Controllability | Prompt, voice, turn boundaries; internals not observable; prompt-level controls measured (13/14 glossary terms) | Every stage timed and swappable; commit policy measured; formality + glossary enforced (9/9 formal, 14/14 terms) | comparison.md §4, [`translation-controls.md`](translation-controls.md) | Met |
 | M5 | Provider flexibility | Model version only | OpenAI -> DeepL by config only: report §4, `CascadeProviderFactoryTests.Config_alone_swaps_the_default_translator` | comparison.md §5 | Met |
 | M6 | Time to onboard a language pair | EN<->FR by config, 1.00-1.41 s | EN<->FR by config, 1.28-1.42 s | comparison.md §6, `harness/results/onboarding.md` | Met (one well-supported language; an uncommon pair was not tried) |
@@ -63,7 +63,7 @@ test, a measurement or a reproducible check.
 ## Planning decisions (D-01 to D-27)
 
 Status and evidence per decision are in [`decisions.md`](decisions.md);
-this table is the summary. Code-vs-plan differences are C-01 to C-21 in
+this table is the summary. Code-vs-plan differences are C-01 to C-24 in
 its "Changes during the build".
 
 | # | Decision | Evidence (short) | Status |
@@ -84,9 +84,9 @@ its "Changes during the build".
 | D-14 | T0 is acoustic speech end | `dsp.test.ts` "EnergyDetector"; `e2e/audio-engine.spec.ts` marks test | Met |
 | D-15 | Metrics mapped to the brief (KPI 3, KPI 1, stability) | `metrics.ts`, `harness/report.ts`, soak results | Partial: playback buffer depth for the cascade only |
 | D-16 | Realtime internals "hidden", never estimated | `LatencyPanel.tsx`; report stage table | Met |
-| D-17 | Quality: WER, rubric, answered-instead, judge + human | `harness/metrics.test.ts`; report §2 | Partial: human spot-check not done |
+| D-17 | Quality: WER, rubric, answered-instead, judge + human | `harness/metrics.test.ts`; report §2; `harness/results/human-scores.json` | Met |
 | D-18 | Fair comparison: identical input, one clock, run conditions | Replay harness; `metrics.test.ts` run-conditions test | Partial: run conditions lack `runId` and `build` sha (C-09) |
-| D-19 | Cost from logged usage x dated prices | `harness/metrics.test.ts` "turnCost"; report §3 | Partial: prices not verified |
+| D-19 | Cost from logged usage x dated prices | `harness/metrics.test.ts` "turnCost"; report §3; `harness/pricing.json` sources with verification date | Partial: OpenAI, Deepgram, ElevenLabs verified 2026-10-15; DeepL unverified |
 | D-20 | Warm-up and press-to-warm | `turnMachine.test.ts` "press while Warming is 'Not ready'"; `CascadeSession.StartTurnAsync` | Met |
 | D-21 | Deny tone never counts as first audible | `denyTone.test.ts` "never produces first_audible..." | Met |
 | D-22 | Secrets in gitignored `.env` | `HealthEndpointTests.Reports_missing_key_names_and_never_values`; `.gitignore`; settings deny rules | Met |
@@ -101,6 +101,7 @@ its "Changes during the build".
 | # | What | Implemented in | Proved by | Evidence | Status |
 |---|---|---|---|---|---|
 | X1 | Formal register and clinic glossary, in both architectures | `TranslationControls` (Core), `DeepLTranslationProvider` (formality + v3 glossary), `InterpreterPrompt.Controls` (OpenAI translator + Realtime), header "Clinic terms" toggle and `?controls=` | xUnit `TranslationControlsTests`, live `DeepLControlsContractTests` (formality, glossary); e2e `ui-walkthrough.spec.ts` (toggle and per-turn tag) | [`translation-controls.md`](translation-controls.md), `harness/results-controls/report.md` | Met (glossary evaluated on the same clips it was written for) |
+| X2 | Test Runs tab: chosen clips on one setup, saved, listed, compared | `client/src/ui/TestRuns.tsx`, `client/src/session/TestRunner.ts`, `client/src/session/testRun.ts`, `GET/POST /api/test-runs` (`TestRunEndpoints.cs`) | vitest `testRun.test.ts` (setups, estimate, summary, comparison); xUnit `TestRunEndpointTests`, `ClipEndpointTests`; e2e `test-runs.spec.ts` (run, save, list, detail, compare, header lock) | `harness/results/test-runs/` | Met |
 
 ## Impact metrics (brief, "Key Impact Metrics")
 
@@ -108,6 +109,6 @@ its "Changes during the build".
 |---|---|
 | End-to-end latency (ms) | report §1 |
 | Cost per minute | report §3 |
-| Interpretation quality (subjective + WER) | report §2 (automated judge + WER) and the human scoring sheet in MORNING.md |
+| Interpretation quality (subjective + WER) | report §2 (automated judge + WER, blind human spot-check) |
 | Provider flexibility | report §4 |
 | Time to onboard a new language pair | report §6 → onboarding.md |

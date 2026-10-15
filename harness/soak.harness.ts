@@ -19,6 +19,9 @@ interface Sample {
   heapBytes?: number;
   bufferedSamples?: number;
   underruns?: number;
+  rtJitterBufferMs?: number;
+  rtConcealedSamples?: number;
+  rtTotalSamples?: number;
   connection: string;
 }
 
@@ -107,6 +110,12 @@ for (const mode of MODES) {
       heapEndBytes: heap[heap.length - 1] ?? null,
       maxBufferedSamples: Math.max(0, ...samples.map((s) => s.bufferedSamples ?? 0)),
       underrunsAtEnd: samples[samples.length - 1].underruns ?? null,
+      // Realtime: WebRTC getStats() cumulative jitter-buffer delay and concealment at the end of the soak.
+      rtJitterBufferMsAtEnd: samples[samples.length - 1].rtJitterBufferMs ?? null,
+      rtConcealedPctAtEnd: (() => {
+        const last = samples[samples.length - 1];
+        return last.rtTotalSamples ? (100 * (last.rtConcealedSamples ?? 0)) / last.rtTotalSamples : null;
+      })(),
       connectionChanges,
       samples,
       finishedAt: new Date().toISOString(),

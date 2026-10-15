@@ -47,6 +47,8 @@ export function Header() {
   const c = useController();
   const s = useSnapshot();
   const busy = isBusy(s.turn.phase);
+  // A Test Run owns the session while it runs: its setup must not change underneath it.
+  const locked = s.setupLocked;
   // The toggle shows the requested mode; a queued switch lights its target.
   const shownMode: Mode = s.turn.pendingMode ?? s.turn.mode;
   const completed = s.metricsVersion >= 0 ? c.metrics.completedCount() : 0;
@@ -66,6 +68,7 @@ export function Header() {
           label="Mode"
           testId="mode-toggle"
           value={shownMode}
+          disabled={locked}
           onChange={(m) => c.switchMode(m)}
           options={[
             { value: "realtime", label: "Realtime" },
@@ -76,7 +79,7 @@ export function Header() {
           label="Commit policy"
           testId="commit-toggle"
           value={s.strategy}
-          disabled={s.turn.mode === "realtime" || busy}
+          disabled={s.turn.mode === "realtime" || busy || locked}
           onChange={(v) => c.setStrategy(v)}
           options={[
             { value: "segment", label: "Segment" },
@@ -87,21 +90,21 @@ export function Header() {
           label="Clinic terms: formal register and glossary"
           testId="controls-toggle"
           value={s.controls ? "on" : "off"}
-          disabled={busy}
+          disabled={busy || locked}
           onChange={(v) => c.setControls(v === "on")}
           options={[
             { value: "on", label: "Clinic terms" },
             { value: "off", label: "Off" },
           ]}
         />
-        <select aria-label="Language pair" value={s.pairId} disabled={busy} onChange={(e) => void c.setPair(e.target.value)} data-testid="pair-select">
+        <select aria-label="Language pair" value={s.pairId} disabled={busy || locked} onChange={(e) => void c.setPair(e.target.value)} data-testid="pair-select">
           {s.config?.pairs.map((p) => (
             <option key={p.id} value={p.id}>
               {p.label}
             </option>
           ))}
         </select>
-        <select aria-label="Input" value={s.input} disabled={busy} onChange={(e) => void c.selectInput(e.target.value)} data-testid="input-select">
+        <select aria-label="Input" value={s.input} disabled={busy || locked} onChange={(e) => void c.selectInput(e.target.value)} data-testid="input-select">
           <option value="mic">Microphone</option>
           {s.clips.map((clip) => (
             <option key={clip.id} value={clip.id}>

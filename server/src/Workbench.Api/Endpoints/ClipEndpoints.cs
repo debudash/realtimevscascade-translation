@@ -18,8 +18,8 @@ public static class ClipEndpoints
                 .OfType<string>()
                 .Order(StringComparer.Ordinal)
                 .Select(id => scripts.TryGetValue(id, out var s)
-                    ? new ClipInfo(id, s.Lang, s.Text)
-                    : new ClipInfo(id, id.Split('-').FirstOrDefault(p => p.Length == 2) ?? "en", id));
+                    ? new ClipInfo(id, s.Lang, s.Text, s.Target, s.Reference, Duration(id))
+                    : new ClipInfo(id, id.Split('-').FirstOrDefault(p => p.Length == 2) ?? "en", id, null, null, Duration(id)));
             return Results.Ok(clips);
         });
 
@@ -32,9 +32,43 @@ public static class ClipEndpoints
         });
     }
 
-    private sealed record ClipInfo(string Id, string Lang, string Text);
+    /// <summary>Target and Reference come from harness/scripts.json; DurationSeconds from the WAV header (Test Run estimates).</summary>
+    private sealed record ClipInfo(string Id, string Lang, string Text, string? Target, string? Reference, double? DurationSeconds);
 
-    private sealed record ScriptEntry(string Id, string Lang, string Text);
+    private sealed record ScriptEntry(string Id, string Lang, string Text, string? Target, string? Reference);
+
+    /// <summary>Seconds of audio: the "data" chunk size over the "fmt " byte rate. Null if the file is not a PCM WAV.</summary>
+    private static double? Duration(string id)
+    {
+        var path = RepoPaths.ClipDirs.Select(d => Path.Combine(d, id + ".wav")).FirstOrDefault(File.Exists);
+        if (path is null) return null;
+        try
+        {
+            using var r = new BinaryReader(File.OpenRead(path));
+            if (new string(r.ReadChars(4)) != "RIFF") return null;
+            r.ReadInt32();
+            if (new string(r.ReadChars(4)) != "WAVE") return null;
+            int byteRate = 0;
+            while (r.BaseStream.Position + 8 <= r.BaseStream.Length)
+            {
+                var chunk = new string(r.ReadChars(4));
+                var size = r.ReadInt32();
+                if (chunk == "fmt ")
+                {
+                    r.ReadBytes(8);
+                    byteRate = r.ReadInt32();
+                    r.ReadBytes(size - 12);
+                }
+                else if (chunk == "data")
+                {
+                    return byteRate > 0 ? Math.Round((double)size / byteRate, 2) : null;
+                }
+                else r.BaseStream.Seek(size + (size & 1), SeekOrigin.Current);
+            }
+        }
+        catch (IOException) { } // includes EndOfStreamException (truncated file)
+        return null;
+    }
 
     private static Dictionary<string, ScriptEntry> LoadScripts()
     {
@@ -46,7 +80,8 @@ public static class ClipEndpoints
         foreach (var c in clips.EnumerateArray())
         {
             var id = c.GetProperty("id").GetString()!;
-            result[id] = new ScriptEntry(id, c.GetProperty("lang").GetString()!, c.GetProperty("text").GetString()!);
+            string? Opt(string name) => c.TryGetProperty(name, out var v) ? v.GetString() : null;
+            result[id] = new ScriptEntry(id, c.GetProperty("lang").GetString()!, c.GetProperty("text").GetString()!, Opt("target"), Opt("reference"));
         }
         return result;
     }

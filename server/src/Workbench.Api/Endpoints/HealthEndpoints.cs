@@ -18,6 +18,8 @@ public static class HealthEndpoints
             return Results.Ok(new
             {
                 status = "ok",
+                // Short git sha of this build; turns and harness runs record it.
+                build = BuildInfo.Sha,
                 configOk = missing.Count == 0,
                 missing,
                 // What blocks each mode. DeepL (failover) is optional; Realtime needs only OpenAI.

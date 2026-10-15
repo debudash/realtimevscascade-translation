@@ -65,23 +65,11 @@ Use headphones, so the interpretation doesn't feed back into the other speaker's
    - Choose a **Replay:** clip as the Input, then click a speaker's button to replay it.
    - Try `http://localhost:5173/?providers=fake&faults=translation:429` to see the failover toast without spending anything.
 
-## Human scoring sheet (spot-check the automated judge)
+## Human scoring (done)
 
-Run 10 turns (mix modes and directions), then score each 1-5. The judge's averages were 4.83-4.96
-accuracy, 4.88-5.00 completeness and 4.71-5.00 fluency.
-
-| # | Mode | Direction | What was said | What came out | Accuracy | Completeness | Fluency | Answered instead of interpreting? |
-|---|---|---|---|---|---|---|---|---|
-| 1 | | | | | | | | |
-| 2 | | | | | | | | |
-| 3 | | | | | | | | |
-| 4 | | | | | | | | |
-| 5 | | | | | | | | |
-| 6 | | | | | | | | |
-| 7 | | | | | | | | |
-| 8 | | | | | | | | |
-| 9 | | | | | | | | |
-| 10 | | | | | | | | |
+The blind human spot-check was done on 2026-10-15: 20 turns, 10 per mode, scored on a page that
+hid the pipeline. Results are in `harness/results/human-scores.json` and report section 2
+("Human spot-check"): 44 of 60 scores identical to the automated judge, all within one point.
 
 Things the judge under-weighted overnight: register (DeepL used informal *tú*) and terminology
 ("receta" → *recipe* instead of *prescription* in Realtime and DeepL). Both are now fixed by the

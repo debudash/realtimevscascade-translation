@@ -153,7 +153,7 @@ floor-deny test.
 | Release lag | `report.ts` `since(t, "release")` | report section 1 (release -> first audible column) |
 | Disconnects | `harness/soak.harness.ts` (connection changes to Reconnecting or Failed) | report section 5 |
 | Recovery time | `soak.harness.ts` forced drop at the midpoint (`forceDrop`), time to Ready, transcript count before and after | report section 5 |
-| Playback buffer depth | `soak.harness.ts` samples `bufferedSamples` and `underruns` from the transport's `diagnostics()` | report section 5 (cascade only) |
+| Playback buffer depth | Cascade: `soak.harness.ts` samples `bufferedSamples` and `underruns` from the transport's `diagnostics()`. Realtime: `client/src/transports/realtime/rtcStats.ts` reads WebRTC `getStats()` inbound audio (average jitter-buffer delay, concealed samples, packets lost) per turn (release to end of playback) and every 2 s for the soak | report section 5 (cascade depth; Realtime "playback health" subsection) |
 | Memory growth | `soak.harness.ts` samples `usedJSHeapSize`; report shows the post-GC floor, first vs last minute | report section 5 (browser only) |
 
 ### 8.3 Quality
@@ -163,7 +163,7 @@ floor-deny test.
 | Source WER | `harness/metrics.ts` `normalize` + `wer` (word Levenshtein, small numbers spelled out) | `harness/metrics.test.ts` "normalize / wer" |
 | Target WER (crude proxy) | same, against `scripts.json` reference translations; labelled in the report | same |
 | Rubric (automated judge) | `harness/report.ts` `judge`: gpt-4.1-mini, temperature 0, JSON output, cached in `harness/results/judge-cache.json` | none (live call; cached results) |
-| Rubric (human, 10 turns) | Sheet in `MORNING.md` | Not done (blank) |
+| Rubric (human, blind) | Scoring page (blind, random order) for 10 turns per mode from each mode's first run; results joined to the judge in `harness/results/human-scores.json`; `report.ts` "Human spot-check" | Done 2026-10-15 by the project owner |
 | Answered instead of interpreted | `harness/metrics.ts` `answeredHeuristic` + the judge's flag; `report.ts` "Manual review list (flagged turns)" | `harness/metrics.test.ts` "answered instead of interpreted" |
 
 ### 8.4 Cost
@@ -179,9 +179,14 @@ floor-deny test.
 As built, per turn (`client/src/state/metrics.ts` `RunConditions` and
 `TurnRecord`): `mode`, `strategy`, `providers[]` (plus `providersUsed`
 from `turn.end`), `pair`, `direction`, `inputSource`, `controls`,
-`startedAtIso`, `failoverNote`, `usage`. Per run file
+`startedAtIso`, `failoverNote`, `usage`, `runId` (one per page session) and
+`build` (the server's short git sha from `/api/health`, stamped into the
+assembly at build time by the SDK: `server/src/Workbench.Api/Config/BuildInfo.cs`).
+Per run file
 (`harness/run.harness.ts`): `config`, `label`, `startedAt`, `finishedAt`,
-`browser`, `pageReloads`. Exported by the UI's Export button
+`browser`, `pageReloads`, `runId`, `build`. Runs saved before these fields
+existed show the commit that was HEAD at their start, marked "(inferred)", in
+the report's run table (`harness/report.ts` `buildOf`). Exported by the UI's Export button
 (`MetricsStore.export`; test "exports JSON with derived latencies").
 
 ### 8.6 Procedures
@@ -202,9 +207,9 @@ from `turn.end`), `pair`, `direction`, `inputSource`, `controls`,
 | 2 | `stt_final` etc. are server durations "mapped on receipt" | Two values are kept: the server Stopwatch duration in `stages[]` (report "Server stage durations") and the browser receipt time as the mark (waterfall) | The waterfall needs browser-clock positions; the durations stay pure server Stopwatch |
 | 2 | `first_audible` from the playback tap in both cases | Cascade time comes from `getOutputTimestamp` (includes device output latency); the Realtime AnalyserNode sees samples just before output | Browser APIs differ per path. Not corrected (a correction would be an estimate); disclosed in `docs/comparison.md` |
 | 3 | Access time "audio flowing" for Realtime | Realtime access is press plus the send of `session.update` / `clear`, near zero, because the WebRTC track is always live | No per-turn audio start exists on a live track |
-| 3 | Playback buffer depth for both modes | Cascade only | Realtime's jitter buffer belongs to the browser and is not observable |
+| 3 | Playback buffer depth for both modes | Cascade: depth over time. Realtime: average jitter-buffer delay and concealment from `getStats()`, not depth over time | Realtime's jitter buffer belongs to the browser; `getStats()` exposes only cumulative counters |
 | 3 | Memory: browser heap and server memory | Browser heap only, reported as post-GC floor plus raw start/end | Raw heap saw-tooths without forced GC; server memory sampling was not built |
-| 4 | Human spot-check of 10 turns | Not done; the sheet in `MORNING.md` is blank | Needs the owner; open in `docs/status.md` |
-| 6 | `runId`, `providers` object, `failover`, `build` sha, `timestamp` | See 8.5: no `runId` or `build` sha; failover is a per-turn `failoverNote`; providers is an array | The schema was written after the build; runs are traceable by file name and commit date |
+| 4 | Human spot-check of 10 turns | 20 turns (10 per mode), scored blind | One mode per 10 turns allows a per-mode comparison with the judge |
+| 6 | `runId`, `providers` object, `failover`, `build` sha, `timestamp` | `runId` and `build` added after the first evaluation (runs before that are inferred, see 8.5); failover is a per-turn `failoverNote`; providers is an array | The schema was written after the build; the two missing fields were added in the product follow-ups |
 | 7 | Playwright fake audio capture | The app's Replay input (same capture graph as the mic, press/release automated) | The fake capture file loops from browser start and cannot be aligned with a press |
 | 7 | Live-voice session per mode | Not recorded | Out of the unattended run; needs a person |

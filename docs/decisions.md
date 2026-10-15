@@ -212,7 +212,7 @@ Brief = `docs/brief.md` (governs). PRD = `docs/prd-summary.md`.
 - **Basis:** the brief's performance benchmarks and criterion 7. The user's
   instruction: "tight mappings to the requirements."
 - **Status:** Implemented; one cell partial
-- **Evidence:** `client/src/state/metrics.ts` (`mouthToEarMs`, access, stage marks), `client/src/ui/LatencyPanel.tsx`, `harness/report.ts`, `harness/soak.harness.ts`. Partial: playback buffer depth is measured for the cascade only. Realtime's jitter buffer belongs to the browser and is not observable (`docs/comparison.md` section 7).
+- **Evidence:** `client/src/state/metrics.ts` (`mouthToEarMs`, access, stage marks), `client/src/ui/LatencyPanel.tsx`, `harness/report.ts`, `harness/soak.harness.ts`. Partial: playback buffer depth over time is measured for the cascade only. For Realtime, the browser owns the jitter buffer; since the product follow-ups, WebRTC `getStats()` gives its average delay and concealment per turn (`client/src/transports/realtime/rtcStats.ts`, `rtcStats.test.ts`, e2e mode-switch test).
 
 ### D-16 · Realtime internal stages are shown as "hidden," never estimated
 - **Basis:** criterion 7 and the controllability dimension.
@@ -231,8 +231,8 @@ Brief = `docs/brief.md` (governs). PRD = `docs/prd-summary.md`.
 - **Consequences:** Realtime's source transcript comes from a side
   transcription process, so its WER does not measure what the model
   understood. Disclose this.
-- **Status:** Implemented except the human spot-check
-- **Evidence:** `harness/metrics.ts` (`wer`, answered-instead heuristic), `harness/report.ts` (automated judge gpt-4.1-mini, cached in `harness/results/judge-cache.json`). Tests: `harness/metrics.test.ts` "normalize / wer", "answered instead of interpreted". Not done: the human spot-check; the sheet in `MORNING.md` is blank (`docs/status.md`).
+- **Status:** Implemented
+- **Evidence:** `harness/metrics.ts` (`wer`, answered-instead heuristic), `harness/report.ts` (automated judge gpt-4.1-mini, cached in `harness/results/judge-cache.json`). Tests: `harness/metrics.test.ts` "normalize / wer", "answered instead of interpreted". Human spot-check: 20 turns scored blind by the owner, `harness/results/human-scores.json` (44 of 60 scores identical to the judge, all within one point).
 
 ### D-18 · Fair comparison: identical input, identical clock, recorded run conditions
 - **Decision:**
@@ -240,14 +240,14 @@ Brief = `docs/brief.md` (governs). PRD = `docs/prd-summary.md`.
   - Both modes use one browser clock and the same marks.
   - Every turn and every export records its run conditions.
 - **Basis:** the purpose of the brief: a defensible comparison.
-- **Status:** Implemented with schema deviations
+- **Status:** Implemented; schema deviation resolved for new runs (C-09)
 - **Evidence:** Replay input through the capture graph (`client/src/session/controller.ts` `runReplayTurn`, `harness/run.harness.ts`); one browser clock for all marks; `RunConditions` on every turn and export (`client/src/state/metrics.ts`; test "records every mark per turn with run conditions, first write wins"). The shape differs from measurement-protocol section 6: no `runId`, `build` sha or `failover` field (C-09).
 
 ### D-19 · Cost per minute from logged usage times a dated pricing table
 - **Basis:** the "cost per minute" impact metric.
 - **Alternatives:** a live cost meter in the UI (cut: not a must-have).
-- **Status:** Implemented
-- **Evidence:** `harness/pricing.json` (read 2026-10-15, marked "verify"; DeepL rate unverified), `harness/metrics.ts` `turnCost`. Tests: `harness/metrics.test.ts` "turnCost" (cascade, DeepL, Realtime).
+- **Status:** Implemented; DeepL price unverified
+- **Evidence:** `harness/pricing.json` (OpenAI, Deepgram and ElevenLabs verified on their pricing pages 2026-10-15, Deepgram's rate a promotion; DeepL unverified), `harness/metrics.ts` `turnCost`. Tests: `harness/metrics.test.ts` "turnCost" (cascade, DeepL, Realtime).
 
 ### D-20 · Warm-up and press-to-warm
 - **Decision:** connections and providers are warmed on page load and after
@@ -308,7 +308,7 @@ Brief = `docs/brief.md` (governs). PRD = `docs/prd-summary.md`.
 - **Decision:**
   - Boostlingo logo plus a "not an official Boostlingo product" disclaimer.
   - Three-column layout.
-  - Waterfall labelled "final segment from T0."
+  - Waterfall labelled "final segment from T0" (now one per mode, side by side: C-22).
   - p50/p95 table colored against targets.
   - Export button.
   - One state per error code.
@@ -352,7 +352,7 @@ decisions.
 | C-06 | D-08 | A custom `FailoverCircuit` (open for 60 s after the 429 retry budget) instead of Polly's breaker; Polly still retries with jitter. | Polly's breaker needs a sampling window that does not fit "open after repeated 429s". | Meets the resilience expectation. | `Workbench.Providers/Resilience/`, `CascadeSocketTests.Injected_fake_429s_fail_over_and_surface_on_the_socket` |
 | C-07 | D-13 | No retry on the STT final timeout; the policy flushes what was heard. The pre-build spec said "one retry". | After release there is no audio left to resend. | None. | PROGRESS.md M3 |
 | C-08 | D-18 | The harness uses the app's Replay input instead of Playwright fake audio capture (measurement-protocol section 7). | The fake capture file loops from browser start and cannot be aligned with a press. | Same capture path as the mic, so fairness holds. | `harness/run.harness.ts`, `client/src/session/controller.ts` `runReplayTurn` |
-| C-09 | D-18 | Run conditions as built: `mode, strategy, providers[], pair, direction, inputSource, controls` per turn, plus `startedAtIso` and `failoverNote` on the turn and `startedAt`, `browser`, `pageReloads` per run file. No `runId` or `build` sha. | The record grew with the turn store; the protocol schema was written after the build. | Runs are traceable by file name and commit date, not by sha. | `client/src/state/metrics.ts` `RunConditions` |
+| C-09 | D-18 | Run conditions as built: `mode, strategy, providers[], pair, direction, inputSource, controls` per turn, plus `startedAtIso` and `failoverNote` on the turn and `startedAt`, `browser`, `pageReloads` per run file. No `runId` or `build` sha. | The record grew with the turn store; the protocol schema was written after the build. | Resolved for new runs: `runId` and `build` were added in the product follow-ups (`HealthEndpointTests.Reports_the_build_commit_so_runs_can_be_traced_to_code`, `e2e/ui-walkthrough.spec.ts`); older runs show an inferred build. | `client/src/state/metrics.ts` `RunConditions` |
 | C-10 | D-15 | The soak reports the post-GC heap floor (first vs last minute) next to the raw start and end. | The raw heap saw-tooths without forced GC. | Memory growth stays visible (post-GC floor +4.9 MB Realtime, +3.7 MB cascade over 45 turns; unresolved). | `harness/soak.harness.ts`, `harness/report.ts` |
 | C-11 | D-02 | .NET 10 SDK installed repo-local in `.dotnet/` (gitignored) and launched by `scripts/dotnet.mjs`. | No SDK on the machine, and no global installs allowed. | None. | PROGRESS.md M0 |
 | C-12 | D-23 | Translation controls (formal register + clinic glossary) after the run, then a header "Clinic terms" toggle and a per-turn tag. Requested by the owner. | The evaluation found informal *tu* and "receta" rendered as *recipe*. | Strengthens controllability and the recommendation with measured evidence. Glossary editing UI stays out. | `docs/translation-controls.md`, `client/src/ui/Header.tsx`, `TranslationControlsTests` |
@@ -365,6 +365,9 @@ decisions.
 | C-19 | D-07 | No separate session state machine (the spec's Idle -> Warming -> Ready -> Closed). Session state is the turn phase plus the error code plus the transport connection state. | One reducer (`turnMachine.ts`) already carries Warming, Ready and Error; a second machine would duplicate it. | None on the criteria; documented in `docs/architecture/lla.md`. | `client/src/state/turnMachine.ts`, `client/src/session/controller.ts` |
 | C-20 | D-08 | The DeepL key is optional: without it the cascade runs with no failover, and Realtime needs only the OpenAI key. | A missing failover key should not block the primary path (M7 review). | Resilience degrades to retry-only without the key; `/api/health` reports it per mode. | `HealthEndpointTests.A_missing_DeepL_key_blocks_neither_mode_and_Realtime_needs_only_OpenAI` |
 | C-21 | D-20 | Cascade warm-up is best effort (5 s): pooled HTTP connections plus a key check per provider (the Deepgram socket opens on press), with a keep-warm every 45 s while idle. | Deepgram streams are per turn; idle sockets would time out. | Cold starts stay out of p95 (press-to-warm). | `docs/architecture/lla.md` resilience and warm-up sections |
+| C-22 | D-26 | The single "Last turn" card became a full-width "Compare modes" row: one block per mode (latest turn of each), with its input, extra timing marks (release lag, release to first audible, translate done, segments), turn cost and text. Requested by the owner. | A workbench should let the same clip be read across both architectures side by side; one card showed only the last mode used. | Strengthens criterion 7 and the latency and cost cells; no scope change. | `client/src/ui/ModeComparison.tsx`, `e2e/ui-walkthrough.spec.ts` |
+| C-23 | D-23, D-26 | A Test Runs tab: a tester runs chosen replay clips on one setup (Realtime or one of three cascade options, Clinic terms on or off), and every run is saved to `harness/results/test-runs/` with its turns and summary; saved runs can be opened and compared per clip. Requested by the owner. | Repeatable measurements without the command-line harness, kept and comparable. | Serves the latency, quality and cost cells; the LLM judge stays offline (it costs per turn). Runs started by a tester are outside the agent's harness budget and show a cost estimate and a confirmation first. | `client/src/ui/TestRuns.tsx`, `client/src/session/TestRunner.ts`, `client/src/session/testRun.test.ts`, `TestRunEndpointTests`, `e2e/test-runs.spec.ts` |
+| C-24 | D-26 | A Documentation tab with a plain how-to for testers, using the app's own labels. Requested by the owner. | Testers should not need the README to use the workbench. | None on the criteria; supports the README requirement for users. | `client/src/ui/Documentation.tsx`, `e2e/documentation.spec.ts` |
 
 ### Milestone order: control-room plan vs. run
 

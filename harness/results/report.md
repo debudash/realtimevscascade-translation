@@ -1,14 +1,16 @@
 # Evaluation report
 
-Generated 2026-10-15T07:11:58.560Z by `npm run report` from every saved harness run, pooled per configuration.
+Generated 2026-10-15T16:22:24.036Z by `npm run report` from every saved harness run, pooled per configuration.
 All numbers are measured; p50/p95 use linear interpolation. Clips are synthetic speech (ElevenLabs), 24 clinic sentences (12 EN, 12 ES).
 
-| Configuration | Runs | Turns |
-|---|---|---|
-| Realtime (gpt-realtime) | `runs/realtime--2026-10-15T06-17-20-574Z.json`<br>`runs/realtime--2026-10-15T06-59-21-772Z.json`<br>`runs/realtime--2026-10-15T07-11-49-286Z.json` | 72 |
-| Cascade · segment (Deepgram · OpenAI · ElevenLabs) | `runs/cascade-segment--2026-10-15T06-20-12-408Z.json`<br>`runs/cascade-segment--2026-10-15T07-02-17-004Z.json` | 48 |
-| Cascade · clause (Deepgram · OpenAI · ElevenLabs) | `runs/cascade-clause--2026-10-15T06-22-59-109Z.json`<br>`runs/cascade-clause--2026-10-15T07-05-07-417Z.json` | 48 |
-| Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs) | `runs/cascade-deepl--2026-10-15T06-28-44-737Z.json`<br>`runs/cascade-deepl--2026-10-15T07-07-52-347Z.json` | 48 |
+| Configuration | Runs | Build | Turns |
+|---|---|---|---|
+| Realtime (gpt-realtime) | `runs/realtime--2026-10-15T06-17-20-574Z.json`<br>`runs/realtime--2026-10-15T06-59-21-772Z.json`<br>`runs/realtime--2026-10-15T07-11-49-286Z.json` | e9f631f (inferred)<br>3566a34 (inferred)<br>3566a34 (inferred) | 72 |
+| Cascade · segment (Deepgram · OpenAI · ElevenLabs) | `runs/cascade-segment--2026-10-15T06-20-12-408Z.json`<br>`runs/cascade-segment--2026-10-15T07-02-17-004Z.json` | e9f631f (inferred)<br>3566a34 (inferred) | 48 |
+| Cascade · clause (Deepgram · OpenAI · ElevenLabs) | `runs/cascade-clause--2026-10-15T06-22-59-109Z.json`<br>`runs/cascade-clause--2026-10-15T07-05-07-417Z.json` | e9f631f (inferred)<br>3566a34 (inferred) | 48 |
+| Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs) | `runs/cascade-deepl--2026-10-15T06-28-44-737Z.json`<br>`runs/cascade-deepl--2026-10-15T07-07-52-347Z.json` | e9f631f (inferred)<br>3566a34 (inferred) | 48 |
+
+Build = the server commit recorded with the run. "(inferred)" marks runs saved before runs recorded it: the commit that was HEAD when the run started (uncommitted changes at the time are not visible).
 
 ## 1. Latency: mouth-to-ear (T0 = last voiced frame → first audible)
 
@@ -71,13 +73,22 @@ Measured on the server; translation and TTS durations run from the stage's own s
 | Cascade · clause (Deepgram · OpenAI · ElevenLabs) | 0.000 | 0.088 | 4.83 | 4.88 | 4.71 | 0% (0/48) |
 | Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs) | 0.000 | 0.293 | 4.96 | 5.00 | 4.96 | 0% (0/48) |
 
-Rubric scores are 1-5 from an **automated judge** (gpt-4.1-mini, temperature 0) comparing each output with the source and the reference translation; spot-check them with the human sheet in MORNING.md.
+Rubric scores are 1-5 from an **automated judge** (gpt-4.1-mini, temperature 0) comparing each output with the source and the reference translation; the blind human spot-check below checks it.
 Target WER against a single reference translation penalizes valid paraphrases, so it is a crude proxy. Realtime's source transcript comes from OpenAI's side transcription (gpt-4o-transcribe), not from what the speech-to-speech model understood.
 "Answered instead of interpreted" = flagged by the heuristic (a question rendered as a statement, output > 1.8x the reference, or output in the wrong language) or by the judge. Flags are a review list, not a verdict.
 
+### Human spot-check (blind)
+
+| Configuration | Turns | Human acc / comp / flu | Judge acc / comp / flu (same turns) | Answered instead (human) |
+|---|---|---|---|---|
+| Realtime (gpt-realtime) | 10 | 4.70 / 4.60 / 4.60 | 5.00 / 4.90 / 5.00 | 0 / 10 |
+| Cascade · segment (Deepgram · OpenAI · ElevenLabs) | 10 | 5.00 / 4.60 / 4.80 | 5.00 / 5.00 / 5.00 | 0 / 10 |
+
+Agreement over 60 individual scores: 44 identical, 60 within one point, 16 where the human scored lower than the judge. Scored blind by the project owner (configuration hidden, random order); source: `human-scores.json`. Ten turns per configuration can check the judge, not rank the configurations.
+
 ## 3. Cost per minute of input speech
 
-Logged usage per turn × `harness/pricing.json` (prices read 2026-10-15; marked "verify"; DeepL rate UNVERIFIED).
+Logged usage per turn × `harness/pricing.json`. Prices: OpenAI, Deepgram and ElevenLabs verified on the official pricing pages on 2026-10-15 (Deepgram's streaming rate is a limited-time promotion; list price $0.0077/min). DeepL is unverified: deepl.com does not render API prices, and third-party sources give $25 per 1M characters (legacy API Pro) or about $27.50 (API Growth overage).
 
 | Configuration | Speech minutes | Total USD | USD per minute |
 |---|---|---|---|
@@ -108,7 +119,11 @@ The swap is a configuration change only: the harness opens `/?providers=translat
 | realtime | 5 | 45 | 0 | 0 | 2112 ms | yes | 12.6 MB → 17.5 MB | 12.6 MB → 33.2 MB | 0 ms | – |
 | cascade | 5 | 45 | 0 | 0 | 1080 ms | yes | 12.4 MB → 16.1 MB | 12.4 MB → 16.1 MB | 4093 ms | 0 |
 
-Unplanned disconnects excludes the one forced drop. Realtime plays through a media element, so its jitter buffer is the browser's and is not observable (0 / –). The cascade's max buffer is synthesized audio queued ahead of playback (TTS runs faster than real time); it drains to zero every turn.
+Unplanned disconnects excludes the one forced drop. Realtime plays through a media element, so its jitter buffer is the browser's and its depth over time is not observable (0 / –); see the getStats summary below. The cascade's max buffer is synthesized audio queued ahead of playback (TTS runs faster than real time); it drains to zero every turn.
+
+### Realtime playback health (WebRTC getStats)
+
+Not measured yet: getStats() sampling was added after these runs. A Realtime run or soak records it per turn.
 
 ## 6. Time to onboard a language pair
 

@@ -52,7 +52,9 @@ for (const config of selected) {
 
     ensureDir(runsDir);
     const file = join(runsDir, `${config}--${stamp()}.json`);
-    writeFileSync(file, JSON.stringify({ config, label: CONFIGS[config].label, startedAt, finishedAt: new Date().toISOString(), browser: browserName, pageReloads: reloads, turns }, null, 2));
+    // runId and build come from the turns' run conditions (one page session = one run).
+    const { runId, build } = (turns[0]?.conditions ?? {}) as { runId?: string; build?: string };
+    writeFileSync(file, JSON.stringify({ config, label: CONFIGS[config].label, runId, build, startedAt, finishedAt: new Date().toISOString(), browser: browserName, pageReloads: reloads, turns }, null, 2));
     console.log(`Saved ${turns.length} turns to ${file}`);
     expect(turns.length).toBe(clips.length);
   });

@@ -61,6 +61,20 @@ providers, no keys, no cost), `?providers=fake&faults=translation:429` (inject f
 `timeout`, `empty`, `500`, `400` for `stt`/`translation`/`tts`), `?transport=fake` (client-only
 simulator).
 
+## Using the workbench
+
+The app's **Documentation** tab is a short how-to for testers: getting ready, interpreting a
+conversation, reading the measurements, comparing modes, test runs, errors and terms.
+
+## Test Runs
+
+The **Test Runs** tab runs chosen replay clips on one setup (Realtime, Cascade segment, Cascade
+clause or Cascade with DeepL; Clinic terms on or off) and saves each run to
+`harness/results/test-runs/<id>.json` with every turn and a summary: mouth-to-ear p50/p95 against the
+target, access time, source and target WER, and cost. It shows a cost estimate and asks before
+starting. Open a saved run for its turns, or select two and **Compare selected** for a per-clip
+difference. Add `?providers=fake` to try it without API cost.
+
 ## Architecture
 
 ```mermaid
@@ -143,7 +157,7 @@ Providers sit behind `ISttProvider`, `ITranslationProvider`, `ITtsProvider` (`se
 - **429 handling** uses exponential backoff with jitter and ignores `Retry-After` headers.
 - **Deny tone pickup.** The deny tone plays while the other speaker's mic is open. Browser echo
   cancellation usually removes it, but on some setups it can reach STT.
-- **DeepL cost** in the report uses an unverified rate (the key here is Free-plan).
+- **DeepL cost** in the report uses an unverified rate: deepl.com does not publish the API rate in a readable form (the key here is Free-plan). Other prices were verified on 2026-10-15; Deepgram's is a promotion.
 - **Local only.** The WebSocket and endpoints are unauthenticated (localhost). Production needs auth
   in front of the control plane.
 - **Soak length.** 5 minutes per mode showed no growth beyond retained transcripts, but cannot rule
