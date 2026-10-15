@@ -37,6 +37,10 @@ export interface RunConditions {
   inputSource: string;
   /** Translation controls (formal register + clinic glossary) on for this turn. */
   controls?: boolean;
+  /** One id per page session (a harness run is one session). Absent in runs recorded before this field existed. */
+  runId?: string;
+  /** Server build (short git sha) from /api/health. Absent in those older runs. */
+  build?: string;
 }
 
 export interface StageDuration {

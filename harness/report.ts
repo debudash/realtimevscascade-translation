@@ -1,5 +1,6 @@
 // npm run report: builds harness/results/report.md from the saved harness runs (latest run per
 // configuration), the soak results, and an LLM "automated judge" rubric (cached; only new turns cost).
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -62,6 +63,19 @@ function pooledRuns(): Run[] {
       return { config, label: CONFIGS[config].label, turns, files: mine };
     })
     .filter((r) => r.files.length > 0);
+}
+
+/** The build a run file records, or for older runs the commit that was HEAD when it started (inferred). */
+function buildOf(file: string): string {
+  const run = JSON.parse(readFileSync(join(runsDir, file), "utf8")) as { build?: string; startedAt?: string };
+  if (run.build) return run.build;
+  if (!run.startedAt) return "not recorded";
+  try {
+    const sha = execFileSync("git", ["log", "-1", `--before=${run.startedAt}`, "--format=%h"], { encoding: "utf8" }).trim();
+    return sha ? `${sha} (inferred)` : "not recorded";
+  } catch {
+    return "not recorded";
+  }
 }
 
 const sec = (ms: number | null) => (ms === null ? "–" : `${(ms / 1000).toFixed(2)} s`);
@@ -156,9 +170,12 @@ async function main() {
   line(`Generated ${new Date().toISOString()} by \`npm run report\` from every saved harness run, pooled per configuration.`);
   line("All numbers are measured; p50/p95 use linear interpolation. Clips are synthetic speech (ElevenLabs), 24 clinic sentences (12 EN, 12 ES).");
   line();
-  line("| Configuration | Runs | Turns |");
-  line("|---|---|---|");
-  for (const r of runs) line(`| ${r.label} | ${r.files.map((f) => `\`runs/${f}\``).join("<br>")} | ${r.turns.length} |`);
+  line("| Configuration | Runs | Build | Turns |");
+  line("|---|---|---|---|");
+  for (const r of runs)
+    line(`| ${r.label} | ${r.files.map((f) => `\`runs/${f}\``).join("<br>")} | ${r.files.map(buildOf).join("<br>")} | ${r.turns.length} |`);
+  line();
+  line("Build = the server commit recorded with the run. \"(inferred)\" marks runs saved before runs recorded it: the commit that was HEAD when the run started (uncommitted changes at the time are not visible).");
   line();
 
   // Headline latency

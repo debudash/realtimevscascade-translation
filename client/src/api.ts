@@ -2,6 +2,8 @@ import type { ProviderSet } from "./contracts/events";
 
 export interface Health {
   status: string;
+  /** Short git sha the server was built from ("unknown" if not stamped). */
+  build?: string;
   configOk: boolean;
   /** Names of missing variables (never values). */
   missing: string[];

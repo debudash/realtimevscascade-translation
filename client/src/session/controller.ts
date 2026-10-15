@@ -97,6 +97,8 @@ function newTurnId(): string {
 
 export class WorkbenchController {
   readonly metrics = new MetricsStore();
+  /** Identifies this page session in every turn's run conditions (measurement-protocol section 6). */
+  readonly runId = crypto.randomUUID().replace(/-/g, "").slice(0, 8);
   private readonly capture = new CaptureEngine();
   private readonly player = new Player();
   private readonly detector = new EnergyDetector();
@@ -424,6 +426,8 @@ export class WorkbenchController {
       direction: `${speaker}-${target}`,
       inputSource: this.snap.input,
       controls: this.snap.controls,
+      runId: this.runId,
+      build: this.snap.health?.build ?? "unknown",
     };
   }
 

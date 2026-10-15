@@ -179,9 +179,14 @@ floor-deny test.
 As built, per turn (`client/src/state/metrics.ts` `RunConditions` and
 `TurnRecord`): `mode`, `strategy`, `providers[]` (plus `providersUsed`
 from `turn.end`), `pair`, `direction`, `inputSource`, `controls`,
-`startedAtIso`, `failoverNote`, `usage`. Per run file
+`startedAtIso`, `failoverNote`, `usage`, `runId` (one per page session) and
+`build` (the server's short git sha from `/api/health`, stamped into the
+assembly at build time by the SDK: `server/src/Workbench.Api/Config/BuildInfo.cs`).
+Per run file
 (`harness/run.harness.ts`): `config`, `label`, `startedAt`, `finishedAt`,
-`browser`, `pageReloads`. Exported by the UI's Export button
+`browser`, `pageReloads`, `runId`, `build`. Runs saved before these fields
+existed show the commit that was HEAD at their start, marked "(inferred)", in
+the report's run table (`harness/report.ts` `buildOf`). Exported by the UI's Export button
 (`MetricsStore.export`; test "exports JSON with derived latencies").
 
 ### 8.6 Procedures
@@ -205,6 +210,6 @@ from `turn.end`), `pair`, `direction`, `inputSource`, `controls`,
 | 3 | Playback buffer depth for both modes | Cascade only | Realtime's jitter buffer belongs to the browser and is not observable |
 | 3 | Memory: browser heap and server memory | Browser heap only, reported as post-GC floor plus raw start/end | Raw heap saw-tooths without forced GC; server memory sampling was not built |
 | 4 | Human spot-check of 10 turns | Not done; the sheet in `MORNING.md` is blank | Needs the owner; open in `docs/status.md` |
-| 6 | `runId`, `providers` object, `failover`, `build` sha, `timestamp` | See 8.5: no `runId` or `build` sha; failover is a per-turn `failoverNote`; providers is an array | The schema was written after the build; runs are traceable by file name and commit date |
+| 6 | `runId`, `providers` object, `failover`, `build` sha, `timestamp` | `runId` and `build` added after the first evaluation (runs before that are inferred, see 8.5); failover is a per-turn `failoverNote`; providers is an array | The schema was written after the build; the two missing fields were added in the product follow-ups |
 | 7 | Playwright fake audio capture | The app's Replay input (same capture graph as the mic, press/release automated) | The fake capture file loops from browser start and cannot be aligned with a press |
 | 7 | Live-voice session per mode | Not recorded | Out of the unattended run; needs a person |

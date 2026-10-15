@@ -16,6 +16,11 @@ test.describe("UI walkthrough", () => {
     await expect(card).toContainText(/first audio \d\.\d\d s/);
     await expect(card).toContainText("Fake · Fake · Fake");
     await expect(card.getByTestId("controls-tag")).toHaveText("Clinic terms on");
+    // Run conditions trace each turn to its session (runId) and the server's build commit.
+    const health = await (await page.request.get("/api/health")).json();
+    const [first] = await turns(page);
+    expect(first.conditions.runId).toMatch(/^[0-9a-f]{8}$/);
+    expect(first.conditions.build).toBe(health.build);
     await expect(page.getByTestId("headline-latency")).toHaveText(/\d\.\d\d s/);
     await expect(page.getByTestId("waterfall")).toContainText("TTS first byte");
     await expect(page.locator('[data-key="cascade-segment"] td').nth(1)).toHaveText("1");
