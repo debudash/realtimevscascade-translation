@@ -12,25 +12,31 @@ internal static class RetryPipelines
     /// Outer: one retry after a first-item timeout. Inner: up to MaxRetries on 429 / transient
     /// errors, exponential backoff with jitter (Polly). Retries happen before the first item only.
     /// </summary>
-    public static ResiliencePipeline Build(ResilienceOptions o, TimeProvider time) =>
-        new ResiliencePipelineBuilder { TimeProvider = time }
-            .AddRetry(new RetryStrategyOptions
+    public static ResiliencePipeline Build(ResilienceOptions o, TimeProvider time)
+    {
+        var builder = new ResiliencePipelineBuilder { TimeProvider = time };
+        if (o.TimeoutRetries > 0)
+        {
+            builder.AddRetry(new RetryStrategyOptions
             {
                 ShouldHandle = new PredicateBuilder().Handle<ProviderTimeoutException>(),
-                MaxRetryAttempts = Math.Max(1, o.TimeoutRetries),
+                MaxRetryAttempts = o.TimeoutRetries,
                 Delay = TimeSpan.Zero,
-            })
-            .AddRetry(new RetryStrategyOptions
+            });
+        }
+        if (o.MaxRetries <= 0) return builder.Build();
+        return builder.AddRetry(new RetryStrategyOptions
             {
                 ShouldHandle = new PredicateBuilder()
                     .Handle<RateLimitedException>()
                     .Handle<ProviderErrorException>(e => e.Retryable),
-                MaxRetryAttempts = Math.Max(1, o.MaxRetries),
+                MaxRetryAttempts = o.MaxRetries,
                 BackoffType = DelayBackoffType.Exponential,
                 UseJitter = true,
                 Delay = o.RetryBaseDelay,
             })
             .Build();
+    }
 }
 
 /// <summary>
@@ -44,6 +50,7 @@ public sealed class ResilientTranslationProvider : ITranslationProvider
     private readonly FailoverCircuit _circuit;
     private readonly ResilienceOptions _opts;
     private readonly ResiliencePipeline _retry;
+    private readonly TimeProvider _time;
 
     public ResilientTranslationProvider(
         ITranslationProvider primary,
@@ -56,6 +63,7 @@ public sealed class ResilientTranslationProvider : ITranslationProvider
         _fallback = fallback is not null && fallback.Name != primary.Name ? fallback : null;
         _circuit = circuit;
         _opts = opts;
+        _time = time;
         _retry = RetryPipelines.Build(opts, time);
     }
 
@@ -95,7 +103,7 @@ public sealed class ResilientTranslationProvider : ITranslationProvider
         if (ctx.Meter is not null) ctx.Meter.TranslationProvider = p.Name;
         return await _retry.ExecuteAsync(
             async token => await StartedStream<string>.StartAsync(
-                t => p.TranslateAsync(segment, ctx, t), _opts.TranslationFirstTokenTimeout, p.Name, "translation", "first token", token),
+                t => p.TranslateAsync(segment, ctx, t), _opts.TranslationFirstTokenTimeout, p.Name, "translation", "first token", _time, token),
             ct);
     }
 }
@@ -111,7 +119,7 @@ public sealed class ResilientTtsProvider(ITtsProvider inner, ResilienceOptions o
     {
         var stream = await _retry.ExecuteAsync(
             async token => await StartedStream<AudioChunk>.StartAsync(
-                t => inner.SynthesizeAsync(text, voice, t), opts.TtsFirstByteTimeout, inner.Name, "tts", "first audio byte", token),
+                t => inner.SynthesizeAsync(text, voice, t), opts.TtsFirstByteTimeout, inner.Name, "tts", "first audio byte", time, token),
             ct);
         await using (stream)
         {

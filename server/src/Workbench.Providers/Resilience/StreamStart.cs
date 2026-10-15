@@ -28,6 +28,7 @@ internal sealed class StartedStream<T> : IAsyncDisposable
         string provider,
         string stage,
         string what,
+        TimeProvider time,
         CancellationToken ct)
     {
         var attempt = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -35,9 +36,11 @@ internal sealed class StartedStream<T> : IAsyncDisposable
         try
         {
             var move = e.MoveNextAsync().AsTask();
-            var winner = await Task.WhenAny(move, Task.Delay(firstItemTimeout, ct));
+            var winner = await Task.WhenAny(move, Task.Delay(firstItemTimeout, time, ct));
             if (winner != move)
             {
+                // The abandoned attempt faults once cancelled; observe it so it is not "unobserved".
+                _ = move.ContinueWith(t => _ = t.Exception, TaskContinuationOptions.OnlyOnFaulted);
                 ct.ThrowIfCancellationRequested();
                 throw new ProviderTimeoutException(provider, stage, $"No {what} within {firstItemTimeout.TotalSeconds:0.0} s");
             }

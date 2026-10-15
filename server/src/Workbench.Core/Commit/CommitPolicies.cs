@@ -23,8 +23,8 @@ public sealed class SegmentCommitPolicy : ICommitPolicy
             return [];
         }
         _pendingInterim = "";
-        // Empty finals and duplicate finals (e.g. a repeated finalize response) commit nothing.
-        if (text.Length == 0 || text == _lastCommitted) return [];
+        // Empty finals commit nothing; a finalize response repeating the previous final is a duplicate.
+        if (text.Length == 0 || (result.FromFinalize && text == _lastCommitted)) return [];
         _lastCommitted = text;
         return [new Segment(_next++, text)];
     }
@@ -68,6 +68,7 @@ public sealed class ClauseCommitPolicy : ICommitPolicy
     private int _next;
     private string[] _prevInterim = [];
     private int _committedWords; // words of the current (unfinalized) segment already committed
+    private string? _lastCommittedWord;
 
     public string Name => "clause";
 
@@ -77,9 +78,10 @@ public sealed class ClauseCommitPolicy : ICommitPolicy
 
         if (result.IsFinal)
         {
+            var rest = words.Skip(AlignCommitted(words)).ToArray();
             _prevInterim = [];
-            var rest = words.Skip(_committedWords).ToArray();
             _committedWords = 0;
+            _lastCommittedWord = null;
             return rest.Length == 0 ? [] : [new Segment(_next++, string.Join(' ', rest))];
         }
 
@@ -90,6 +92,7 @@ public sealed class ClauseCommitPolicy : ICommitPolicy
 
         var clause = words[_committedWords..cut];
         _committedWords = cut;
+        _lastCommittedWord = Bare(words[cut - 1]);
         return [new Segment(_next++, string.Join(' ', clause))];
     }
 
@@ -103,6 +106,24 @@ public sealed class ClauseCommitPolicy : ICommitPolicy
     }
 
     private static string[] Words(string text) => text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+    private static string Bare(string w) => w.Trim(',', '.', ';', ':', '?', '!', '\u00bf', '\u00a1').ToLowerInvariant();
+
+    /// <summary>
+    /// Where the uncommitted part of a final transcript starts. If STT revised words that were
+    /// already committed, the word count may have shifted: find the last committed word near the
+    /// expected position (within 2 words) and start after it; otherwise fall back to the count.
+    /// </summary>
+    private int AlignCommitted(string[] finalWords)
+    {
+        if (_committedWords == 0 || _lastCommittedWord is null) return 0;
+        foreach (var delta in new[] { 0, -1, 1, -2, 2 })
+        {
+            var i = _committedWords - 1 + delta;
+            if (i >= 0 && i < finalWords.Length && Bare(finalWords[i]) == _lastCommittedWord) return i + 1;
+        }
+        return Math.Min(_committedWords, finalWords.Length);
+    }
 
     private static int CommonPrefix(string[] a, string[] b)
     {

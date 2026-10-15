@@ -33,9 +33,15 @@ public class SegmentCommitPolicyTests
     }
 
     [Fact]
-    public void Duplicate_finals_are_committed_once()
+    public void A_finalize_response_repeating_the_last_final_is_committed_once()
     {
-        Assert.Equal(["Tengo una cita."], Run(new SegmentCommitPolicy(), F("Tengo una cita."), F("Tengo  una cita.")));
+        Assert.Equal(["Tengo una cita."], Run(new SegmentCommitPolicy(), F("Tengo una cita."), new SttResult("Tengo  una cita.", true, FromFinalize: true)));
+    }
+
+    [Fact]
+    public void A_genuinely_repeated_utterance_is_committed_twice()
+    {
+        Assert.Equal(["No.", "No."], Run(new SegmentCommitPolicy(), F("No."), F("No.")));
     }
 
     [Fact]
@@ -147,6 +153,16 @@ public class ClauseCommitPolicyTests
         }
         commits.AddRange(p.Accept(F(utterance)).Select(s => s.Text));
         Assert.Equal([firstClause, rest], commits);
+    }
+
+    [Fact]
+    public void A_revision_of_committed_words_does_not_lose_or_repeat_words()
+    {
+        var p = new ClauseCommitPolicy();
+        p.Accept(I("I went to the store,"));
+        Assert.Equal("I went to the store,", Assert.Single(p.Accept(I("I went to the store, and"))).Text);
+        // STT revises "went to the" -> "want to" (one word fewer) in the final.
+        Assert.Equal("and bought milk.", Assert.Single(p.Accept(F("I want to store, and bought milk."))).Text);
     }
 
     [Fact]

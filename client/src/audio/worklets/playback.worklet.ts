@@ -7,7 +7,7 @@ import { OutputTap, RingBuffer } from "../dsp";
 const JITTER_MS = 60;
 const DEPTH_REPORT_EVERY_S = 0.5;
 
-type InMsg = { type: "push"; samples: Float32Array } | { type: "play" } | { type: "end" } | { type: "reset" };
+type InMsg = { type: "push"; samples: Float32Array } | { type: "play" } | { type: "end" } | { type: "reset"; gen: number };
 
 class PlaybackProcessor extends AudioWorkletProcessor {
   private readonly buffer = new RingBuffer(sampleRate * 120);
@@ -17,6 +17,8 @@ class PlaybackProcessor extends AudioWorkletProcessor {
   private ended = false;
   private underruns = 0;
   private lastDepthReport = 0;
+  /** Bumped by every reset; stamped on outgoing messages so the main thread can drop stale ones. */
+  private gen = 0;
 
   constructor() {
     super();
@@ -28,6 +30,7 @@ class PlaybackProcessor extends AudioWorkletProcessor {
         this.tap.arm();
       } else if (m.type === "end") this.ended = true;
       else if (m.type === "reset") {
+        this.gen = m.gen;
         this.buffer.clear();
         this.tap.disarm();
         this.playRequested = this.started = this.ended = false;
@@ -43,7 +46,7 @@ class PlaybackProcessor extends AudioWorkletProcessor {
       // Consecutive playback: start once the jitter buffer holds enough, or the turn's audio is complete.
       if (this.buffer.length >= (JITTER_MS / 1000) * sampleRate || (this.ended && this.buffer.length > 0)) {
         this.started = true;
-        this.port.postMessage({ type: "started" });
+        this.port.postMessage({ type: "started", gen: this.gen });
       } else if (this.ended && this.buffer.length === 0) {
         this.finish();
       }
@@ -53,7 +56,7 @@ class PlaybackProcessor extends AudioWorkletProcessor {
       const n = this.buffer.read(out);
       if (n < out.length && !this.ended) this.underruns++;
       const hit = this.tap.scan(out, n);
-      if (hit >= 0) this.port.postMessage({ type: "first_audible", ctxTime: currentTime + hit / sampleRate });
+      if (hit >= 0) this.port.postMessage({ type: "first_audible", gen: this.gen, ctxTime: currentTime + hit / sampleRate });
       if (this.ended && this.buffer.length === 0) this.finish();
     }
 
@@ -68,7 +71,7 @@ class PlaybackProcessor extends AudioWorkletProcessor {
 
   private finish(): void {
     this.playRequested = this.started = this.ended = false;
-    this.port.postMessage({ type: "drained" });
+    this.port.postMessage({ type: "drained", gen: this.gen });
   }
 }
 

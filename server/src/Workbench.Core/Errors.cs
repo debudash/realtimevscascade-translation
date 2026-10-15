@@ -43,7 +43,8 @@ public sealed class ProviderErrorException(string provider, string stage, string
 {
     public int? HttpStatus { get; } = httpStatus;
     public override string Code => ErrorCodes.ProviderError;
-    public override bool Retryable => HttpStatus is null or >= 500;
+    /// <summary>Transient: no status (network), 408 Request Timeout, 425 Too Early, or 5xx.</summary>
+    public override bool Retryable => HttpStatus is null or 408 or 425 or >= 500;
 }
 
 /// <summary>A required key is missing. Never carries the key value, only its variable name.</summary>

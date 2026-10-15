@@ -67,11 +67,12 @@ public sealed class CascadeSession(
         }
         finally
         {
-            _turn?.Cancel();
-            await _turnTask.ContinueWith(_ => { }, TaskScheduler.Default);
-            _out.Writer.TryComplete();
-            await writer.ContinueWith(_ => { }, TaskScheduler.Default);
+            // Each step is independent, so one failure cannot skip the rest of the cleanup.
             cts.Cancel();
+            try { _turn?.Cancel(); } catch (Exception e) { log.LogWarning(e, "Turn cancel failed"); }
+            _out.Writer.TryComplete();
+            await _turnTask.ContinueWith(_ => { }, TaskScheduler.Default);
+            await writer.ContinueWith(_ => { }, TaskScheduler.Default);
             await keepWarm.ContinueWith(_ => { }, TaskScheduler.Default);
         }
     }
@@ -126,6 +127,11 @@ public sealed class CascadeSession(
         switch (msg.Type)
         {
             case "session.configure":
+                if (_turn is not null)
+                {
+                    await Emit(new ErrorEvent(ErrorCodes.Internal, "Cannot reconfigure during a turn.", Retryable: true));
+                    break;
+                }
                 await ConfigureAsync(msg, ct);
                 break;
             case "turn.start":
@@ -248,6 +254,8 @@ public sealed class CascadeSession(
         {
             log.LogError(e, "Cascade turn {TurnId} crashed", pipeline.TurnId);
             await Emit(new ErrorEvent(ErrorCodes.Internal, "Unexpected error in the cascade pipeline.", Retryable: true) { TurnId = pipeline.TurnId });
+            // The client finishes a turn on turn.end; always send one.
+            await Emit(new TurnEndEvent("", "", "failed") { TurnId = pipeline.TurnId });
         }
         finally
         {
@@ -257,18 +265,44 @@ public sealed class CascadeSession(
         }
     }
 
-    public ValueTask EmitAsync(WorkbenchEvent e, CancellationToken ct) => _out.Writer.WriteAsync(e, ct);
+    /// <summary>
+    /// Queues an event for the writer. If the writer has died (socket gone), events are dropped
+    /// rather than blocking the pipeline forever on a full channel.
+    /// </summary>
+    public async ValueTask EmitAsync(WorkbenchEvent e, CancellationToken ct)
+    {
+        try
+        {
+            await _out.Writer.WriteAsync(e, ct);
+        }
+        catch (ChannelClosedException)
+        {
+            // Writer gone: nobody to deliver to.
+        }
+    }
 
     private ValueTask Emit(WorkbenchEvent e) => EmitAsync(e with { T = _clock.Elapsed.TotalMilliseconds }, CancellationToken.None);
 
     /// <summary>The single writer for this socket.</summary>
     private async Task WriteLoopAsync(CancellationToken ct)
     {
-        await foreach (var e in _out.Reader.ReadAllAsync(ct))
+        try
         {
-            if (socket.State != WebSocketState.Open) break;
-            var bytes = JsonSerializer.SerializeToUtf8Bytes(e, EventJson.Options);
-            await socket.SendAsync(bytes, WebSocketMessageType.Text, endOfMessage: true, ct);
+            await foreach (var e in _out.Reader.ReadAllAsync(ct))
+            {
+                if (socket.State != WebSocketState.Open) break;
+                var bytes = JsonSerializer.SerializeToUtf8Bytes(e, EventJson.Options);
+                await socket.SendAsync(bytes, WebSocketMessageType.Text, endOfMessage: true, ct);
+            }
+        }
+        catch (Exception e) when (e is WebSocketException or OperationCanceledException)
+        {
+            log.LogInformation("Cascade writer stopped: {Reason}", e.Message);
+        }
+        finally
+        {
+            // Unblock any producer waiting on a full channel; further emits are dropped.
+            _out.Writer.TryComplete();
         }
     }
 }

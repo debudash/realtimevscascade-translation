@@ -55,8 +55,23 @@ export class CascadeTransport implements InterpreterTransport {
     this.ws = ws;
 
     const ready = new Promise<void>((resolve, reject) => {
-      this.pendingReady = { resolve, reject };
-      setTimeout(() => reject(new CascadeTransportError("provider_timeout", "Cascade warm-up timed out")), READY_TIMEOUT_MS);
+      const timer = setTimeout(() => {
+        if (this.pendingReady?.reject !== fail) return;
+        this.pendingReady = null;
+        ws.close(4001, "warm-up timeout");
+        reject(new CascadeTransportError("provider_timeout", "Cascade warm-up timed out"));
+      }, READY_TIMEOUT_MS);
+      const fail = (e: Error) => {
+        clearTimeout(timer);
+        reject(e);
+      };
+      this.pendingReady = {
+        resolve: () => {
+          clearTimeout(timer);
+          resolve();
+        },
+        reject: fail,
+      };
     });
 
     ws.onopen = () => {
@@ -117,8 +132,8 @@ export class CascadeTransport implements InterpreterTransport {
     if (e.type === "session.ready") {
       this.pendingReady?.resolve();
       this.pendingReady = null;
-    } else if (e.type === "error" && !e.turnId && this.pendingReady) {
-      // Configuration failures arrive before session.ready.
+    } else if (e.type === "error" && e.code === "config_error" && this.pendingReady) {
+      // Configuration failures arrive instead of session.ready.
       this.pendingReady.reject(new CascadeTransportError(e.code, e.message));
       this.pendingReady = null;
       return;

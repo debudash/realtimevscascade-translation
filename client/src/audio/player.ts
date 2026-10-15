@@ -15,6 +15,8 @@ export class Player {
   private node: AudioWorkletNode | null = null;
   private ready: Promise<void> | null = null;
   private resamplers = new Map<number, Resampler>();
+  /** Turn generation; worklet messages from before the last reset are ignored. */
+  private gen = 0;
 
   onFirstAudible: (perfMs: number) => void = () => {};
   onStarted: () => void = () => {};
@@ -32,10 +34,14 @@ export class Player {
       this.node = new AudioWorkletNode(this.ctx, "playback-processor", { outputChannelCount: [1] });
       this.node.port.onmessage = (e: MessageEvent) => {
         const m = e.data;
+        if (m.type === "depth") {
+          this.depth = { samples: m.samples, underruns: m.underruns };
+          return;
+        }
+        if (m.gen !== this.gen) return; // from a turn that was reset (cancelled or superseded)
         if (m.type === "first_audible") this.onFirstAudible(ctxTimeToPerf(this.ctx, m.ctxTime));
         else if (m.type === "started") this.onStarted();
         else if (m.type === "drained") this.onDrained();
-        else if (m.type === "depth") this.depth = { samples: m.samples, underruns: m.underruns };
       };
       this.node.connect(this.ctx.destination);
     })();
@@ -68,7 +74,7 @@ export class Player {
 
   reset(): void {
     this.resamplers.clear();
-    this.node?.port.postMessage({ type: "reset" });
+    this.node?.port.postMessage({ type: "reset", gen: ++this.gen });
   }
 
   denyTone(): void {

@@ -115,11 +115,20 @@ public sealed class CascadeTurnPipeline : IAsyncDisposable
         _released.TrySetResult();
     }
 
+    /// <summary>Idempotent and safe to call from any thread, before, during or after the run.</summary>
     public void Cancel()
     {
+        if (State is TurnPipelineState.Completed or TurnPipelineState.Failed or TurnPipelineState.Cancelled) return;
         _cancelledByClient = true;
         _audio.Writer.TryComplete();
-        _cts.Cancel();
+        try
+        {
+            _cts.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+            // Already finished.
+        }
     }
 
     public async Task RunAsync()
@@ -162,6 +171,7 @@ public sealed class CascadeTurnPipeline : IAsyncDisposable
         using var sttCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         var finals = new List<string>();
         var sttDone = 0;
+        var watchdogFired = false;
         var timedOut = false;
 
         // Final-transcript watchdog, armed at release.
@@ -173,7 +183,7 @@ public sealed class CascadeTurnPipeline : IAsyncDisposable
                 await Task.Delay(_opts.SttFinalTimeout, ct);
                 if (Volatile.Read(ref sttDone) == 0)
                 {
-                    timedOut = true;
+                    Volatile.Write(ref watchdogFired, true);
                     sttCts.Cancel();
                 }
             }
@@ -202,9 +212,11 @@ public sealed class CascadeTurnPipeline : IAsyncDisposable
                 foreach (var s in _policy.Accept(r)) await Commit(segments, s, ct);
             }
         }
-        catch (OperationCanceledException) when (timedOut && !ct.IsCancellationRequested)
+        catch (OperationCanceledException) when (Volatile.Read(ref watchdogFired) && !ct.IsCancellationRequested)
         {
             // STT never delivered its final: carry on with what was heard (Flush below).
+            // No retry: after release there is no audio left to resend (deviation from §6, see PROGRESS.md).
+            timedOut = true;
         }
         Volatile.Write(ref sttDone, 1);
 
@@ -335,9 +347,9 @@ public sealed class CascadeTurnPipeline : IAsyncDisposable
     /// <summary>Stamps turnId and the session clock. Uses the session token so terminal events still go out after a turn cancel.</summary>
     private ValueTask Emit(WorkbenchEvent e) => _sink.EmitAsync(e with { TurnId = _spec.TurnId, T = _clock() }, CancellationToken.None);
 
-    public ValueTask DisposeAsync()
-    {
-        _cts.Dispose();
-        return ValueTask.CompletedTask;
-    }
+    /// <summary>
+    /// Nothing to release eagerly: the linked CTS is left to the GC so a late Cancel() from the
+    /// socket reader can never hit a disposed source.
+    /// </summary>
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }
