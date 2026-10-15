@@ -112,6 +112,99 @@ complementing the synthetic clips (D-24).
   - the Realtime side transcript
 
 ## 8. As implemented
-(Filled from the code: for each mark, metric, quality measure, cost item,
-and procedure above, give the implementing file, function, or test, and any
-deviation from this protocol, with its reason.)
+
+Mapped from the code at commit 13d7a09. Sections 1-7 above are unchanged.
+Deviations are listed in 8.7 and mirrored in `docs/decisions.md` "Changes
+during the build". Sequence diagrams showing where each mark is captured:
+[`architecture/sequences.md`](architecture/sequences.md).
+
+### 8.1 Timing marks
+
+All browser marks use `performance.now()`. Marks live on the turn record in
+`client/src/state/metrics.ts` (`MarkName`, `MetricsStore.mark` / `setMark`;
+first write wins).
+
+| Mark (section 2) | Field | Implemented in | Test |
+|---|---|---|---|
+| `press` | `marks.press` | `client/src/session/controller.ts` `startTurn` -> `MetricsStore.startTurn` | `e2e/audio-engine.spec.ts` "replay produces press, access, T0 and release marks in order" |
+| `access` | `marks.access` | Cascade: `client/src/transports/cascade/CascadeTransport.ts` (first frame sent on the WebSocket). Realtime: `client/src/transports/realtime/RealtimeTransport.ts` `startTurn` (track already live; press plus the `session.update` / `clear` send) | same e2e test |
+| `T0` | `marks.t0` | `client/src/audio/energyDetector.ts` (-45 dBFS, last voiced frame, stamped on the capture clock); set in `controller.ts` `completeRelease`, capped at release | `client/src/audio/dsp.test.ts` "EnergyDetector" |
+| (extra) `speechStart` | `marks.speechStart` | `controller.ts` `onFrame` | same |
+| `release` | `marks.release` | `controller.ts` `releaseTurn` | same e2e test |
+| `stt_final` | `marks.sttFinal` + `stages[]` | Server: `CascadeTurnPipeline.cs` `_sinceRelease` Stopwatch -> `stage.timing`. Browser: `MetricsStore.stage` maps the stage to a mark at receipt time (`STAGE_MARK`) | `CascadePipelineTests`, `client/src/state/metrics.test.ts` "stage marks follow the latest segment" |
+| `translate_first_token` / `translate_done` | `marks.translateFirstToken` / `translateDone` | Server Stopwatch per segment in `CascadeTurnPipeline.cs` (translate loop); mapped on receipt | same |
+| `tts_first_byte` | `marks.ttsFirstByte` | Server Stopwatch per segment in `CascadeTurnPipeline.cs` (TTS loop); mapped on receipt | same |
+| `rt_response_start` | `marks.rtResponseStart` | `client/src/transports/realtime/eventMapper.ts` on `response.created` over the data channel | `eventMapper.test.ts` "maps a full turn to normalized events, marks and playback signals" |
+| `first_audible` | `marks.firstAudible` | Cascade: `client/src/audio/player.ts` `onFirstAudible` via the playback-tap `OutputTap` (`dsp.ts`), time from `getOutputTimestamp` (`audio/clock.ts`). Realtime: AnalyserNode tap on the remote track in `RealtimeTransport.ts`, polled every 5 ms | `dsp.test.ts` "OutputTap", `e2e/realtime.spec.ts` |
+
+**Exclusion rule:** `client/src/audio/denyTone.ts` connects straight to the
+destination, never through the playback tap. `controller.ts`
+`denyToneWindow` also keeps the tone out of the energy detector. Tests:
+`denyTone.test.ts` "never produces first_audible...", `e2e/audio-engine.spec.ts`
+floor-deny test.
+
+### 8.2 Metrics
+
+| Metric (section 3) | Implemented in | Where reported |
+|---|---|---|
+| Mouth-to-ear | `metrics.ts` `mouthToEarMs` (`firstAudible - t0`) | UI headline (`client/src/ui/LatencyPanel.tsx`), `harness/report.ts` section 1, p50/p95 via `harness/metrics.ts` `percentile` |
+| Stage breakdown | `LatencyPanel.tsx` waterfall (final segment, ms after T0; "during speech" if before T0; Realtime rows "hidden"); `report.ts` "Stage breakdown" and "Server stage durations" | UI, `harness/results/report.md` |
+| Access time | `metrics.ts` `accessMs` | UI, report section 1 |
+| Release lag | `report.ts` `since(t, "release")` | report section 1 (release -> first audible column) |
+| Disconnects | `harness/soak.harness.ts` (connection changes to Reconnecting or Failed) | report section 5 |
+| Recovery time | `soak.harness.ts` forced drop at the midpoint (`forceDrop`), time to Ready, transcript count before and after | report section 5 |
+| Playback buffer depth | `soak.harness.ts` samples `bufferedSamples` and `underruns` from the transport's `diagnostics()` | report section 5 (cascade only) |
+| Memory growth | `soak.harness.ts` samples `usedJSHeapSize`; report shows the post-GC floor, first vs last minute | report section 5 (browser only) |
+
+### 8.3 Quality
+
+| Measure (section 4) | Implemented in | Test |
+|---|---|---|
+| Source WER | `harness/metrics.ts` `normalize` + `wer` (word Levenshtein, small numbers spelled out) | `harness/metrics.test.ts` "normalize / wer" |
+| Target WER (crude proxy) | same, against `scripts.json` reference translations; labelled in the report | same |
+| Rubric (automated judge) | `harness/report.ts` `judge`: gpt-4.1-mini, temperature 0, JSON output, cached in `harness/results/judge-cache.json` | none (live call; cached results) |
+| Rubric (human, 10 turns) | Sheet in `MORNING.md` | Not done (blank) |
+| Answered instead of interpreted | `harness/metrics.ts` `answeredHeuristic` + the judge's flag; `report.ts` "Manual review list (flagged turns)" | `harness/metrics.test.ts` "answered instead of interpreted" |
+
+### 8.4 Cost
+
+| Item (section 5) | Implemented in |
+|---|---|
+| Usage per turn | Server `TurnMeter` (`Workbench.Core/Contracts/Providers.cs`) -> `turn.end.usage`; Realtime token usage from `response.done` in `eventMapper.ts` |
+| Cost per minute | `harness/metrics.ts` `turnCost` x `harness/pricing.json`; `report.ts` section 3. Test: `harness/metrics.test.ts` "turnCost" |
+| Source and date per price | `harness/pricing.json` (read 2026-10-15, marked "verify"); the DeepL rate is shown as unverified in the report |
+
+### 8.5 Run conditions
+
+As built, per turn (`client/src/state/metrics.ts` `RunConditions` and
+`TurnRecord`): `mode`, `strategy`, `providers[]` (plus `providersUsed`
+from `turn.end`), `pair`, `direction`, `inputSource`, `controls`,
+`startedAtIso`, `failoverNote`, `usage`. Per run file
+(`harness/run.harness.ts`): `config`, `label`, `startedAt`, `finishedAt`,
+`browser`, `pageReloads`. Exported by the UI's Export button
+(`MetricsStore.export`; test "exports JSON with derived latencies").
+
+### 8.6 Procedures
+
+| Procedure (section 7) | Implemented in | Evidence |
+|---|---|---|
+| Replay runs, four configurations | `harness/run.harness.ts`, configs in `harness/lib.ts` (`realtime`, `cascade-segment`, `cascade-clause`, `cascade-deepl`) | `harness/results/runs/`, `harness/results/report.md` |
+| Run limit (3 per configuration) | `harness/lib.ts` `MAX_RUNS_PER_CONFIG = 3`, enforced by `test.skip` in `run.harness.ts` | Realtime 3/3, cascade configs 2/3 each |
+| Soak (5 min per mode, one forced drop) | `harness/soak.harness.ts` | `harness/results/soak-realtime.json`, `soak-cascade.json` |
+| Onboarding exercise (EN<->FR) | `harness/onboarding.harness.ts` | `harness/results/onboarding.md` |
+| Live-voice session per mode | Not run as a recorded procedure | Gap in `docs/status.md` |
+| Traceability and disclosures | `docs/comparison.md` cites `harness/results/report.md` and carries all four disclosures | `docs/conformance.md` |
+
+### 8.7 Deviations from sections 1-7
+
+| Section | Protocol says | As built | Reason |
+|---|---|---|---|
+| 2 | `stt_final` etc. are server durations "mapped on receipt" | Two values are kept: the server Stopwatch duration in `stages[]` (report "Server stage durations") and the browser receipt time as the mark (waterfall) | The waterfall needs browser-clock positions; the durations stay pure server Stopwatch |
+| 2 | `first_audible` from the playback tap in both cases | Cascade time comes from `getOutputTimestamp` (includes device output latency); the Realtime AnalyserNode sees samples just before output | Browser APIs differ per path. Not corrected (a correction would be an estimate); disclosed in `docs/comparison.md` |
+| 3 | Access time "audio flowing" for Realtime | Realtime access is press plus the send of `session.update` / `clear`, near zero, because the WebRTC track is always live | No per-turn audio start exists on a live track |
+| 3 | Playback buffer depth for both modes | Cascade only | Realtime's jitter buffer belongs to the browser and is not observable |
+| 3 | Memory: browser heap and server memory | Browser heap only, reported as post-GC floor plus raw start/end | Raw heap saw-tooths without forced GC; server memory sampling was not built |
+| 4 | Human spot-check of 10 turns | Not done; the sheet in `MORNING.md` is blank | Needs the owner; open in `docs/status.md` |
+| 6 | `runId`, `providers` object, `failover`, `build` sha, `timestamp` | See 8.5: no `runId` or `build` sha; failover is a per-turn `failoverNote`; providers is an array | The schema was written after the build; runs are traceable by file name and commit date |
+| 7 | Playwright fake audio capture | The app's Replay input (same capture graph as the mic, press/release automated) | The fake capture file loops from browser start and cannot be aligned with a press |
+| 7 | Live-voice session per mode | Not recorded | Out of the unattended run; needs a person |
