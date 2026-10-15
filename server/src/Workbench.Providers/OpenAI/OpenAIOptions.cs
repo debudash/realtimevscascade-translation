@@ -14,7 +14,7 @@ public sealed class OpenAIOptions
     public int ClientSecretTtlSeconds { get; set; } = 600;
 
     // Cascade translation (streamed Chat Completions).
-    public string TranslationModel { get; set; } = "gpt-4.1-mini";
+    public string TranslationModel { get; set; } = "gpt-4.1-nano";
 }
 
 /// <summary>The interpreter instructions, owned by the server so both modes use the same wording.</summary>
