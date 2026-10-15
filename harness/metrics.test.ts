@@ -53,6 +53,8 @@ describe("answered instead of interpreted", () => {
   it("guesses language from stopwords", () => {
     expect(guessLanguage("Tengo una cita con la doctora")).toBe("es");
     expect(guessLanguage("I have an appointment with the doctor")).toBe("en");
+    // "le" is both Spanish and French; Spanish-only words must decide.
+    expect(guessLanguage("¿Le duele cuando respira hondo?")).toBe("es");
   });
 });
 

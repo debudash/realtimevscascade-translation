@@ -47,7 +47,7 @@ export function percentile(values: number[], p: number): number | null {
 
 const STOPWORDS: Record<string, string[]> = {
   en: ["the", "is", "and", "you", "your", "my", "have", "to", "of", "it", "do", "does", "what", "he", "she", "i", "we", "will"],
-  es: ["el", "la", "es", "y", "usted", "su", "mi", "tengo", "de", "un", "una", "que", "lo", "se", "no", "por", "para", "con", "los", "las"],
+  es: ["el", "la", "es", "y", "usted", "su", "mi", "tengo", "de", "un", "una", "que", "lo", "le", "les", "se", "no", "por", "para", "con", "los", "las", "cuando", "duele"],
   fr: ["le", "la", "est", "et", "vous", "votre", "mon", "de", "un", "une", "que", "il", "elle", "je", "nous", "pour", "avec", "les"],
 };
 

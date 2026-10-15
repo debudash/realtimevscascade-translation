@@ -32,8 +32,15 @@ for (const config of selected) {
 
     const turns = [];
     const startedAt = new Date().toISOString();
+    let reloads = 0;
     for (const clip of clips) {
-      const turn = await replayTurn(page, clip.id, clip.lang, 60_000);
+      let turn = await replayTurn(page, clip.id, clip.lang, 60_000);
+      if (!turn) {
+        // The page reloaded (session reset): wait for Ready and retry this clip once.
+        reloads++;
+        await waitReady(page);
+        turn = await replayTurn(page, clip.id, clip.lang, 60_000);
+      }
       turns.push({ clipId: clip.id, ...turn });
       console.log(`${config} ${clip.id}: ${turn.status} ${((turn.marks.firstAudible - turn.marks.t0) / 1000).toFixed(2)} s | ${turn.targetText}`);
       await page.waitForTimeout(300);
@@ -41,7 +48,7 @@ for (const config of selected) {
 
     ensureDir(runsDir);
     const file = join(runsDir, `${config}--${stamp()}.json`);
-    writeFileSync(file, JSON.stringify({ config, label: CONFIGS[config].label, startedAt, finishedAt: new Date().toISOString(), browser: browserName, turns }, null, 2));
+    writeFileSync(file, JSON.stringify({ config, label: CONFIGS[config].label, startedAt, finishedAt: new Date().toISOString(), browser: browserName, pageReloads: reloads, turns }, null, 2));
     console.log(`Saved ${turns.length} turns to ${file}`);
     expect(turns.length).toBe(clips.length);
   });

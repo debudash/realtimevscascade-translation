@@ -1,0 +1,415 @@
+{
+  "ae63ae0fd494da4e": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and natural translation."
+  },
+  "0e3d8cb881f994e1": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Exact match, perfect translation."
+  },
+  "65d153125447bf0f": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Correct and natural translation."
+  },
+  "a2cef5dbe79157d0": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect match with reference."
+  },
+  "e6ba996a5f343889": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect match with reference."
+  },
+  "772fba7951d5ea5a": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect match with reference."
+  },
+  "cde3cedd953d576d": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect translation"
+  },
+  "c8a77b8764425419": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Correct pronoun use, fully accurate and fluent."
+  },
+  "f419afbfd30c0483": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and natural phrasing."
+  },
+  "d234cab1a1b87ebf": {
+    "accuracy": 5,
+    "completeness": 4,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Subject 'Ella' omitted but meaning clear."
+  },
+  "6e8c81833101229f": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Exact match with reference."
+  },
+  "e90a47dd9c615d7f": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Exact match, perfect translation."
+  },
+  "8f27a7a2b61a683a": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect match with reference."
+  },
+  "4c9e1d5499e3515d": {
+    "accuracy": 4,
+    "completeness": 5,
+    "fluency": 4,
+    "answered_instead_of_interpreted": false,
+    "note": "Recipe vs. prescription slight error."
+  },
+  "192d7b9eccf14eca": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Spouse is a valid synonym for wife."
+  },
+  "19b183cef60cef51": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Correct pronoun choice does not affect meaning."
+  },
+  "055af5e7c2bf5290": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and natural phrasing."
+  },
+  "2d44256086128688": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect translation"
+  },
+  "9a947cb167a4c3c2": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Exact and fluent translation."
+  },
+  "928c9b6d80c55aec": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect match with reference."
+  },
+  "2b8c3377ee5d17e8": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and fluent translation."
+  },
+  "f439575e93d1c178": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Exact translation, fully accurate and fluent."
+  },
+  "a695f423ecb9de10": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect match with reference."
+  },
+  "b90cc2a5a4d13d80": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and natural translation."
+  },
+  "91f1e67dc8fea799": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect translation with natural phrasing."
+  },
+  "a01f74087dbaeb40": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Informal 'tu' used, but accurate and complete."
+  },
+  "5bfba9f87a5ba188": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Minor singular/plural difference, meaning preserved."
+  },
+  "53c605fa49232ef5": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Exact match, perfect translation."
+  },
+  "96188573a7371633": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Exact match, perfect translation."
+  },
+  "208dc103b6d8045d": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and fluent translation."
+  },
+  "ce463b9ab5e6fc53": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Exact match, fully accurate and fluent."
+  },
+  "6605cb4e9aa20138": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect match with source and reference."
+  },
+  "9c62b867b53100a1": {
+    "accuracy": 4,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Minor pronoun shift from 'he' to 'I'"
+  },
+  "4dc230685d8b94db": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and natural phrasing."
+  },
+  "caa7ed6de247efad": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect match with reference."
+  },
+  "04130eb761bb8c29": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect translation with minor article difference."
+  },
+  "9da22d965f49f95d": {
+    "accuracy": 4,
+    "completeness": 4,
+    "fluency": 3,
+    "answered_instead_of_interpreted": false,
+    "note": "Candidate splits question, slightly less natural."
+  },
+  "0eab1c000137f19d": {
+    "accuracy": 4,
+    "completeness": 4,
+    "fluency": 3,
+    "answered_instead_of_interpreted": false,
+    "note": "Minor grammar and formality issues in candidate."
+  },
+  "93ade1483fa3451e": {
+    "accuracy": 4,
+    "completeness": 4,
+    "fluency": 4,
+    "answered_instead_of_interpreted": false,
+    "note": "Minor punctuation and slight word choice issues."
+  },
+  "965f7fc15fffb21d": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 4,
+    "answered_instead_of_interpreted": false,
+    "note": "Minor punctuation issue, otherwise accurate and complete."
+  },
+  "32de8ca6423ffc45": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 4,
+    "answered_instead_of_interpreted": false,
+    "note": "Minor fluency issue with punctuation."
+  },
+  "f5acf51127dce571": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Exact match to reference."
+  },
+  "e25c2a1730464d9f": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect match with reference."
+  },
+  "586949bea5c7f711": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and natural translation."
+  },
+  "950013313e285e7d": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and natural translation."
+  },
+  "76397c98fe401871": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and natural translation."
+  },
+  "77ce6ef4f9a988cb": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 4,
+    "answered_instead_of_interpreted": false,
+    "note": "Slightly informal but accurate and complete."
+  },
+  "33216d9b1e507ee3": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and fluent translation."
+  },
+  "f482cb8731d4d578": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Correct, natural, informal address"
+  },
+  "a59bcc64eb83a9f4": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and natural translation."
+  },
+  "33dbc7ecd0236f3e": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and natural translation."
+  },
+  "ca1be55c50da9844": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Informal 'tu' used instead of formal 'su'"
+  },
+  "1ccb8d34ccf5b485": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Correct, natural phrasing with all information."
+  },
+  "532ef026937f0f1e": {
+    "accuracy": 4,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Recipe vs. prescription slight inaccuracy."
+  },
+  "09763323df775a7f": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Correct pronoun shift, natural and accurate."
+  },
+  "0bb3059296bb57b6": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and natural phrasing."
+  },
+  "72c1d708c896d622": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Accurate, complete, and fluent translation."
+  },
+  "4ed1f27dc9ff3a3a": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect match with reference."
+  },
+  "a13764018626e3ec": {
+    "accuracy": 5,
+    "completeness": 5,
+    "fluency": 5,
+    "answered_instead_of_interpreted": false,
+    "note": "Perfect match with reference."
+  }
+}
