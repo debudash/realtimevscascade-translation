@@ -1,0 +1,468 @@
+{
+  "description": "Blind human spot-check (measurement-protocol section 4). 10 clips x 2 configurations (Realtime, Cascade segment), each from that configuration's first harness run, shown in random order without the configuration. Scored 1-5 by the project owner on the scoring page; judge = gpt-4.1-mini scores for the same outputs from judge-cache.json.",
+  "scorer": "project owner",
+  "page": "https://claude.ai/artifact/4vBQYf33nxhEVobKfwNSVX",
+  "shuffleSeed": 20261015,
+  "items": [
+    {
+      "id": "A01",
+      "clip": "en-04",
+      "config": "realtime",
+      "run": "realtime--2026-10-15T06-17-20-574Z.json",
+      "turnId": "4d389885",
+      "source": "The pain started after lunch, and it is getting worse.",
+      "output": "El dolor empezó después del almuerzo y está empeorando.",
+      "reference": "El dolor empezó después del almuerzo y está empeorando.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T15:49:12.988Z"
+    },
+    {
+      "id": "A02",
+      "clip": "es-01",
+      "config": "cascade-segment",
+      "run": "cascade-segment--2026-10-15T06-20-12-408Z.json",
+      "turnId": "fbc5541e",
+      "source": "Tengo una cita a las tres con la doctora.",
+      "output": "I have an appointment at 3 with the doctor.",
+      "reference": "I have an appointment at three with the doctor.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T15:49:33.207Z"
+    },
+    {
+      "id": "A03",
+      "clip": "en-06",
+      "config": "cascade-segment",
+      "run": "cascade-segment--2026-10-15T06-20-12-408Z.json",
+      "turnId": "69f525f0",
+      "source": "Have you had any surgery in the last five years?",
+      "output": "¿Ha tenido alguna cirugía en los últimos cinco años?",
+      "reference": "¿Ha tenido alguna cirugía en los últimos cinco años?",
+      "human": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T15:49:48.888Z"
+    },
+    {
+      "id": "A04",
+      "clip": "en-02",
+      "config": "cascade-segment",
+      "run": "cascade-segment--2026-10-15T06-20-12-408Z.json",
+      "turnId": "f03eb267",
+      "source": "Is he allergic to any medication?",
+      "output": "¿Es alérgico a algún medicamento?",
+      "reference": "¿Es alérgico a algún medicamento?",
+      "human": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T15:51:12.560Z"
+    },
+    {
+      "id": "A05",
+      "clip": "en-08",
+      "config": "cascade-segment",
+      "run": "cascade-segment--2026-10-15T06-20-12-408Z.json",
+      "turnId": "5c170c65",
+      "source": "We will call you when the test results are ready.",
+      "output": "Le llamaremos cuando los resultados de la prueba estén listos.",
+      "reference": "Le llamaremos cuando los resultados de las pruebas estén listos.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T15:52:49.979Z"
+    },
+    {
+      "id": "A06",
+      "clip": "en-06",
+      "config": "realtime",
+      "run": "realtime--2026-10-15T06-17-20-574Z.json",
+      "turnId": "a08994a6",
+      "source": "Have you had any surgery in the last five years?",
+      "output": "¿Ha tenido alguna cirugía en los últimos cinco años?",
+      "reference": "¿Ha tenido alguna cirugía en los últimos cinco años?",
+      "human": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T15:52:58.728Z"
+    },
+    {
+      "id": "A07",
+      "clip": "es-01",
+      "config": "realtime",
+      "run": "realtime--2026-10-15T06-17-20-574Z.json",
+      "turnId": "33bc8fa0",
+      "source": "Tengo una cita a las tres con la doctora.",
+      "output": "I have an appointment at three with the doctor.",
+      "reference": "I have an appointment at three with the doctor.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T15:53:32.841Z"
+    },
+    {
+      "id": "A08",
+      "clip": "es-09",
+      "config": "realtime",
+      "run": "realtime--2026-10-15T06-17-20-574Z.json",
+      "turnId": "248140f8",
+      "source": "El niño se cayó y se lastimó el brazo izquierdo.",
+      "output": "The child fell and hurt his left arm.",
+      "reference": "The boy fell and hurt his left arm.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T15:53:47.468Z"
+    },
+    {
+      "id": "A09",
+      "clip": "en-10",
+      "config": "realtime",
+      "run": "realtime--2026-10-15T06-17-20-574Z.json",
+      "turnId": "677afe47",
+      "source": "She has been coughing for two weeks and cannot sleep.",
+      "output": "Ha estado tosiendo durante dos semanas y no puede dormir.",
+      "reference": "Ella ha estado tosiendo durante dos semanas y no puede dormir.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 4,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 4,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:09:57.851Z"
+    },
+    {
+      "id": "A10",
+      "clip": "en-04",
+      "config": "cascade-segment",
+      "run": "cascade-segment--2026-10-15T06-20-12-408Z.json",
+      "turnId": "26eb8879",
+      "source": "The pain started after lunch, and it is getting worse.",
+      "output": "El dolor comenzó después del almuerzo y está empeorando.",
+      "reference": "El dolor empezó después del almuerzo y está empeorando.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 4,
+        "fluency": 4,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:10:00.731Z"
+    },
+    {
+      "id": "A11",
+      "clip": "en-10",
+      "config": "cascade-segment",
+      "run": "cascade-segment--2026-10-15T06-20-12-408Z.json",
+      "turnId": "8eb9b3b4",
+      "source": "She has been coughing for two weeks and cannot sleep.",
+      "output": "Ella ha estado tosiendo durante dos semanas y no puede dormir.",
+      "reference": "Ella ha estado tosiendo durante dos semanas y no puede dormir.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 4,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:10:05.451Z"
+    },
+    {
+      "id": "A12",
+      "clip": "es-03",
+      "config": "realtime",
+      "run": "realtime--2026-10-15T06-17-20-574Z.json",
+      "turnId": "591d6f21",
+      "source": "Mi esposa necesita un intérprete mañana.",
+      "output": "My spouse needs an interpreter tomorrow.",
+      "reference": "My wife needs an interpreter tomorrow.",
+      "human": {
+        "accuracy": 4,
+        "completeness": 5,
+        "fluency": 4,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:10:08.918Z"
+    },
+    {
+      "id": "A13",
+      "clip": "es-07",
+      "config": "realtime",
+      "run": "realtime--2026-10-15T06-17-20-574Z.json",
+      "turnId": "6be8b567",
+      "source": "¿Puedo tomar este medicamento con el estómago vacío?",
+      "output": "Can I take this medication on an empty stomach?",
+      "reference": "Can I take this medication on an empty stomach?",
+      "human": {
+        "accuracy": 4,
+        "completeness": 4,
+        "fluency": 4,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:10:12.260Z"
+    },
+    {
+      "id": "A14",
+      "clip": "es-07",
+      "config": "cascade-segment",
+      "run": "cascade-segment--2026-10-15T06-20-12-408Z.json",
+      "turnId": "273b7dc2",
+      "source": "¿Puedo tomar este medicamento con el estómago vacío?",
+      "output": "Can I take this medication on an empty stomach?",
+      "reference": "Can I take this medication on an empty stomach?",
+      "human": {
+        "accuracy": 5,
+        "completeness": 4,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:10:16.058Z"
+    },
+    {
+      "id": "A15",
+      "clip": "es-03",
+      "config": "cascade-segment",
+      "run": "cascade-segment--2026-10-15T06-20-12-408Z.json",
+      "turnId": "13c4a494",
+      "source": "Mi esposa necesita un intérprete mañana.",
+      "output": "My wife needs an interpreter tomorrow.",
+      "reference": "My wife needs an interpreter tomorrow.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:10:18.201Z"
+    },
+    {
+      "id": "A16",
+      "clip": "en-02",
+      "config": "realtime",
+      "run": "realtime--2026-10-15T06-17-20-574Z.json",
+      "turnId": "d7827871",
+      "source": "Is he allergic to any medication?",
+      "output": "¿Es alérgico a algún medicamento?",
+      "reference": "¿Es alérgico a algún medicamento?",
+      "human": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:10:21.035Z"
+    },
+    {
+      "id": "A17",
+      "clip": "es-05",
+      "config": "cascade-segment",
+      "run": "cascade-segment--2026-10-15T06-20-12-408Z.json",
+      "turnId": "ad64d95d",
+      "source": "Me duele mucho la cabeza desde ayer.",
+      "output": "My head has been hurting a lot since yesterday.",
+      "reference": "My head has hurt a lot since yesterday.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:10:23.202Z"
+    },
+    {
+      "id": "A18",
+      "clip": "es-05",
+      "config": "realtime",
+      "run": "realtime--2026-10-15T06-17-20-574Z.json",
+      "turnId": "7370ed7c",
+      "source": "Me duele mucho la cabeza desde ayer.",
+      "output": "I’ve had a really bad headache since yesterday.",
+      "reference": "My head has hurt a lot since yesterday.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 4,
+        "fluency": 4,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:10:25.253Z"
+    },
+    {
+      "id": "A19",
+      "clip": "es-09",
+      "config": "cascade-segment",
+      "run": "cascade-segment--2026-10-15T06-20-12-408Z.json",
+      "turnId": "3429010d",
+      "source": "El niño se cayó y se lastimó el brazo izquierdo.",
+      "output": "The child fell and hurt his left arm.",
+      "reference": "The boy fell and hurt his left arm.",
+      "human": {
+        "accuracy": 5,
+        "completeness": 4,
+        "fluency": 4,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:10:27.902Z"
+    },
+    {
+      "id": "A20",
+      "clip": "en-08",
+      "config": "realtime",
+      "run": "realtime--2026-10-15T06-17-20-574Z.json",
+      "turnId": "44d41d95",
+      "source": "We will call you when the test results are ready.",
+      "output": "Lo llamaremos cuando los resultados de las pruebas estén listos.",
+      "reference": "Le llamaremos cuando los resultados de las pruebas estén listos.",
+      "human": {
+        "accuracy": 4,
+        "completeness": 4,
+        "fluency": 4,
+        "answeredInsteadOfInterpreted": false
+      },
+      "judge": {
+        "accuracy": 5,
+        "completeness": 5,
+        "fluency": 5,
+        "answeredInsteadOfInterpreted": false
+      },
+      "scoredAt": "2026-10-15T16:10:30.471Z"
+    }
+  ]
+}
