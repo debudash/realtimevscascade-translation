@@ -11,6 +11,7 @@
   { "type": "provider.failover", "turnId": "t-1", "t": 1200, "stage": "translation", "from": "openai", "to": "deepl", "reason": "429 three times; circuit open for 60 s" },
   { "type": "turn.end", "turnId": "t-1", "t": 2500, "speaker": "en", "direction": "en-es", "status": "completed", "usage": { "sttAudioSeconds": 2.4, "translationInputTokens": 80, "translationOutputTokens": 12, "translationCharacters": 41, "ttsCharacters": 34 }, "providersUsed": [ "deepgram", "openai", "elevenlabs" ], "failoverNote": "Translation switched to DeepL" },
   { "type": "turn.end", "turnId": "t-2", "t": 3000, "speaker": "es", "direction": "es-en", "status": "empty" },
+  { "type": "turn.end", "turnId": "t-3", "t": 4000, "speaker": "en", "direction": "en-es", "status": "completed", "usage": { "sttAudioSeconds": 2.1, "translationInputTokens": 0, "translationOutputTokens": 0, "translationCharacters": 0, "ttsCharacters": 0, "realtime": { "inputAudioTokens": 21, "inputTextTokens": 310, "cachedInputTokens": 128, "outputAudioTokens": 44, "outputTextTokens": 12 } }, "providersUsed": [ "gpt-realtime" ] },
   { "type": "floor.denied", "turnId": "t-1", "t": 1600, "speaker": "es" },
   { "type": "error", "turnId": "t-1", "t": 2600, "code": "provider_timeout", "message": "No first token within 2.0 s after one retry", "retryable": true, "provider": "openai", "stage": "translation" },
   { "type": "error", "t": 2700, "code": "provider_error", "message": "Upstream returned 503", "retryable": true, "provider": "elevenlabs", "stage": "tts", "httpStatus": 503 }

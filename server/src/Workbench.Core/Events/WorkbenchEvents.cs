@@ -47,12 +47,22 @@ public sealed record TurnEndEvent(
     string? FailoverNote = null) : WorkbenchEvent;
 
 /// <summary>Usage logged per turn, priced later by the report from harness/pricing.json.</summary>
+/// <param name="SttAudioSeconds">Cascade: audio streamed to STT. Realtime: captured audio (priced as input transcription).</param>
 public sealed record TurnUsage(
     double SttAudioSeconds,
     int TranslationInputTokens,
     int TranslationOutputTokens,
     int TranslationCharacters,
-    int TtsCharacters);
+    int TtsCharacters,
+    RealtimeUsage? Realtime = null);
+
+/// <summary>Token usage reported by gpt-realtime's response.done.</summary>
+public sealed record RealtimeUsage(
+    int InputAudioTokens,
+    int InputTextTokens,
+    int CachedInputTokens,
+    int OutputAudioTokens,
+    int OutputTextTokens);
 
 /// <param name="Text">The full source text so far (stable + interim).</param>
 /// <param name="Stable">The prefix of Text that will not change.</param>
