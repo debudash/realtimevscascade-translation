@@ -1,6 +1,6 @@
 # Evaluation report
 
-Generated 2026-10-15T15:29:27.165Z by `npm run report` from every saved harness run, pooled per configuration.
+Generated 2026-10-15T15:34:45.428Z by `npm run report` from every saved harness run, pooled per configuration.
 All numbers are measured; p50/p95 use linear interpolation. Clips are synthetic speech (ElevenLabs), 24 clinic sentences (12 EN, 12 ES).
 
 | Configuration | Runs | Build | Turns |
@@ -79,7 +79,7 @@ Target WER against a single reference translation penalizes valid paraphrases, s
 
 ## 3. Cost per minute of input speech
 
-Logged usage per turn × `harness/pricing.json` (prices read 2026-10-15; marked "verify"; DeepL rate UNVERIFIED).
+Logged usage per turn × `harness/pricing.json`. Prices: OpenAI, Deepgram and ElevenLabs verified on the official pricing pages on 2026-10-15 (Deepgram's streaming rate is a limited-time promotion; list price $0.0077/min). DeepL is unverified: deepl.com does not render API prices, and third-party sources give $25 per 1M characters (legacy API Pro) or about $27.50 (API Growth overage).
 
 | Configuration | Speech minutes | Total USD | USD per minute |
 |---|---|---|---|
@@ -110,7 +110,11 @@ The swap is a configuration change only: the harness opens `/?providers=translat
 | realtime | 5 | 45 | 0 | 0 | 2112 ms | yes | 12.6 MB → 17.5 MB | 12.6 MB → 33.2 MB | 0 ms | – |
 | cascade | 5 | 45 | 0 | 0 | 1080 ms | yes | 12.4 MB → 16.1 MB | 12.4 MB → 16.1 MB | 4093 ms | 0 |
 
-Unplanned disconnects excludes the one forced drop. Realtime plays through a media element, so its jitter buffer is the browser's and is not observable (0 / –). The cascade's max buffer is synthesized audio queued ahead of playback (TTS runs faster than real time); it drains to zero every turn.
+Unplanned disconnects excludes the one forced drop. Realtime plays through a media element, so its jitter buffer is the browser's and its depth over time is not observable (0 / –); see the getStats summary below. The cascade's max buffer is synthesized audio queued ahead of playback (TTS runs faster than real time); it drains to zero every turn.
+
+### Realtime playback health (WebRTC getStats)
+
+Not measured yet: getStats() sampling was added after these runs. A Realtime run or soak records it per turn.
 
 ## 6. Time to onboard a language pair
 
