@@ -20,12 +20,12 @@ public sealed record Segment(int Index, string Text);
 public sealed record SttOptions(string Language, int SampleRate = 16000);
 
 /// <param name="Previous">The last committed segments (oldest first), with their translations, for context.</param>
-/// <param name="Usage">Per-turn meter; adapters that report token usage add to it.</param>
+/// <param name="Meter">Per-turn meter: adapters add token usage; the resilience layer reports provider used and failover.</param>
 public sealed record TranslationContext(
     string SourceLang,
     string TargetLang,
     IReadOnlyList<(string Source, string Target)> Previous,
-    UsageMeter? Usage = null);
+    TurnMeter? Meter = null);
 
 public sealed record VoiceOptions(string Language, string? VoiceId = null);
 
@@ -70,15 +70,39 @@ public interface IWarmable
     Task WarmUpAsync(CancellationToken ct);
 }
 
-/// <summary>Thread-safe per-turn usage counters, turned into TurnUsage at turn end.</summary>
-public sealed class UsageMeter
+/// <summary>
+/// Thread-safe per-turn bookkeeping: usage counters (turned into TurnUsage at turn end), which
+/// translation provider actually served, and failovers (reported to the turn as they happen).
+/// </summary>
+public sealed class TurnMeter
 {
     private long _sttMs, _inTok, _outTok, _trChars, _ttsChars;
+    private string? _translationProvider;
+    private string? _failoverNote;
 
     public void AddSttAudio(TimeSpan d) => Interlocked.Add(ref _sttMs, (long)d.TotalMilliseconds);
     public void AddTokens(int input, int output) { Interlocked.Add(ref _inTok, input); Interlocked.Add(ref _outTok, output); }
     public void AddTranslationChars(int n) => Interlocked.Add(ref _trChars, n);
     public void AddTtsChars(int n) => Interlocked.Add(ref _ttsChars, n);
+
+    /// <summary>The provider that served the most recent translation (primary or fallback).</summary>
+    public string? TranslationProvider
+    {
+        get => Volatile.Read(ref _translationProvider);
+        set => Volatile.Write(ref _translationProvider, value);
+    }
+
+    public string? FailoverNote => Volatile.Read(ref _failoverNote);
+
+    /// <summary>Raised when the resilience layer switches provider mid-turn.</summary>
+    public Action<string, string, string, string>? OnFailover { get; set; }
+
+    /// <summary>Records the first failover of the turn; later segments on the same fallback are not re-reported.</summary>
+    public void ReportFailover(string stage, string from, string to, string reason)
+    {
+        if (Interlocked.CompareExchange(ref _failoverNote, $"{stage}: {from} → {to} ({reason})", null) is not null) return;
+        OnFailover?.Invoke(stage, from, to, reason);
+    }
 
     public Events.TurnUsage Snapshot() => new(
         Math.Round(Interlocked.Read(ref _sttMs) / 1000.0, 3),
