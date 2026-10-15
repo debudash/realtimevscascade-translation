@@ -1,0 +1,493 @@
+{
+  "finishedAt": "2026-10-15T06:44:59.242Z",
+  "results": {
+    "realtime": [
+      {
+        "clipId": "enfr-01",
+        "turnId": "2ff00630",
+        "speaker": "en",
+        "conditions": {
+          "mode": "realtime",
+          "strategy": null,
+          "providers": [
+            "gpt-realtime"
+          ],
+          "pair": "en-fr",
+          "direction": "en-fr",
+          "inputSource": "enfr-01"
+        },
+        "startedAtIso": "2026-10-15T06:44:02.811Z",
+        "marks": {
+          "press": 4609.300000000745,
+          "access": 4610.300000000745,
+          "speechStart": 4861.7333333337065,
+          "release": 7312.9000000003725,
+          "t0": 6890.468992248062,
+          "rtResponseStart": 7430.5999999996275,
+          "firstAudible": 8074.5999999996275
+        },
+        "stages": [],
+        "sourceText": "My son has had a fever since last night.",
+        "targetText": "Mon fils a de la fièvre depuis la nuit dernière.",
+        "status": "completed",
+        "usage": {
+          "sttAudioSeconds": 2.783,
+          "translationInputTokens": 0,
+          "translationOutputTokens": 0,
+          "translationCharacters": 0,
+          "ttsCharacters": 0,
+          "realtime": {
+            "inputAudioTokens": 24,
+            "inputTextTokens": 56,
+            "cachedInputTokens": 0,
+            "outputAudioTokens": 67,
+            "outputTextTokens": 22
+          }
+        },
+        "providersUsed": [
+          "gpt-realtime"
+        ]
+      },
+      {
+        "clipId": "enfr-02",
+        "turnId": "40107090",
+        "speaker": "en",
+        "conditions": {
+          "mode": "realtime",
+          "strategy": null,
+          "providers": [
+            "gpt-realtime"
+          ],
+          "pair": "en-fr",
+          "direction": "en-fr",
+          "inputSource": "enfr-02"
+        },
+        "startedAtIso": "2026-10-15T06:44:09.802Z",
+        "marks": {
+          "press": 11600.5,
+          "access": 11600.699999999255,
+          "speechStart": 11850.368992248435,
+          "release": 13925.400000000373,
+          "t0": 13511.833333333334,
+          "rtResponseStart": 14038.099999999627,
+          "firstAudible": 14516.699999999255
+        },
+        "stages": [],
+        "sourceText": "Is he allergic to any medication?",
+        "targetText": "Est-ce qu’il est allergique à un médicament ?",
+        "status": "completed",
+        "usage": {
+          "sttAudioSeconds": 2.405,
+          "translationInputTokens": 0,
+          "translationOutputTokens": 0,
+          "translationCharacters": 0,
+          "ttsCharacters": 0,
+          "realtime": {
+            "inputAudioTokens": 111,
+            "inputTextTokens": 88,
+            "cachedInputTokens": 64,
+            "outputAudioTokens": 68,
+            "outputTextTokens": 22
+          }
+        },
+        "providersUsed": [
+          "gpt-realtime"
+        ]
+      },
+      {
+        "clipId": "fr-01",
+        "turnId": "73442261",
+        "speaker": "fr",
+        "conditions": {
+          "mode": "realtime",
+          "strategy": null,
+          "providers": [
+            "gpt-realtime"
+          ],
+          "pair": "en-fr",
+          "direction": "fr-en",
+          "inputSource": "fr-01"
+        },
+        "startedAtIso": "2026-10-15T06:44:15.718Z",
+        "marks": {
+          "press": 17517,
+          "access": 17517.099999999627,
+          "speechStart": 17758.96666666741,
+          "release": 20226.300000000745,
+          "t0": 19821.868992248434,
+          "rtResponseStart": 20336.199999999255,
+          "firstAudible": 20817.599999999627
+        },
+        "stages": [],
+        "sourceText": "J'ai rendez-vous avec le médecin à quinze heures.",
+        "targetText": "I have an appointment with the doctor at 3 p.m.",
+        "status": "completed",
+        "usage": {
+          "sttAudioSeconds": 2.79,
+          "translationInputTokens": 0,
+          "translationOutputTokens": 0,
+          "translationCharacters": 0,
+          "ttsCharacters": 0,
+          "realtime": {
+            "inputAudioTokens": 136,
+            "inputTextTokens": 112,
+            "cachedInputTokens": 0,
+            "outputAudioTokens": 80,
+            "outputTextTokens": 23
+          }
+        },
+        "providersUsed": [
+          "gpt-realtime"
+        ]
+      },
+      {
+        "clipId": "fr-02",
+        "turnId": "a06d04a0",
+        "speaker": "fr",
+        "conditions": {
+          "mode": "realtime",
+          "strategy": null,
+          "providers": [
+            "gpt-realtime"
+          ],
+          "pair": "en-fr",
+          "direction": "fr-en",
+          "inputSource": "fr-02"
+        },
+        "startedAtIso": "2026-10-15T06:44:22.671Z",
+        "marks": {
+          "press": 24469.599999999627,
+          "access": 24469.900000000373,
+          "speechStart": 24718.902325581024,
+          "release": 27505.5,
+          "t0": 27105,
+          "rtResponseStart": 27615,
+          "firstAudible": 28516.900000000373
+        },
+        "stages": [],
+        "sourceText": "Combien de fois par jour dois-je prendre ce médicament?",
+        "targetText": "How many times a day should I take this medication?",
+        "status": "completed",
+        "usage": {
+          "sttAudioSeconds": 3.117,
+          "translationInputTokens": 0,
+          "translationOutputTokens": 0,
+          "translationCharacters": 0,
+          "ttsCharacters": 0,
+          "realtime": {
+            "inputAudioTokens": 151,
+            "inputTextTokens": 113,
+            "cachedInputTokens": 64,
+            "outputAudioTokens": 79,
+            "outputTextTokens": 23
+          }
+        },
+        "providersUsed": [
+          "gpt-realtime"
+        ]
+      }
+    ],
+    "cascade-segment": [
+      {
+        "clipId": "enfr-01",
+        "turnId": "00f88180",
+        "speaker": "en",
+        "conditions": {
+          "mode": "cascade",
+          "strategy": "segment",
+          "providers": [
+            "deepgram",
+            "openai",
+            "elevenlabs"
+          ],
+          "pair": "en-fr",
+          "direction": "en-fr",
+          "inputSource": "enfr-01"
+        },
+        "startedAtIso": "2026-10-15T06:44:32.671Z",
+        "marks": {
+          "press": 2554.2999999988824,
+          "access": 2580,
+          "speechStart": 2799.699999999255,
+          "release": 5251.5999999996275,
+          "t0": 4829.135658914729,
+          "sttFinal": 5441.699999999255,
+          "translateFirstToken": 5911.5,
+          "translateDone": 5982.89999999851,
+          "ttsFirstByte": 6156.699999999255,
+          "firstAudible": 6247.016666666294
+        },
+        "stages": [
+          {
+            "stage": "stt_final",
+            "durationMs": 75.5235,
+            "segment": 0,
+            "provider": "deepgram",
+            "receivedAt": 5441.699999999255
+          },
+          {
+            "stage": "translate_first_token",
+            "durationMs": 474.0272,
+            "segment": 0,
+            "provider": "openai",
+            "receivedAt": 5911.5
+          },
+          {
+            "stage": "translate_done",
+            "durationMs": 548.4537,
+            "segment": 0,
+            "provider": "openai",
+            "receivedAt": 5982.89999999851
+          },
+          {
+            "stage": "tts_first_byte",
+            "durationMs": 169.1489,
+            "segment": 0,
+            "provider": "elevenlabs",
+            "receivedAt": 6156.699999999255
+          }
+        ],
+        "sourceText": "My son has had a fever since last night.",
+        "targetText": "Mon fils a de la fièvre depuis hier soir.",
+        "status": "completed",
+        "usage": {
+          "sttAudioSeconds": 2.42,
+          "translationInputTokens": 98,
+          "translationOutputTokens": 11,
+          "translationCharacters": 40,
+          "ttsCharacters": 41
+        },
+        "providersUsed": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ]
+      },
+      {
+        "clipId": "enfr-02",
+        "turnId": "8b26c7af",
+        "speaker": "en",
+        "conditions": {
+          "mode": "cascade",
+          "strategy": "segment",
+          "providers": [
+            "deepgram",
+            "openai",
+            "elevenlabs"
+          ],
+          "pair": "en-fr",
+          "direction": "en-fr",
+          "inputSource": "enfr-02"
+        },
+        "startedAtIso": "2026-10-15T06:44:39.051Z",
+        "marks": {
+          "press": 8935,
+          "access": 8959.599999999627,
+          "speechStart": 9178.135658914729,
+          "release": 11264.89999999851,
+          "t0": 10839.5,
+          "sttFinal": 11436.699999999255,
+          "translateFirstToken": 11803,
+          "translateDone": 11864.599999999627,
+          "ttsFirstByte": 12009.89999999851,
+          "firstAudible": 12124.12033333296
+        },
+        "stages": [
+          {
+            "stage": "stt_final",
+            "durationMs": 72.1511,
+            "segment": 0,
+            "provider": "deepgram",
+            "receivedAt": 11436.699999999255
+          },
+          {
+            "stage": "translate_first_token",
+            "durationMs": 374.2802,
+            "segment": 0,
+            "provider": "openai",
+            "receivedAt": 11803
+          },
+          {
+            "stage": "translate_done",
+            "durationMs": 429.0331,
+            "segment": 0,
+            "provider": "openai",
+            "receivedAt": 11864.599999999627
+          },
+          {
+            "stage": "tts_first_byte",
+            "durationMs": 151.1618,
+            "segment": 0,
+            "provider": "elevenlabs",
+            "receivedAt": 12009.89999999851
+          }
+        ],
+        "sourceText": "Is he allergic to any medication?",
+        "targetText": "Est-il allergique à un médicament ?",
+        "status": "completed",
+        "usage": {
+          "sttAudioSeconds": 2.06,
+          "translationInputTokens": 95,
+          "translationOutputTokens": 8,
+          "translationCharacters": 33,
+          "ttsCharacters": 35
+        },
+        "providersUsed": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ]
+      },
+      {
+        "clipId": "fr-01",
+        "turnId": "61f51b7c",
+        "speaker": "fr",
+        "conditions": {
+          "mode": "cascade",
+          "strategy": "segment",
+          "providers": [
+            "deepgram",
+            "openai",
+            "elevenlabs"
+          ],
+          "pair": "en-fr",
+          "direction": "fr-en",
+          "inputSource": "fr-01"
+        },
+        "startedAtIso": "2026-10-15T06:44:45.950Z",
+        "marks": {
+          "press": 15833.699999999255,
+          "access": 15859.599999999627,
+          "speechStart": 16095.768992246945,
+          "release": 18560.799999998882,
+          "t0": 18135.668992247316,
+          "sttFinal": 18743,
+          "translateFirstToken": 19162.89999999851,
+          "translateDone": 19311.699999999255,
+          "ttsFirstByte": 19444.599999999627,
+          "firstAudible": 19532.41233333296
+        },
+        "stages": [
+          {
+            "stage": "stt_final",
+            "durationMs": 80.4489,
+            "segment": 0,
+            "provider": "deepgram",
+            "receivedAt": 18743
+          },
+          {
+            "stage": "translate_first_token",
+            "durationMs": 429.4725,
+            "segment": 0,
+            "provider": "openai",
+            "receivedAt": 19162.89999999851
+          },
+          {
+            "stage": "translate_done",
+            "durationMs": 579.9555,
+            "segment": 0,
+            "provider": "openai",
+            "receivedAt": 19311.699999999255
+          },
+          {
+            "stage": "tts_first_byte",
+            "durationMs": 131.2266,
+            "segment": 0,
+            "provider": "elevenlabs",
+            "receivedAt": 19444.599999999627
+          }
+        ],
+        "sourceText": "J'ai rendez-vous avec le médecin à 15 heures.",
+        "targetText": "I have an appointment with the doctor at 3 p.m.",
+        "status": "completed",
+        "usage": {
+          "sttAudioSeconds": 2.46,
+          "translationInputTokens": 100,
+          "translationOutputTokens": 13,
+          "translationCharacters": 45,
+          "ttsCharacters": 47
+        },
+        "providersUsed": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ]
+      },
+      {
+        "clipId": "fr-02",
+        "turnId": "605195a8",
+        "speaker": "fr",
+        "conditions": {
+          "mode": "cascade",
+          "strategy": "segment",
+          "providers": [
+            "deepgram",
+            "openai",
+            "elevenlabs"
+          ],
+          "pair": "en-fr",
+          "direction": "fr-en",
+          "inputSource": "fr-02"
+        },
+        "startedAtIso": "2026-10-15T06:44:52.383Z",
+        "marks": {
+          "press": 22267.099999999627,
+          "access": 22289.599999999627,
+          "speechStart": 22505.46899224806,
+          "release": 25313.099999999627,
+          "t0": 24905.46899224806,
+          "sttFinal": 25477.199999999255,
+          "translateFirstToken": 25951.699999999255,
+          "translateDone": 26058.699999999255,
+          "ttsFirstByte": 26185.599999999627,
+          "firstAudible": 26278.703666666293
+        },
+        "stages": [
+          {
+            "stage": "stt_final",
+            "durationMs": 64.4185,
+            "segment": 0,
+            "provider": "deepgram",
+            "receivedAt": 25477.199999999255
+          },
+          {
+            "stage": "translate_first_token",
+            "durationMs": 480.5255,
+            "segment": 0,
+            "provider": "openai",
+            "receivedAt": 25951.699999999255
+          },
+          {
+            "stage": "translate_done",
+            "durationMs": 581.9191,
+            "segment": 0,
+            "provider": "openai",
+            "receivedAt": 26058.699999999255
+          },
+          {
+            "stage": "tts_first_byte",
+            "durationMs": 132.0707,
+            "segment": 0,
+            "provider": "elevenlabs",
+            "receivedAt": 26185.599999999627
+          }
+        ],
+        "sourceText": "Combien de fois par jour dois-je prendre ce médicament?",
+        "targetText": "How many times a day should I take this medication?",
+        "status": "completed",
+        "usage": {
+          "sttAudioSeconds": 2.78,
+          "translationInputTokens": 100,
+          "translationOutputTokens": 11,
+          "translationCharacters": 55,
+          "ttsCharacters": 51
+        },
+        "providersUsed": [
+          "deepgram",
+          "openai",
+          "elevenlabs"
+        ]
+      }
+    ]
+  }
+}

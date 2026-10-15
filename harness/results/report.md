@@ -1,6 +1,6 @@
 # Evaluation report
 
-Generated 2026-10-15T06:30:17.529Z by `npm run report` from the latest harness run per configuration.
+Generated 2026-10-15T06:45:28.708Z by `npm run report` from the latest harness run per configuration.
 All numbers are measured; p50/p95 use linear interpolation. Clips are synthetic speech (ElevenLabs), 24 clinic sentences (12 EN, 12 ES).
 
 | Configuration | Run file | Turns |
@@ -80,11 +80,16 @@ The swap is a configuration change only: the harness opens `/?providers=translat
 
 ## 5. Stability: 5-minute soak per mode
 
-Not yet run.
+| Mode | Minutes | Turns | Failed turns | Unplanned disconnects | Forced-drop recovery (drop → Ready) | Transcript intact after drop | Heap floor, 1st min → last min | Heap raw start → end | Max playback buffer | Underruns |
+|---|---|---|---|---|---|---|---|---|---|---|
+| realtime | 5 | 45 | 0 | 0 | 2112 ms | yes | 12.6 MB → 17.5 MB | 12.6 MB → 33.2 MB | 0 ms | – |
+| cascade | 5 | 45 | 0 | 0 | 1080 ms | yes | 12.4 MB → 16.1 MB | 12.4 MB → 16.1 MB | 4093 ms | 0 |
+
+Unplanned disconnects excludes the one forced drop. Realtime plays through a media element, so its jitter buffer is the browser's and is not observable (0 / –). The cascade's max buffer is synthesized audio queued ahead of playback (TTS runs faster than real time); it drains to zero every turn.
 
 ## 6. Time to onboard a language pair
 
-Not yet run.
+See [onboarding.md](onboarding.md).
 
 ## Appendix: every turn
 

@@ -1,0 +1,319 @@
+{
+  "mode": "realtime",
+  "minutes": 5,
+  "turns": 45,
+  "turnErrors": 0,
+  "disconnects": 1,
+  "forcedDrop": {
+    "at": 151448,
+    "turnsBefore": 23,
+    "recoveryMs": 2112,
+    "recoveredAt": 153560,
+    "turnsAfter": 23
+  },
+  "heapStartBytes": 13240656,
+  "heapEndBytes": 34823594,
+  "maxBufferedSamples": 0,
+  "underrunsAtEnd": null,
+  "connectionChanges": [
+    {
+      "t": 151475,
+      "state": "Reconnecting"
+    },
+    {
+      "t": 158763,
+      "state": "Connected"
+    }
+  ],
+  "samples": [
+    {
+      "t": 11,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 13240656
+    },
+    {
+      "t": 3899,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 16830750
+    },
+    {
+      "t": 9247,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 15831157
+    },
+    {
+      "t": 15123,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 22889297
+    },
+    {
+      "t": 21502,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 24610911
+    },
+    {
+      "t": 28589,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 17499322
+    },
+    {
+      "t": 35629,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 27006920
+    },
+    {
+      "t": 42611,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 22379834
+    },
+    {
+      "t": 49011,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 32559896
+    },
+    {
+      "t": 55297,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 35636755
+    },
+    {
+      "t": 62473,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 23479347
+    },
+    {
+      "t": 68812,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 20033822
+    },
+    {
+      "t": 75011,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 29903875
+    },
+    {
+      "t": 81002,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 25378997
+    },
+    {
+      "t": 87142,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 32011678
+    },
+    {
+      "t": 94483,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 38294203
+    },
+    {
+      "t": 102538,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 38805893
+    },
+    {
+      "t": 108807,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 30012174
+    },
+    {
+      "t": 115148,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 30271177
+    },
+    {
+      "t": 122227,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 20774905
+    },
+    {
+      "t": 129621,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 22926261
+    },
+    {
+      "t": 136818,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 36083483
+    },
+    {
+      "t": 145631,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 39805297
+    },
+    {
+      "t": 151440,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 25708886
+    },
+    {
+      "t": 151475,
+      "connection": "Reconnecting",
+      "reconnecting": 1,
+      "heapBytes": 28539229
+    },
+    {
+      "t": 158763,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 16951851
+    },
+    {
+      "t": 165655,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 26796982
+    },
+    {
+      "t": 171636,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 30849108
+    },
+    {
+      "t": 177998,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 25387779
+    },
+    {
+      "t": 184234,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 16474413
+    },
+    {
+      "t": 190873,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 26335591
+    },
+    {
+      "t": 197758,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 17729680
+    },
+    {
+      "t": 204162,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 17503894
+    },
+    {
+      "t": 211205,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 38679479
+    },
+    {
+      "t": 218564,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 29974369
+    },
+    {
+      "t": 225839,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 17081837
+    },
+    {
+      "t": 232469,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 41485705
+    },
+    {
+      "t": 239192,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 34300318
+    },
+    {
+      "t": 245194,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 18389862
+    },
+    {
+      "t": 253325,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 30400202
+    },
+    {
+      "t": 259928,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 27141746
+    },
+    {
+      "t": 267783,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 20297000
+    },
+    {
+      "t": 274169,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 26436403
+    },
+    {
+      "t": 281144,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 26623917
+    },
+    {
+      "t": 288404,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 37914754
+    },
+    {
+      "t": 296439,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 38485840
+    },
+    {
+      "t": 304866,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 34818090
+    },
+    {
+      "t": 304868,
+      "connection": "Connected",
+      "reconnecting": 0,
+      "heapBytes": 34823594
+    }
+  ],
+  "finishedAt": "2026-10-15T06:37:05.993Z"
+}

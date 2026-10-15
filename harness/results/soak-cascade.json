@@ -1,0 +1,367 @@
+{
+  "mode": "cascade",
+  "minutes": 5,
+  "turns": 45,
+  "turnErrors": 0,
+  "disconnects": 1,
+  "forcedDrop": {
+    "at": 153509,
+    "turnsBefore": 22,
+    "recoveryMs": 1080,
+    "recoveredAt": 154589,
+    "turnsAfter": 22
+  },
+  "heapStartBytes": 13049351,
+  "heapEndBytes": 16841842,
+  "maxBufferedSamples": 98240,
+  "underrunsAtEnd": 0,
+  "connectionChanges": [
+    {
+      "t": 153550,
+      "state": "Reconnecting"
+    },
+    {
+      "t": 157693,
+      "state": "Connected"
+    }
+  ],
+  "samples": [
+    {
+      "t": 17,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 13049351
+    },
+    {
+      "t": 4311,
+      "connection": "Connected",
+      "bufferedSamples": 49877,
+      "underruns": 0,
+      "heapBytes": 14507533
+    },
+    {
+      "t": 10076,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 19783582
+    },
+    {
+      "t": 16912,
+      "connection": "Connected",
+      "bufferedSamples": 21908,
+      "underruns": 0,
+      "heapBytes": 28897095
+    },
+    {
+      "t": 23223,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 31307534
+    },
+    {
+      "t": 30202,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 16774982
+    },
+    {
+      "t": 36497,
+      "connection": "Connected",
+      "bufferedSamples": 22164,
+      "underruns": 0,
+      "heapBytes": 14449442
+    },
+    {
+      "t": 43188,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 14484801
+    },
+    {
+      "t": 50244,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 16532063
+    },
+    {
+      "t": 56731,
+      "connection": "Connected",
+      "bufferedSamples": 20884,
+      "underruns": 0,
+      "heapBytes": 34472320
+    },
+    {
+      "t": 69085,
+      "connection": "Connected",
+      "bufferedSamples": 13035,
+      "underruns": 0,
+      "heapBytes": 34130499
+    },
+    {
+      "t": 75804,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 37943440
+    },
+    {
+      "t": 82211,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 37895000
+    },
+    {
+      "t": 88312,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 32323063
+    },
+    {
+      "t": 95764,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 36267354
+    },
+    {
+      "t": 102360,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 14173278
+    },
+    {
+      "t": 110018,
+      "connection": "Connected",
+      "bufferedSamples": 54133,
+      "underruns": 0,
+      "heapBytes": 16182995
+    },
+    {
+      "t": 115946,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 15735440
+    },
+    {
+      "t": 122959,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 41081541
+    },
+    {
+      "t": 129201,
+      "connection": "Connected",
+      "bufferedSamples": 79458,
+      "underruns": 0,
+      "heapBytes": 16938209
+    },
+    {
+      "t": 136854,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 23277784
+    },
+    {
+      "t": 144390,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 28831817
+    },
+    {
+      "t": 153496,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 41343170
+    },
+    {
+      "t": 153550,
+      "connection": "Reconnecting",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 16025479
+    },
+    {
+      "t": 157693,
+      "connection": "Connected",
+      "bufferedSamples": 37580,
+      "underruns": 0,
+      "heapBytes": 22686977
+    },
+    {
+      "t": 164301,
+      "connection": "Connected",
+      "bufferedSamples": 68388,
+      "underruns": 0,
+      "heapBytes": 33388668
+    },
+    {
+      "t": 171027,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 38662972
+    },
+    {
+      "t": 176990,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 38683174
+    },
+    {
+      "t": 182813,
+      "connection": "Connected",
+      "bufferedSamples": 48235,
+      "underruns": 0,
+      "heapBytes": 41546508
+    },
+    {
+      "t": 189064,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 26609887
+    },
+    {
+      "t": 196030,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 25773492
+    },
+    {
+      "t": 202686,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 21446588
+    },
+    {
+      "t": 209304,
+      "connection": "Connected",
+      "bufferedSamples": 71822,
+      "underruns": 0,
+      "heapBytes": 37692198
+    },
+    {
+      "t": 216183,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 16656249
+    },
+    {
+      "t": 222021,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 42201529
+    },
+    {
+      "t": 229029,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 31425297
+    },
+    {
+      "t": 235683,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 28913889
+    },
+    {
+      "t": 242127,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 31662119
+    },
+    {
+      "t": 247891,
+      "connection": "Connected",
+      "bufferedSamples": 54501,
+      "underruns": 0,
+      "heapBytes": 35924975
+    },
+    {
+      "t": 254787,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 27545330
+    },
+    {
+      "t": 261803,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 36086812
+    },
+    {
+      "t": 269461,
+      "connection": "Connected",
+      "bufferedSamples": 54773,
+      "underruns": 0,
+      "heapBytes": 24519487
+    },
+    {
+      "t": 275505,
+      "connection": "Connected",
+      "bufferedSamples": 42950,
+      "underruns": 0,
+      "heapBytes": 18002347
+    },
+    {
+      "t": 281845,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 21930733
+    },
+    {
+      "t": 288191,
+      "connection": "Connected",
+      "bufferedSamples": 75091,
+      "underruns": 0,
+      "heapBytes": 24860110
+    },
+    {
+      "t": 295869,
+      "connection": "Connected",
+      "bufferedSamples": 0,
+      "underruns": 0,
+      "heapBytes": 18950353
+    },
+    {
+      "t": 303649,
+      "connection": "Connected",
+      "bufferedSamples": 98240,
+      "underruns": 0,
+      "heapBytes": 16836102
+    },
+    {
+      "t": 303652,
+      "connection": "Connected",
+      "bufferedSamples": 98240,
+      "underruns": 0,
+      "heapBytes": 16841842
+    }
+  ],
+  "finishedAt": "2026-10-15T06:42:11.584Z"
+}

@@ -29,6 +29,10 @@
     { "id": "es-09", "lang": "es", "target": "en", "text": "El niño se cayó y se lastimó el brazo izquierdo.", "reference": "The boy fell and hurt his left arm." },
     { "id": "es-10", "lang": "es", "target": "en", "text": "¿Cuánto tiempo tengo que esperar para ver al médico?", "reference": "How long do I have to wait to see the doctor?", "question": true },
     { "id": "es-11", "lang": "es", "target": "en", "text": "No tengo seguro médico, pero puedo pagar en efectivo.", "reference": "I don't have health insurance, but I can pay in cash." },
-    { "id": "es-12", "lang": "es", "target": "en", "text": "Necesito una receta nueva porque se me acabaron las pastillas.", "reference": "I need a new prescription because I ran out of pills." }
+    { "id": "es-12", "lang": "es", "target": "en", "text": "Necesito una receta nueva porque se me acabaron las pastillas.", "reference": "I need a new prescription because I ran out of pills." },
+    { "id": "enfr-01", "pair": "en-fr", "lang": "en", "target": "fr", "text": "My son has had a fever since last night.", "reference": "Mon fils a de la fièvre depuis hier soir." },
+    { "id": "enfr-02", "pair": "en-fr", "lang": "en", "target": "fr", "text": "Is he allergic to any medication?", "reference": "Est-il allergique à un médicament ?", "question": true },
+    { "id": "fr-01", "pair": "en-fr", "lang": "fr", "target": "en", "text": "J'ai rendez-vous avec le médecin à quinze heures.", "reference": "I have an appointment with the doctor at three p.m." },
+    { "id": "fr-02", "pair": "en-fr", "lang": "fr", "target": "en", "text": "Combien de fois par jour dois-je prendre ce médicament ?", "reference": "How many times a day should I take this medication?", "question": true }
   ]
 }

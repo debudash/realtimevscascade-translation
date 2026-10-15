@@ -287,18 +287,29 @@ async function main() {
   line();
   const soaks = ["realtime", "cascade"].map((m) => ({ m, path: join(resultsDir, `soak-${m}.json`) })).filter((s) => existsSync(s.path));
   if (soaks.length) {
-    line("| Mode | Minutes | Turns | Failed turns | Unplanned disconnects | Forced-drop recovery (drop → Ready) | Transcript intact after drop | Heap start → end | Max playback buffer |");
-    line("|---|---|---|---|---|---|---|---|---|");
+    line("| Mode | Minutes | Turns | Failed turns | Unplanned disconnects | Forced-drop recovery (drop → Ready) | Transcript intact after drop | Heap floor, 1st min → last min | Heap raw start → end | Max playback buffer | Underruns |");
+    line("|---|---|---|---|---|---|---|---|---|---|---|");
     for (const { m, path } of soaks) {
       const s = JSON.parse(readFileSync(path, "utf8"));
       const mb = (b: number | null) => (b ? `${(b / 1048576).toFixed(1)} MB` : "–");
       const unplanned = Math.max(0, s.disconnects - (s.forcedDrop ? 1 : 0));
       const intact = s.forcedDrop ? (s.forcedDrop.turnsAfter >= s.forcedDrop.turnsBefore ? "yes" : "no") : "–";
+      // The heap is sampled without forcing GC, so it saws up and down; the post-GC floor
+      // (minimum) in the first vs. the last minute is the leak signal.
+      const samples = s.samples as { t: number; heapBytes?: number }[];
+      const floor = (from: number, to: number) => {
+        const h = samples.filter((x) => x.t >= from && x.t <= to && x.heapBytes).map((x) => x.heapBytes!);
+        return h.length ? Math.min(...h) : null;
+      };
+      const end = samples[samples.length - 1].t;
       line(
         `| ${m} | ${s.minutes} | ${s.turns} | ${s.turnErrors} | ${unplanned} | ${s.forcedDrop?.recoveryMs ?? "–"} ms | ${intact} | ` +
-          `${mb(s.heapStartBytes)} → ${mb(s.heapEndBytes)} | ${s.maxBufferedSamples ? `${(s.maxBufferedSamples / 24).toFixed(0)} ms` : "0 ms"} |`,
+          `${mb(floor(0, 60000))} → ${mb(floor(end - 60000, end))} | ${mb(s.heapStartBytes)} → ${mb(s.heapEndBytes)} | ` +
+          `${s.maxBufferedSamples ? `${(s.maxBufferedSamples / 24).toFixed(0)} ms` : "0 ms"} | ${s.underrunsAtEnd ?? "–"} |`,
       );
     }
+    line();
+    line("Unplanned disconnects excludes the one forced drop. Realtime plays through a media element, so its jitter buffer is the browser's and is not observable (0 / –). The cascade's max buffer is synthesized audio queued ahead of playback (TTS runs faster than real time); it drains to zero every turn.");
   } else {
     line("Not yet run.");
   }
