@@ -11,15 +11,15 @@ public static class ClipEndpoints
         app.MapGet("/api/clips", () =>
         {
             var scripts = LoadScripts();
-            if (!Directory.Exists(RepoPaths.Clips)) return Results.Ok(Array.Empty<object>());
-
-            var clips = Directory.EnumerateFiles(RepoPaths.Clips, "*.wav")
+            var clips = RepoPaths.ClipDirs
+                .Where(Directory.Exists)
+                .SelectMany(d => Directory.EnumerateFiles(d, "*.wav"))
                 .Select(Path.GetFileNameWithoutExtension)
                 .OfType<string>()
                 .Order(StringComparer.Ordinal)
                 .Select(id => scripts.TryGetValue(id, out var s)
                     ? new ClipInfo(id, s.Lang, s.Text)
-                    : new ClipInfo(id, id.Split('-')[0], id));
+                    : new ClipInfo(id, id.Split('-').FirstOrDefault(p => p.Length == 2) ?? "en", id));
             return Results.Ok(clips);
         });
 
@@ -27,8 +27,8 @@ public static class ClipEndpoints
         {
             // Ids are file stems; reject anything that could escape the folder.
             if (id.Any(c => !(char.IsLetterOrDigit(c) || c is '-' or '_'))) return Results.BadRequest();
-            var path = Path.Combine(RepoPaths.Clips, id + ".wav");
-            return File.Exists(path) ? Results.File(path, "audio/wav") : Results.NotFound();
+            var path = RepoPaths.ClipDirs.Select(d => Path.Combine(d, id + ".wav")).FirstOrDefault(File.Exists);
+            return path is not null ? Results.File(path, "audio/wav") : Results.NotFound();
         });
     }
 

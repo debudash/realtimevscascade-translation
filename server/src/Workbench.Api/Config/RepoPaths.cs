@@ -7,6 +7,9 @@ public static class RepoPaths
 
     public static string Clips => Path.Combine(Root, "harness", "clips");
 
+    /// <summary>Replay sources: evaluation clips first, then the e2e test fixtures.</summary>
+    public static IReadOnlyList<string> ClipDirs => [Clips, Path.Combine(Root, "e2e", "fixtures")];
+
     private static string FindRoot()
     {
         foreach (var start in new[] { AppContext.BaseDirectory, Directory.GetCurrentDirectory() })
