@@ -1,9 +1,9 @@
 # Evaluation report
 
-Generated 2026-10-15T06:45:28.708Z by `npm run report` from the latest harness run per configuration.
+Generated 2026-10-15T06:55:52.778Z by `npm run report` from every saved harness run, pooled per configuration.
 All numbers are measured; p50/p95 use linear interpolation. Clips are synthetic speech (ElevenLabs), 24 clinic sentences (12 EN, 12 ES).
 
-| Configuration | Run file | Turns |
+| Configuration | Runs | Turns |
 |---|---|---|
 | Realtime (gpt-realtime) | `runs/realtime--2026-10-15T06-17-20-574Z.json` | 24 |
 | Cascade · segment (Deepgram · OpenAI · ElevenLabs) | `runs/cascade-segment--2026-10-15T06-20-12-408Z.json` | 24 |
@@ -12,12 +12,12 @@ All numbers are measured; p50/p95 use linear interpolation. Clips are synthetic 
 
 ## 1. Latency: mouth-to-ear (T0 = last voiced frame → first audible)
 
-| Configuration | n ok | p50 | p95 | Target | p95 meets target | Access p50 / p95 |
-|---|---|---|---|---|---|---|
-| Realtime (gpt-realtime) | 24/24 | 0.89 s | 1.06 s | < 1.5 s | yes | 0.00 s / 0.00 s |
-| Cascade · segment (Deepgram · OpenAI · ElevenLabs) | 24/24 | 1.41 s | 1.65 s | < 3.0 s | yes | 0.02 s / 0.03 s |
-| Cascade · clause (Deepgram · OpenAI · ElevenLabs) | 24/24 | 1.20 s | 1.46 s | < 2.0 s (stretch) | yes | 0.02 s / 0.02 s |
-| Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs) | 24/24 | 1.15 s | 1.22 s | < 3.0 s | yes | 0.02 s / 0.03 s |
+| Configuration | n ok | p50 | p95 | Target | p95 meets target | Release → first audible p50 / p95 | Access p50 / p95 |
+|---|---|---|---|---|---|---|---|
+| Realtime (gpt-realtime) | 24/24 | 0.89 s | 1.06 s | < 1.5 s | yes | 0.48 s / 0.65 s | 0.00 s / 0.00 s |
+| Cascade · segment (Deepgram · OpenAI · ElevenLabs) | 24/24 | 1.41 s | 1.65 s | < 3.0 s | yes | 1.01 s / 1.24 s | 0.02 s / 0.03 s |
+| Cascade · clause (Deepgram · OpenAI · ElevenLabs) | 24/24 | 1.20 s | 1.46 s | < 2.0 s (stretch) | yes | 0.80 s / 1.05 s | 0.02 s / 0.02 s |
+| Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs) | 24/24 | 1.15 s | 1.22 s | < 3.0 s | yes | 0.73 s / 0.80 s | 0.02 s / 0.03 s |
 
 Cascade target is < 3 s; the < 2 s stretch goal is shown against the clause configuration but applies to every cascade row.
 
@@ -31,6 +31,16 @@ Cascade target is < 3 s; the < 2 s stretch goal is shown against the clause conf
 | Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs) | 0.41 s / 0.44 s | 0.58 s / 0.61 s | 0.90 s / 0.97 s | 1.05 s / 1.12 s | n/a | 1.15 s / 1.22 s |
 
 Cascade stage marks are when the final segment's stage event reached the browser; a negative value means the stage finished during speech (consecutive playback pre-synthesized it). Realtime's internal stages are not observable and are never estimated.
+
+### Server stage durations (Stopwatch, final segment, p50 / p95)
+
+| Configuration | STT final after release | Translate first token | Translate done | TTS first byte |
+|---|---|---|---|---|
+| Cascade · segment (Deepgram · OpenAI · ElevenLabs) | 0.07 s / 0.11 s | 0.46 s / 0.77 s | 0.59 s / 0.84 s | 0.13 s / 0.15 s |
+| Cascade · clause (Deepgram · OpenAI · ElevenLabs) | 0.07 s / 0.10 s | 0.39 s / 0.51 s | 0.50 s / 0.66 s | 0.14 s / 0.15 s |
+| Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs) | 0.06 s / 0.09 s | 0.33 s / 0.39 s | 0.33 s / 0.39 s | 0.15 s / 0.16 s |
+
+Measured on the server; translation and TTS durations run from the stage's own start (commit, or translation done), so they show each provider's own latency without network hops to the browser.
 
 ### By direction (mouth-to-ear p50 / p95)
 
@@ -64,6 +74,8 @@ Logged usage per turn × `harness/pricing.json` (prices read 2026-10-15; marked 
 | Cascade · segment (Deepgram · OpenAI · ElevenLabs) | 1.18 | 0.0510 | 0.0434 |
 | Cascade · clause (Deepgram · OpenAI · ElevenLabs) | 1.18 | 0.0511 | 0.0435 |
 | Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs) | 1.18 | 0.0775 | 0.0658 |
+
+Realtime cost split: input audio tokens 45% (includes earlier turns re-billed as context), output audio tokens 45%, text tokens 8%, side transcription 3%.
 
 Speech minutes = press-to-release time of the turns. Realtime cost includes model audio/text tokens (input context re-billing included as logged) and side transcription; cascade = Deepgram minutes + translation tokens or characters + ElevenLabs characters.
 

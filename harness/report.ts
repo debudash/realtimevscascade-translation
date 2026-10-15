@@ -9,6 +9,8 @@ import { answeredHeuristic, percentile, turnCost, wer, type Pricing, type UsageL
 
 interface Turn {
   clipId: string;
+  run?: string;
+  stages?: { stage: string; durationMs: number; segment: number }[];
   turnId: string;
   status: string;
   marks: Record<string, number>;
@@ -24,9 +26,8 @@ interface Turn {
 interface Run {
   config: string;
   label: string;
-  startedAt: string;
   turns: Turn[];
-  file: string;
+  files: string[];
 }
 
 interface Verdict {
@@ -38,6 +39,7 @@ interface Verdict {
 }
 
 const JUDGE_MODEL = "gpt-4.1-mini";
+const turnKey = (config: string, t: Turn) => `${config}|${t.run ?? ""}|${t.turnId}`;
 const TARGETS: Record<string, number> = { realtime: 1500, "cascade-segment": 3000, "cascade-clause": 2000, "cascade-deepl": 3000 };
 const STAGES: [string, string][] = [
   ["release", "Release"],
@@ -48,14 +50,17 @@ const STAGES: [string, string][] = [
   ["firstAudible", "First audible"],
 ];
 
-function latestRuns(): Run[] {
+/** All saved runs per configuration, pooled (p50/p95 over every turn of every run). */
+function pooledRuns(): Run[] {
   if (!existsSync(runsDir)) return [];
   const files = readdirSync(runsDir).filter((f) => f.endsWith(".json")).sort();
-  const latest = new Map<string, string>();
-  for (const f of files) latest.set(f.split("--")[0], f);
   return Object.keys(CONFIGS)
-    .filter((c) => latest.has(c))
-    .map((c) => ({ ...JSON.parse(readFileSync(join(runsDir, latest.get(c)!), "utf8")), file: latest.get(c)! }));
+    .map((config) => {
+      const mine = files.filter((f) => f.split("--")[0] === config);
+      const turns = mine.flatMap((f) => (JSON.parse(readFileSync(join(runsDir, f), "utf8")).turns as Turn[]).map((t) => ({ ...t, run: f })));
+      return { config, label: CONFIGS[config].label, turns, files: mine };
+    })
+    .filter((r) => r.files.length > 0);
 }
 
 const sec = (ms: number | null) => (ms === null ? "–" : `${(ms / 1000).toFixed(2)} s`);
@@ -111,7 +116,7 @@ async function judge(clip: ScriptClip, target: string): Promise<Verdict | null> 
 
 // ---------- report ----------
 async function main() {
-  const runs = latestRuns();
+  const runs = pooledRuns();
   const scripts = loadScripts();
   const clipById = new Map(scripts.clips.map((c) => [c.id, c]));
   const pricing: Pricing = JSON.parse(readFileSync(join("harness", "pricing.json"), "utf8"));
@@ -128,7 +133,7 @@ async function main() {
   for (const run of runs) {
     for (const t of run.turns) {
       const clip = clipById.get(t.clipId);
-      if (clip && t.status === "completed") verdicts.set(`${run.config}|${t.clipId}`, await judge(clip, t.targetText));
+      if (clip && t.status === "completed") verdicts.set(turnKey(run.config, t), await judge(clip, t.targetText));
     }
   }
   ensureDir(resultsDir);
@@ -136,19 +141,19 @@ async function main() {
 
   line("# Evaluation report");
   line();
-  line(`Generated ${new Date().toISOString()} by \`npm run report\` from the latest harness run per configuration.`);
+  line(`Generated ${new Date().toISOString()} by \`npm run report\` from every saved harness run, pooled per configuration.`);
   line("All numbers are measured; p50/p95 use linear interpolation. Clips are synthetic speech (ElevenLabs), 24 clinic sentences (12 EN, 12 ES).");
   line();
-  line("| Configuration | Run file | Turns |");
+  line("| Configuration | Runs | Turns |");
   line("|---|---|---|");
-  for (const r of runs) line(`| ${r.label} | \`runs/${r.file}\` | ${r.turns.length} |`);
+  for (const r of runs) line(`| ${r.label} | ${r.files.map((f) => `\`runs/${f}\``).join("<br>")} | ${r.turns.length} |`);
   line();
 
   // Headline latency
   line("## 1. Latency: mouth-to-ear (T0 = last voiced frame → first audible)");
   line();
-  line("| Configuration | n ok | p50 | p95 | Target | p95 meets target | Access p50 / p95 |");
-  line("|---|---|---|---|---|---|---|");
+  line("| Configuration | n ok | p50 | p95 | Target | p95 meets target | Release → first audible p50 / p95 | Access p50 / p95 |");
+  line("|---|---|---|---|---|---|---|---|");
   for (const r of runs) {
     const ok = r.turns.filter((t) => t.status === "completed");
     const m2e = ok.map((t) => since(t, "firstAudible")).filter((x): x is number => x !== null);
@@ -156,7 +161,8 @@ async function main() {
     const target = TARGETS[r.config];
     line(
       `| ${r.label} | ${ok.length}/${r.turns.length} | ${sec(percentile(m2e, 50))} | ${sec(p95)} | < ${(target / 1000).toFixed(1)} s` +
-        `${r.config === "cascade-clause" ? " (stretch)" : ""} | ${p95 === null ? "–" : p95 < target ? "yes" : "no"} | ${pp(r.turns.map((t) => since(t, "access", "press")))} |`,
+        `${r.config === "cascade-clause" ? " (stretch)" : ""} | ${p95 === null ? "–" : p95 < target ? "yes" : "no"} | ` +
+        `${pp(ok.map((t) => since(t, "firstAudible", "release")))} | ${pp(r.turns.map((t) => since(t, "access", "press")))} |`,
     );
   }
   line();
@@ -182,6 +188,23 @@ async function main() {
   line("Cascade stage marks are when the final segment's stage event reached the browser; a negative value means the stage finished during speech (consecutive playback pre-synthesized it). Realtime's internal stages are not observable and are never estimated.");
   line();
 
+  line("### Server stage durations (Stopwatch, final segment, p50 / p95)");
+  line();
+  line("| Configuration | STT final after release | Translate first token | Translate done | TTS first byte |");
+  line("|---|---|---|---|---|");
+  for (const r of runs.filter((x) => x.config !== "realtime")) {
+    const ok = r.turns.filter((t) => t.status === "completed" && t.stages?.length);
+    const last = (t: Turn, stage: string) => {
+      const s = (t.stages ?? []).filter((x) => x.stage === stage);
+      return s.length ? s[s.length - 1].durationMs : null;
+    };
+    const cell = (stage: string) => pp(ok.map((t) => last(t, stage)));
+    line(`| ${r.label} | ${cell("stt_final")} | ${cell("translate_first_token")} | ${cell("translate_done")} | ${cell("tts_first_byte")} |`);
+  }
+  line();
+  line("Measured on the server; translation and TTS durations run from the stage's own start (commit, or translation done), so they show each provider's own latency without network hops to the browser.");
+  line();
+
   line("### By direction (mouth-to-ear p50 / p95)");
   line();
   line("| Configuration | EN → ES | ES → EN |");
@@ -203,12 +226,12 @@ async function main() {
     const ok = r.turns.filter((t) => t.status === "completed" && clipById.has(t.clipId));
     const srcWer = mean(ok.map((t) => wer(clipById.get(t.clipId)!.text, t.sourceText, clipById.get(t.clipId)!.lang)));
     const tgtWer = mean(ok.map((t) => wer(clipById.get(t.clipId)!.reference, t.targetText, clipById.get(t.clipId)!.target)));
-    const vs = ok.map((t) => verdicts.get(`${r.config}|${t.clipId}`)).filter((v): v is Verdict => !!v);
+    const vs = ok.map((t) => verdicts.get(turnKey(r.config, t))).filter((v): v is Verdict => !!v);
     let flagged = 0;
     for (const t of ok) {
       const clip = clipById.get(t.clipId)!;
       const h = answeredHeuristic({ target: t.targetText, reference: clip.reference, targetLang: clip.target, question: !!clip.question });
-      const v = verdicts.get(`${r.config}|${t.clipId}`);
+      const v = verdicts.get(turnKey(r.config, t));
       if (v?.answered_instead_of_interpreted || h.flagged) {
         flagged++;
         const why = [...h.reasons, ...(v?.answered_instead_of_interpreted ? ["judge: answered"] : [])].join("; ");
@@ -249,6 +272,22 @@ async function main() {
     line(`| ${r.label} | ${minutes.toFixed(2)} | ${usd.toFixed(4)} | ${minutes ? (usd / minutes).toFixed(4) : "–"} |`);
   }
   line();
+  const rt = runs.find((r) => r.config === "realtime");
+  if (rt) {
+    const p = pricing.realtime;
+    const sum = (f: (u: NonNullable<UsageLike["realtime"]>) => number) =>
+      rt.turns.reduce((a, t) => a + (t.usage?.realtime ? f(t.usage.realtime) : 0), 0) / 1e6;
+    const audioIn = sum((u) => u.inputAudioTokens * p.audioInPer1M);
+    const audioOut = sum((u) => u.outputAudioTokens * p.audioOutPer1M);
+    const text = sum((u) => Math.max(0, u.inputTextTokens - u.cachedInputTokens) * p.textInPer1M + u.cachedInputTokens * p.cachedInPer1M + u.outputTextTokens * p.textOutPer1M);
+    const tr = rt.turns.reduce((a, t) => a + ((t.usage?.sttAudioSeconds ?? 0) / 60) * pricing.realtimeTranscriptionPerMinute, 0);
+    const total = audioIn + audioOut + text + tr;
+    line(
+      `Realtime cost split: input audio tokens ${pct(audioIn / total)} (includes earlier turns re-billed as context), ` +
+        `output audio tokens ${pct(audioOut / total)}, text tokens ${pct(text / total)}, side transcription ${pct(tr / total)}.`,
+    );
+    line();
+  }
   line("Speech minutes = press-to-release time of the turns. Realtime cost includes model audio/text tokens (input context re-billing included as logged) and side transcription; cascade = Deepgram minutes + translation tokens or characters + ElevenLabs characters.");
   line();
 
@@ -264,7 +303,7 @@ async function main() {
         m2e: pp(ok.map((t) => since(t, "firstAudible"))),
         tok: pp(ok.map((t) => (t.marks.translateFirstToken !== undefined ? since(t, "translateFirstToken") : null))),
         wer: fix(mean(ok.filter((t) => clipById.has(t.clipId)).map((t) => wer(clipById.get(t.clipId)!.reference, t.targetText, clipById.get(t.clipId)!.target)))),
-        acc: fix(mean(ok.map((t) => verdicts.get(`${r.config}|${t.clipId}`)?.accuracy ?? NaN).filter(Number.isFinite))),
+        acc: fix(mean(ok.map((t) => verdicts.get(turnKey(r.config, t))?.accuracy ?? NaN).filter(Number.isFinite))),
       };
     };
     const a = stats(seg);
