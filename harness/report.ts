@@ -308,7 +308,7 @@ async function main() {
   // Cost
   line("## 3. Cost per minute of input speech");
   line();
-  line(`Logged usage per turn × \`harness/pricing.json\` (prices read ${pricing.verifiedOn}; marked "verify"; DeepL rate UNVERIFIED).`);
+  line(`Logged usage per turn × \`harness/pricing.json\`. Prices: ${(pricing as Pricing & { status?: string }).status ?? `read ${pricing.verifiedOn}`}.`);
   line();
   line("| Configuration | Speech minutes | Total USD | USD per minute |");
   line("|---|---|---|---|");
