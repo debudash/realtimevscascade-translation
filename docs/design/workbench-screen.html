@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Workbench - live session</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#F5F8FF}
+a{color:#1462F0}a:hover{color:#051E4D}
+@keyframes wbRing{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.75);opacity:0}}
+@keyframes wbSpin{to{transform:rotate(360deg)}}
+@keyframes wbBar{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+@keyframes wbIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes wbBlink{50%{opacity:.35}}
+@keyframes wbShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.wb-shake{animation:wbShake .4s ease-in-out}
+.wb-ring{animation:wbRing 1.6s ease-out infinite}
+.wb-ring2{animation:wbRing 1.6s ease-out .8s infinite}
+.wb-spin{animation:wbSpin .9s linear infinite}
+.wb-bar{animation:wbBar .9s ease-in-out infinite;transform-origin:center}
+.wb-in{animation:wbIn .35s ease-out}
+.wb-blink{animation:wbBlink 1s step-end infinite}
+.wb-stage{order:2}.wb-feed{order:1}.wb-metrics{order:3}
+@media (max-width:1100px){.wb-stage{order:0}.wb-feed{order:1}.wb-metrics{order:2}}
+@media (prefers-reduced-motion:reduce){.wb-ring,.wb-ring2,.wb-spin,.wb-bar,.wb-in,.wb-blink,.wb-shake{animation:none}}
+</style>
+</helmet>
+<div style="min-height: 1040px; box-sizing: border-box; background: #F5F8FF; color: #252224; font-family: 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif; display: flex; flex-direction: column">
+
+<header style="background: #FFFFFF; padding: 14px 28px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; border-bottom: 1px solid #DFE9FD">
+<div style="display: flex; align-items: center; gap: 12px; margin-right: auto">
+<img src="/_blob/a8a01581bc56d357d1332a1d73c438ee" alt="Boostlingo" width="152" height="28" style="display: block; width: 152px; height: 28px">
+<div aria-hidden="true" style="width: 1px; height: 32px; background: #DFE9FD"></div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 18px; font-weight: 700; color: #051E4D">Interpreter Workbench</div>
+<div style="font-size: 12px; color: #54595F">Candidate take-home · not an official Boostlingo product · {{turnCount}} turns this session</div>
+</div>
+</div>
+
+<div role="group" aria-label="Interpreter mode" style="display: flex; background: #EDF2FF; border-radius: 10px; padding: 4px; gap: 4px">
+<button type="button" aria-pressed="{{rtPressed}}" onClick="{{pickRealtime}}" style="min-height: 40px; padding: 0 16px; border: {{rtBtnBorder}}; border-radius: 7px; background: {{rtBtnBg}}; color: {{rtBtnInk}}; font: 700 14px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif; cursor: pointer; transition: background 250ms, color 250ms">Realtime</button>
+<button type="button" aria-pressed="{{csPressed}}" onClick="{{pickCascade}}" style="min-height: 40px; padding: 0 16px; border: {{csBtnBorder}}; border-radius: 7px; background: {{csBtnBg}}; color: {{csBtnInk}}; font: 700 14px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif; cursor: pointer; transition: background 250ms, color 250ms">Cascade</button>
+</div>
+
+<div role="group" aria-label="Commit strategy" style="display: flex; align-items: center; gap: 4px; background: #EDF2FF; border-radius: 10px; padding: 4px; opacity: {{commitOpacity}}">
+<span style="font-size: 12px; color: #54595F; padding: 0 8px">Commit</span>
+<button type="button" aria-pressed="{{segmentPressed}}" onClick="{{pickSegment}}" style="min-height: 40px; padding: 0 12px; border: 0; border-radius: 7px; background: {{segmentBg}}; color: #051E4D; font: 500 13px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif; cursor: pointer; box-shadow: {{segmentShadow}}">Segment</button>
+<button type="button" aria-pressed="{{clausePressed}}" onClick="{{pickClause}}" style="min-height: 40px; padding: 0 12px; border: 0; border-radius: 7px; background: {{clauseBg}}; color: #051E4D; font: 500 13px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif; cursor: pointer; box-shadow: {{clauseShadow}}">Clause</button>
+</div>
+
+<label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #54595F">Pair
+<select style="min-height: 44px; padding: 0 10px; border-radius: 10px; border: 1px solid #DFE9FD; background: #FFFFFF; color: #252224; font: 14px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+<option>English ↔ Spanish</option>
+</select>
+</label>
+
+<label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #54595F">Input
+<select style="min-height: 44px; padding: 0 10px; border-radius: 10px; border: 1px solid #DFE9FD; background: #FFFFFF; color: #252224; font: 14px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+<option>Microphone</option>
+<option>Replay: en_clinic_03.wav</option>
+<option>Replay: es_pharmacy_01.wav</option>
+</select>
+</label>
+
+<div role="status" style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: #E3F2F1; color: #1F5F59; font-size: 13px">
+<span class="wb-blink" style="width: 8px; height: 8px; border-radius: 50%; background: #3FA79D"></span>{{connLabel}}
+</div>
+</header>
+
+<sc-if value="{{hasPending}}" hint-placeholder-val="{{ false }}">
+<div role="status" class="wb-in" style="margin: 12px 28px 0; padding: 12px 16px; border-radius: 10px; border: 1px dashed {{pendingAccent}}; background: #FFFFFF; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: 14px">
+<span>Switching to <b>{{pendingLabel}}</b> after this turn finishes playing. Transcripts are kept.</span>
+<button type="button" onClick="{{cancelSwitch}}" style="margin-left: auto; min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid #051E4D; background: #FFFFFF; color: #051E4D; font: 500 13px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif; cursor: pointer">Stay on {{modeLabel}}</button>
+</div>
+</sc-if>
+
+<main style="flex: 1; width: 100%; max-width: 1480px; margin: 0 auto; box-sizing: border-box; padding: 20px 28px 28px; display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch">
+
+<section class="wb-stage" aria-label="Push to talk" style="flex: 1 1 420px; min-width: 0; background: #051E4D; color: #FFFFFF; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 22px">
+
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.06em; color: #82C5BF">ENGLISH ↔ ESPAÑOL</div>
+
+<div role="group" aria-label="Speakers" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 28px">
+
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+<div style="position: relative; width: 176px; height: 176px; display: flex; align-items: center; justify-content: center">
+<sc-if value="{{enRings}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" class="wb-ring" style="position: absolute; inset: 18px; border-radius: 50%; border: 2px solid #82C5BF"></div>
+<div aria-hidden="true" class="wb-ring2" style="position: absolute; inset: 18px; border-radius: 50%; border: 2px solid #82C5BF"></div>
+</sc-if>
+<sc-if value="{{enSpin}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" class="wb-spin" style="position: absolute; inset: 6px; border-radius: 50%; border: 4px solid #0A2A66; border-top-color: {{ringColor}}"></div>
+</sc-if>
+<div aria-hidden="true" style="position: absolute; inset: 18px; border-radius: 50%; box-shadow: 0 0 {{enGlow}}px #82C5BF8C; transition: box-shadow 300ms"></div>
+<button type="button" class="{{enShake}}" aria-label="{{enAria}}" aria-pressed="{{enListening}}" onPointerDown="{{pressEn}}" onPointerUp="{{releaseEn}}" onPointerLeave="{{releaseEn}}" onPointerCancel="{{releaseEn}}" onKeyDown="{{keyDownEn}}" onKeyUp="{{keyUpEn}}" style="position: relative; width: 140px; height: 140px; border-radius: 50%; border: 5px solid {{enRing}}; background: {{enBg}}; color: {{enInk}}; transform: scale({{enScale}}); transition: transform 160ms ease-out, background 250ms, border-color 250ms; cursor: pointer; touch-action: none; user-select: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-family: 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+<svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v1a7 7 0 0 1-14 0v-1"></path><path d="M12 18v4M8 22h8"></path></svg>
+<span style="font-size: 15px; font-weight: 700">{{enLabel}}</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; opacity: 0.9">{{enSub}}</span>
+</button>
+</div>
+<div style="font-size: 15px; font-weight: 700">English speaker</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #82C5BF">EN → ES</div>
+</div>
+
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+<div style="position: relative; width: 176px; height: 176px; display: flex; align-items: center; justify-content: center">
+<sc-if value="{{esRings}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" class="wb-ring" style="position: absolute; inset: 18px; border-radius: 50%; border: 2px solid #82C5BF"></div>
+<div aria-hidden="true" class="wb-ring2" style="position: absolute; inset: 18px; border-radius: 50%; border: 2px solid #82C5BF"></div>
+</sc-if>
+<sc-if value="{{esSpin}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" class="wb-spin" style="position: absolute; inset: 6px; border-radius: 50%; border: 4px solid #0A2A66; border-top-color: {{ringColor}}"></div>
+</sc-if>
+<div aria-hidden="true" style="position: absolute; inset: 18px; border-radius: 50%; box-shadow: 0 0 {{esGlow}}px #82C5BF8C; transition: box-shadow 300ms"></div>
+<button type="button" class="{{esShake}}" aria-label="{{esAria}}" aria-pressed="{{esListening}}" onPointerDown="{{pressEs}}" onPointerUp="{{releaseEs}}" onPointerLeave="{{releaseEs}}" onPointerCancel="{{releaseEs}}" onKeyDown="{{keyDownEs}}" onKeyUp="{{keyUpEs}}" style="position: relative; width: 140px; height: 140px; border-radius: 50%; border: 5px solid {{esRing}}; background: {{esBg}}; color: {{esInk}}; transform: scale({{esScale}}); transition: transform 160ms ease-out, background 250ms, border-color 250ms; cursor: pointer; touch-action: none; user-select: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-family: 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+<svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v1a7 7 0 0 1-14 0v-1"></path><path d="M12 18v4M8 22h8"></path></svg>
+<span style="font-size: 15px; font-weight: 700">{{esLabel}}</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; opacity: 0.9">{{esSub}}</span>
+</button>
+</div>
+<div style="font-size: 15px; font-weight: 700">Hablante de español</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #82C5BF">ES → EN</div>
+</div>
+
+</div>
+
+<div aria-hidden="true" style="display: flex; align-items: center; gap: 4px; height: 40px">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="28">
+<span class="{{b.cls}}" style="width: 4px; height: {{b.h}}px; border-radius: 2px; background: {{b.color}}; animation-delay: {{b.delay}}ms"></span>
+</sc-for>
+</div>
+
+<div role="status" aria-live="polite" style="font-size: 15px; color: #FFFFFF; min-height: 22px; text-align: center">{{statusLine}}</div>
+
+<div aria-label="Pipeline" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 520px">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="6">
+<span style="padding: 7px 12px; border-radius: 999px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: {{c.bg}}; color: {{c.ink}}; border: 1px {{c.borderStyle}} {{c.border}}; transition: background 200ms, color 200ms">{{c.label}}</span>
+</sc-for>
+</div>
+<div style="font-size: 12px; color: #9FB3D9; text-align: center">Each speaker holds their own button, or focuses it and holds Space. Capture is muted while the interpretation plays.</div>
+</section>
+
+<section class="wb-feed" aria-label="Live transcripts" style="flex: 1 1 380px; min-width: 0; background: #FFFFFF; border: 1px solid #DFE9FD; border-radius: 16px; display: flex; flex-direction: column; max-height: 860px">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; border-bottom: 1px solid #DFE9FD">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700; color: #051E4D">Live transcripts</h2>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #54595F">newest first</span>
+</div>
+<div style="overflow-y: auto; display: flex; flex-direction: column">
+
+<sc-if value="{{hasLive}}" hint-placeholder-val="{{ false }}">
+<article class="wb-in" style="padding: 16px 18px; border-bottom: 1px solid #DFE9FD; background: #EDF2FF; box-shadow: inset 3px 0 0 {{accent}}; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 8px; align-items: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px">
+<span style="padding: 3px 8px; border-radius: 4px; background: {{accent}}; color: #FFFFFF">{{liveTag}}</span>
+<span style="color: #54595F">{{dirLabel}}</span>
+<span class="wb-blink" style="margin-left: auto; color: {{accent}}; font-weight: 600">● LIVE</span>
+</div>
+<p style="margin: 0; font-size: 16px; line-height: 1.5">{{liveSrcFinal}} <span style="color: #6B7079">{{liveSrcPartial}}</span></p>
+<p style="margin: 0; font-size: 16px; line-height: 1.5; color: {{accentText}}; font-weight: 500">{{liveTgt}}<span class="wb-blink">{{liveCaret}}</span></p>
+</article>
+</sc-if>
+
+<sc-for list="{{feed}}" as="t" hint-placeholder-count="3">
+<article class="{{t.cls}}" style="padding: 14px 18px; border-bottom: 1px solid #DFE9FD; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; gap: 8px; align-items: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px">
+<span style="padding: 3px 8px; border-radius: 4px; background: {{t.tagBg}}; color: {{t.tagInk}}">{{t.tag}}</span>
+<span style="color: #54595F">{{t.dir}}</span>
+<span style="margin-left: auto; padding: 3px 8px; border-radius: 4px; background: #EDF2FF; color: #051E4D">{{t.badge}}</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: {{t.srcInk}}">{{t.src}}</p>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #051E4D; font-weight: 500">{{t.tgt}}</p>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #54595F">{{t.providers}}</div>
+</article>
+</sc-for>
+</div>
+</section>
+
+<aside class="wb-metrics" aria-label="Latency" style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section style="background: #FFFFFF; border: 1px solid #DFE9FD; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700; color: #051E4D">Last turn · final segment from T0</h2>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: {{lastAccent}}">{{lastTag}}</span>
+</div>
+<div style="display: flex; align-items: baseline; gap: 10px">
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 40px; font-weight: 600; color: {{lastAccent}}">{{lastAudible}}</span>
+<span style="font-size: 13px; color: #54595F">speech end → first audible</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: #54595F">
+<span>T0 = last voiced frame, not release</span>
+<span>Access time <b style="font-family: 'IBM Plex Mono', monospace; color: #252224">{{lastAccess}}</b></span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+<div style="display: grid; grid-template-columns: 118px minmax(0, 1fr) 58px; gap: 10px; align-items: center; font-size: 13px">
+<span style="color: #54595F">{{r.label}}</span>
+<div style="position: relative; height: 12px; border-radius: 3px; background: #EDF2FF; border: 1px {{r.trackBorder}} #C9D6F2">
+<div style="position: absolute; top: 0; bottom: 0; left: {{r.left}}%; width: {{r.width}}%; border-radius: 3px; background: {{r.color}}; transition: left 400ms, width 400ms"></div>
+</div>
+<span style="font-family: 'IBM Plex Mono', monospace; text-align: right; color: {{r.valInk}}">{{r.value}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #54595F; padding-left: 128px; padding-right: 68px"><span>0</span><span>{{axisMid}}</span><span>{{axisMax}}</span></div>
+</section>
+
+<section style="background: #FFFFFF; border: 1px solid #DFE9FD; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700; color: #051E4D">Session p50 / p95</h2>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 13px">
+<thead>
+<tr style="text-align: left; color: #54595F; font-family: 'IBM Plex Mono', monospace; font-size: 11px"><th style="padding: 6px 0; font-weight: 500">Mode</th><th style="font-weight: 500">n</th><th style="font-weight: 500">p50</th><th style="font-weight: 500">p95</th><th style="font-weight: 500">Target</th></tr>
+</thead>
+<tbody>
+<sc-for list="{{summary}}" as="g" hint-placeholder-count="3">
+<tr style="border-top: 1px solid #DFE9FD"><td style="padding: 9px 0; color: {{g.ink}}; font-weight: 600">{{g.label}}</td><td>{{g.n}}</td><td style="font-family: 'IBM Plex Mono', monospace">{{g.p50}}</td><td style="font-family: 'IBM Plex Mono', monospace">{{g.p95}}</td><td style="color: {{g.targetInk}}; font-weight: 600">{{g.target}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between">
+<div style="font-size: 12px; color: #54595F">Prototype: timings are simulated. Real values come from the harness.</div>
+<button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid #051E4D; background: #FFFFFF; color: #051E4D; font: 600 13px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif; cursor: pointer">Export session metrics</button>
+</div>
+</section>
+</aside>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"rt":{"editor":"color","default":"#1462F0"},"cs":{"editor":"color","default":"#DD3900"},"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.timers = [];
+    this.iv = null;
+    this.state = {
+      mode: 'cascade', pending: null, strategy: 'segment', dir: 'en',
+      phase: 'idle', stage: -1, elapsed: 0, words: 0, tWords: 0, pair: null, timing: null,
+      access: null, denied: null, denyMsg: false,
+      turns: [
+        { id: 1, mode: 'realtime', strategy: null, dir: 'en', src: 'My son has had a fever since last night.', tgt: 'Mi hijo tiene fiebre desde anoche.', t: { access: 110, rel: 170, rtStart: 430, audible: 990 } },
+        { id: 2, mode: 'cascade', strategy: 'segment', dir: 'es', src: '¿Le dio algún medicamento para la fiebre?', tgt: 'Did you give him any medicine for the fever?', t: { access: 130, rel: 210, stt: 310, tr: 430, tts: 470, play: 250, audible: 1460 } }
+      ]
+    };
+  }
+  componentWillUnmount() { this.clearAll(); if (this.denyT) clearTimeout(this.denyT); }
+  clearAll() { this.timers.forEach(function (x) { clearTimeout(x); }); this.timers = []; if (this.iv) { clearInterval(this.iv); this.iv = null; } }
+  later(ms, fn) { this.timers.push(setTimeout(fn, ms)); }
+  jit(base, spread) { return Math.round(base + (Math.random() * 2 - 1) * spread); }
+  pairs(dir) {
+    var en = [
+      ['My son has had a fever since last night.', 'Mi hijo tiene fiebre desde anoche.'],
+      ['Is he allergic to any medication?', '¿Es alérgico a algún medicamento?'],
+      ['I need to move my appointment to Friday morning.', 'Necesito cambiar mi cita al viernes por la mañana.'],
+      ['The pain started after lunch, and it is getting worse.', 'El dolor empezó después del almuerzo y está empeorando.']
+    ];
+    var es = [
+      ['Tengo una cita a las tres con la doctora.', 'I have an appointment at three with the doctor.'],
+      ['No entiendo las instrucciones de la receta.', 'I do not understand the prescription instructions.'],
+      ['Mi esposa necesita un intérprete mañana.', 'My wife needs an interpreter tomorrow.'],
+      ['¿Cuántas veces al día debe tomarlo?', 'How many times a day should he take it?']
+    ];
+    var list = dir === 'en' ? en : es;
+    return list[Math.floor(Math.random() * list.length)];
+  }
+  press(dir) {
+    if (this.state.phase !== 'idle') { this.deny(dir); return; }
+    var pair = this.pairs(dir);
+    var total = pair[0].split(' ').length;
+    var half = Math.floor(pair[1].split(' ').length / 2);
+    var self = this;
+    this.pressAt = Date.now();
+    this.setState({ dir: dir, phase: 'listening', words: 0, tWords: 0, elapsed: 0, pair: pair, stage: 0, timing: null, access: this.jit(120, 40) });
+    this.iv = setInterval(function () {
+      var el = Date.now() - self.pressAt;
+      var n = Math.min(Math.floor(el / 280), total);
+      var tw = 0;
+      if (self.state.mode === 'cascade') {
+        if (self.state.strategy === 'clause' && n >= 4) tw = Math.min(Math.floor((n - 3) / 1.5), half);
+        if (self.state.strategy === 'segment' && n >= 6) tw = Math.min(Math.floor((n - 5) / 2), half);
+      }
+      self.setState({ elapsed: el, words: n, tWords: tw });
+    }, 100);
+  }
+  deny(dir) {
+    var self = this;
+    this.tone();
+    if (this.denyT) clearTimeout(this.denyT);
+    this.setState({ denied: dir, denyMsg: true });
+    this.denyT = setTimeout(function () { self.setState({ denied: null, denyMsg: false }); }, 1400);
+  }
+  tone() {
+    try {
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return;
+      if (!this.ac) this.ac = new C();
+      var ac = this.ac;
+      var t = ac.currentTime;
+      [[0, 440], [0.12, 330]].forEach(function (n) {
+        var o = ac.createOscillator();
+        var g = ac.createGain();
+        o.type = 'sine';
+        o.frequency.value = n[1];
+        g.gain.setValueAtTime(0.0001, t + n[0]);
+        g.gain.exponentialRampToValueAtTime(0.12, t + n[0] + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + n[0] + 0.11);
+        o.connect(g);
+        g.connect(ac.destination);
+        o.start(t + n[0]);
+        o.stop(t + n[0] + 0.12);
+      });
+    } catch (x) {}
+  }
+  release(dir) {
+    var s = this.state;
+    if (s.phase !== 'listening' || dir !== s.dir) return;
+    if (this.iv) { clearInterval(this.iv); this.iv = null; }
+    var self = this;
+    if (s.words === 0) { this.pushTurn({ empty: true }); return; }
+    var full = s.pair[0].split(' ').length;
+    var rel = this.jit(180, 80);
+    var t;
+    if (s.mode === 'realtime') {
+      var rs = rel + this.jit(260, 70);
+      t = { access: s.access, rel: rel, rtStart: rs, audible: rs + this.jit(560, 140) };
+      this.setState({ phase: 'processing', stage: 1, words: full, timing: t });
+      this.later(t.audible - rel, function () { self.speak(2); });
+    } else {
+      var clause = s.strategy === 'clause';
+      var stt = this.jit(300, 70);
+      var tr = this.jit(clause ? 260 : 380, 100);
+      var tts = this.jit(clause ? 330 : 420, 100);
+      var play = this.jit(clause ? 200 : 240, 50);
+      var ready = Math.max(stt + tr + tts, rel);
+      t = { access: s.access, rel: rel, stt: stt, tr: tr, tts: tts, play: play, audible: ready + play };
+      this.setState({ phase: 'processing', stage: 1, words: full, timing: t });
+      this.later(Math.max(0, stt - rel), function () { self.setState({ stage: 3 }); });
+      this.later(Math.max(0, stt + tr - rel), function () { self.setState({ stage: 4 }); });
+      this.later(t.audible - rel, function () { self.speak(5); });
+    }
+  }
+  speak(stage) {
+    var self = this;
+    var total = this.state.pair[1].split(' ').length;
+    this.setState({ phase: 'speaking', stage: stage });
+    this.iv = setInterval(function () { self.setState({ tWords: Math.min(self.state.tWords + 1, total) }); }, 140);
+    this.later(Math.max(1600, total * 150 + 500), function () { self.pushTurn({}); });
+  }
+  pushTurn(opts) {
+    this.clearAll();
+    var s = this.state;
+    var turn = {
+      id: Date.now(), mode: s.mode, strategy: s.mode === 'cascade' ? s.strategy : null, dir: s.dir,
+      src: opts.empty ? '' : s.pair[0], tgt: opts.empty ? '' : s.pair[1], t: opts.empty ? null : s.timing, empty: !!opts.empty, fresh: true
+    };
+    var turns = s.turns.map(function (x) { return Object.assign({}, x, { fresh: false }); }).concat([turn]);
+    var next = { turns: turns, phase: 'idle', stage: -1, words: 0, tWords: 0, pair: null };
+    if (s.pending) { next.mode = s.pending; next.pending = null; }
+    this.setState(next);
+  }
+  setMode(m) {
+    var s = this.state;
+    if (m === s.mode) { this.setState({ pending: null }); return; }
+    if (s.phase === 'idle') this.setState({ mode: m, pending: null }); else this.setState({ pending: m });
+  }
+  pct(arr, p) {
+    if (!arr.length) return null;
+    var a = arr.slice().sort(function (x, y) { return x - y; });
+    return a[Math.min(a.length - 1, Math.max(0, Math.ceil(p / 100 * a.length) - 1))];
+  }
+  fmt(ms) { return ms == null ? '-' : (ms / 1000).toFixed(2) + ' s'; }
+  renderVals() {
+    var self = this;
+    var s = this.state;
+    var rt = this.props.rt ?? '#1462F0';
+    var cs = this.props.cs ?? '#DD3900';
+    var navy = '#051E4D';
+    var accent = s.mode === 'realtime' ? rt : cs;
+    var ringColor = s.mode === 'realtime' ? '#6FA0FF' : '#FF8A5C';
+    var idle = s.phase === 'idle';
+    var dirLabel = s.dir === 'en' ? 'ENGLISH → SPANISH' : 'ESPAÑOL → INGLÉS';
+    var tagFor = function (m, st) { return m === 'realtime' ? 'REALTIME' : 'CASCADE · ' + (st || 'segment').toUpperCase(); };
+
+    var stages = s.mode === 'realtime' ? ['Capture', 'gpt-realtime · internals not visible', 'Playing'] : ['Capture', 'STT', 'Commit', 'Translate', 'TTS', 'Playing'];
+    var chips = stages.map(function (label, i) {
+      var active = !idle && i === s.stage;
+      var done = !idle && i < s.stage;
+      var hidden = s.mode === 'realtime' && i === 1;
+      return {
+        label: label,
+        bg: active ? accent : (done ? '#0A2A66' : 'transparent'),
+        ink: active ? '#FFFFFF' : (done ? '#82C5BF' : '#9FB3D9'),
+        border: active ? accent : (done ? '#82C5BF' : '#2B4A85'),
+        borderStyle: hidden ? 'dashed' : 'solid'
+      };
+    });
+
+    var animating = s.phase === 'listening' || s.phase === 'speaking';
+    var bars = [];
+    for (var i = 0; i < 28; i++) {
+      bars.push({ cls: animating ? 'wb-bar' : '', h: animating ? 14 + ((i * 37) % 26) : 4, delay: (i * 53) % 900, color: animating ? '#82C5BF' : '#82C5BF66' });
+    }
+
+    var sec = (s.elapsed / 1000).toFixed(1);
+    var stageName = stages[s.stage] || '';
+    var statusLine = s.denyMsg ? 'Floor busy · wait for the interpretation to finish'
+      : idle ? 'Ready. Each speaker holds their own button.'
+      : s.phase === 'listening' ? 'Listening · ' + sec + ' s'
+      : s.phase === 'processing' ? (s.mode === 'realtime' ? 'Waiting for gpt-realtime response' : 'Interpreting · ' + stageName)
+      : 'Playing interpretation · capture muted';
+    var spk = function (d) {
+      var mine = !idle && s.dir === d;
+      var listening = mine && s.phase === 'listening';
+      var denied = s.denied === d;
+      var label = idle ? 'Hold to talk' : listening ? 'Listening' : mine ? (s.phase === 'processing' ? 'Interpreting' : 'Playing') : (denied ? 'Floor busy' : 'Wait');
+      var sub = idle ? (d === 'en' ? 'EN → ES' : 'ES → EN') : listening ? sec + ' s' : mine ? stageName : 'after playback';
+      return {
+        bg: idle || listening ? '#82C5BF' : '#0A2A66',
+        ink: idle || listening ? navy : (mine ? '#FFFFFF' : '#C9D6F2'),
+        ring: denied ? '#FFB4A1' : (idle ? '#0A2A66' : (mine ? '#B4DCD9' : '#2B4A85')),
+        scale: listening ? 1.06 : 1,
+        label: label, sub: sub,
+        rings: listening, spin: mine && s.phase === 'processing',
+        shake: denied ? 'wb-shake' : '',
+        glow: listening ? 56 : idle ? 22 : (mine ? 12 : 0),
+        listening: listening ? 'true' : 'false',
+        aria: 'Hold to talk, ' + (d === 'en' ? 'English to Spanish' : 'Spanish to English')
+      };
+    };
+    var spEn = spk('en');
+    var spEs = spk('es');
+    var handlers = function (d) {
+      return {
+        press: function (e) { if (e && e.currentTarget && e.pointerId != null && e.currentTarget.setPointerCapture) { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} } self.press(d); },
+        release: function () { self.release(d); },
+        keyDown: function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) self.press(d); } },
+        keyUp: function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); self.release(d); } }
+      };
+    };
+    var hEn = handlers('en');
+    var hEs = handlers('es');
+
+    var srcWords = s.pair ? s.pair[0].split(' ') : [];
+    var shown = srcWords.slice(0, s.words);
+    var stable = s.phase === 'listening' ? Math.max(0, shown.length - 2) : shown.length;
+    var tgtWords = s.pair ? s.pair[1].split(' ').slice(0, s.tWords) : [];
+
+    var feed = s.turns.slice().reverse().map(function (t) {
+      var isRt = t.mode === 'realtime';
+      return {
+        cls: t.fresh ? 'wb-in' : '',
+        tag: tagFor(t.mode, t.strategy),
+        tagBg: isRt ? '#DFE9FD' : '#FDE7DE', tagInk: isRt ? '#0B48B8' : '#A32A00',
+        dir: t.dir === 'en' ? 'EN → ES' : 'ES → EN',
+        badge: t.empty ? 'no speech' : 'first audio ' + self.fmt(t.t.audible),
+        src: t.empty ? 'No speech detected. Hold the button while you talk.' : t.src,
+        srcInk: t.empty ? '#54595F' : '#252224',
+        tgt: t.empty ? '' : t.tgt,
+        providers: t.empty ? '' : (isRt ? 'gpt-realtime' : 'Deepgram · OpenAI · ElevenLabs')
+      };
+    });
+
+    var timed = s.turns.filter(function (t) { return !t.empty && t.t; });
+    var last = timed[timed.length - 1];
+    var rows = [];
+    var max = 2500;
+    if (last) {
+      max = Math.max(2500, Math.ceil(last.t.audible / 500) * 500);
+      var P = function (ms) { return Math.round(ms / max * 1000) / 10; };
+      var la = last.mode === 'realtime' ? rt : cs;
+      var rel = last.t.rel || 0;
+      var relRow = { label: 'Release', left: 0, width: P(rel), color: '#9FB3D9', value: self.fmt(rel), valInk: '#54595F', trackBorder: 'solid' };
+      if (last.mode === 'realtime') {
+        rows = [
+          relRow,
+          { label: 'Response start', left: P(rel), width: P(last.t.rtStart - rel), color: la, value: self.fmt(last.t.rtStart), valInk: '#252224', trackBorder: 'solid' },
+          { label: 'STT / LLM / TTS', left: 0, width: 0, color: 'transparent', value: 'hidden', valInk: '#54595F', trackBorder: 'dashed' },
+          { label: 'First audible', left: P(last.t.rtStart), width: P(last.t.audible - last.t.rtStart), color: navy, value: self.fmt(last.t.audible), valInk: '#252224', trackBorder: 'solid' }
+        ];
+      } else {
+        var a = last.t.stt, b = a + last.t.tr, c = b + last.t.tts;
+        var ready = Math.max(c, rel);
+        rows = [
+          relRow,
+          { label: 'STT final', left: 0, width: P(a), color: la, value: self.fmt(a), valInk: '#252224', trackBorder: 'solid' },
+          { label: 'Translate 1st tok', left: P(a), width: P(last.t.tr), color: la + 'CC', value: self.fmt(b), valInk: '#252224', trackBorder: 'solid' },
+          { label: 'TTS first byte', left: P(b), width: P(last.t.tts), color: la + '99', value: self.fmt(c), valInk: '#252224', trackBorder: 'solid' },
+          { label: 'First audible', left: P(ready), width: P(last.t.play), color: navy, value: self.fmt(last.t.audible), valInk: '#252224', trackBorder: 'solid' }
+        ];
+      }
+    }
+
+    var groups = [
+      { key: 'realtime', label: 'Realtime', target: 1500, ink: rt },
+      { key: 'cascade:segment', label: 'Cascade · segment', target: 3000, ink: cs },
+      { key: 'cascade:clause', label: 'Cascade · clause', target: 2000, ink: cs }
+    ];
+    var summary = groups.map(function (g) {
+      var vals = timed.filter(function (t) { return (t.mode === 'realtime' ? 'realtime' : 'cascade:' + t.strategy) === g.key; }).map(function (t) { return t.t.audible; });
+      var p95 = self.pct(vals, 95);
+      return {
+        label: g.label, ink: g.ink, n: vals.length,
+        p50: self.fmt(self.pct(vals, 50)), p95: self.fmt(p95),
+        target: '< ' + (g.target / 1000).toFixed(1) + ' s',
+        targetInk: p95 == null ? '#54595F' : (p95 < g.target ? '#1B7F45' : '#B42318')
+      };
+    });
+
+    var shadow = '0 1px 3px rgba(5, 30, 77, 0.18)';
+    return {
+      accent: accent, accentGlow: '#82C5BF8C', accentText: s.mode === 'realtime' ? '#0B48B8' : '#A32A00', ringColor: ringColor,
+      glow: s.phase === 'listening' ? 64 : idle ? 28 : 12,
+      turnCount: s.turns.length,
+      connLabel: s.mode === 'realtime' ? 'WebRTC connected' : 'WebSocket connected',
+      modeLabel: s.mode === 'realtime' ? 'Realtime' : 'Cascade',
+      rtPressed: s.mode === 'realtime' ? 'true' : 'false', csPressed: s.mode === 'cascade' ? 'true' : 'false',
+      rtBtnBg: s.mode === 'realtime' ? rt : 'transparent', rtBtnInk: s.mode === 'realtime' ? '#FFFFFF' : navy,
+      csBtnBg: s.mode === 'cascade' ? cs : 'transparent', csBtnInk: s.mode === 'cascade' ? '#FFFFFF' : navy,
+      rtBtnBorder: s.pending === 'realtime' ? '2px dashed ' + rt : '0', csBtnBorder: s.pending === 'cascade' ? '2px dashed ' + cs : '0',
+      pickRealtime: function () { self.setMode('realtime'); }, pickCascade: function () { self.setMode('cascade'); },
+      hasPending: !!s.pending, pendingLabel: s.pending === 'realtime' ? 'Realtime' : 'Cascade', pendingAccent: s.pending === 'realtime' ? rt : cs,
+      cancelSwitch: function () { self.setState({ pending: null }); },
+      commitOpacity: s.mode === 'cascade' ? 1 : 0.45,
+      segmentPressed: s.strategy === 'segment' ? 'true' : 'false', clausePressed: s.strategy === 'clause' ? 'true' : 'false',
+      segmentBg: s.strategy === 'segment' ? '#FFFFFF' : 'transparent', clauseBg: s.strategy === 'clause' ? '#FFFFFF' : 'transparent',
+      segmentShadow: s.strategy === 'segment' ? shadow : 'none', clauseShadow: s.strategy === 'clause' ? shadow : 'none',
+      pickSegment: function () { if (idle) self.setState({ strategy: 'segment' }); },
+      pickClause: function () { if (idle) self.setState({ strategy: 'clause' }); },
+      dirLabel: dirLabel,
+      enBg: spEn.bg, enInk: spEn.ink, enRing: spEn.ring, enScale: spEn.scale, enLabel: spEn.label, enSub: spEn.sub,
+      enRings: spEn.rings, enSpin: spEn.spin, enShake: spEn.shake, enGlow: spEn.glow, enListening: spEn.listening, enAria: spEn.aria,
+      esBg: spEs.bg, esInk: spEs.ink, esRing: spEs.ring, esScale: spEs.scale, esLabel: spEs.label, esSub: spEs.sub,
+      esRings: spEs.rings, esSpin: spEs.spin, esShake: spEs.shake, esGlow: spEs.glow, esListening: spEs.listening, esAria: spEs.aria,
+      pressEn: hEn.press, releaseEn: hEn.release, keyDownEn: hEn.keyDown, keyUpEn: hEn.keyUp,
+      pressEs: hEs.press, releaseEs: hEs.release, keyDownEs: hEs.keyDown, keyUpEs: hEs.keyUp,
+      lastAccess: last && last.t.access != null ? self.fmt(last.t.access) : '-',
+      bars: bars, chips: chips, statusLine: statusLine,
+      hasLive: !idle && !!s.pair, liveTag: tagFor(s.mode, s.strategy),
+      liveSrcFinal: shown.slice(0, stable).join(' '), liveSrcPartial: shown.slice(stable).join(' '),
+      liveTgt: tgtWords.join(' '), liveCaret: s.phase === 'speaking' || tgtWords.length ? ' ▍' : '',
+      feed: feed,
+      rows: rows, axisMid: (max / 2000).toFixed(2) + ' s', axisMax: (max / 1000).toFixed(1) + ' s',
+      lastAudible: last ? self.fmt(last.t.audible) : '-',
+      lastTag: last ? tagFor(last.mode, last.strategy) : '',
+      lastAccent: last ? (last.mode === 'realtime' ? rt : cs) : navy,
+      summary: summary
+    };
+  }
+}
+</script>
+</body>
+</html>

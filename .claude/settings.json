@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Edit",
+      "Bash(dotnet *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(git init)",
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git restore *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "WebSearch",
+      "WebFetch(domain:platform.openai.com)",
+      "WebFetch(domain:developers.openai.com)",
+      "WebFetch(domain:developers.deepgram.com)",
+      "WebFetch(domain:elevenlabs.io)",
+      "WebFetch(domain:developers.deepl.com)",
+      "WebFetch(domain:learn.microsoft.com)",
+      "WebFetch(domain:playwright.dev)",
+      "WebFetch(domain:vite.dev)",
+      "WebFetch(domain:github.com)"
+    ],
+    "deny": [
+      "Bash(git push)",
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)",
+      "Bash(rm -rf *)",
+      "Bash(npm install -g *)",
+      "Bash(npm i -g *)",
+      "Read(./.env)",
+      "Edit(./.env)",
+      "Bash(cat .env)",
+      "Bash(type .env)"
+    ]
+  }
+}

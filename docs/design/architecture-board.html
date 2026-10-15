@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Architecture at a glance</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1462F0}a:hover{color:#143670}
+</style>
+</helmet>
+<div style="width: 1440px; height: 980px; box-sizing: border-box; padding: 48px 56px; background: #F5F8FF; color: #051E4D; font-family: 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif; display: flex; flex-direction: column; gap: 28px">
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<img src="/_blob/a8a01581bc56d357d1332a1d73c438ee" alt="Boostlingo" width="174" height="32" style="display: block; width: 174px; height: 32px; margin-bottom: 8px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.08em; color: #54595F">AI INTERPRETER WORKBENCH FOR BOOSTLINGO · CANDIDATE TAKE-HOME · DESIGN PHASE</div>
+<h1 style="margin: 0; font-size: 40px; font-weight: 600">Realtime API vs. Cascade Pipeline</h1>
+</div>
+<div style="display: flex; gap: 20px; font-size: 14px">
+<div style="display: flex; align-items: center; gap: 8px"><span style="width: 14px; height: 14px; border-radius: 3px; background: {{rt}}"></span>Realtime path</div>
+<div style="display: flex; align-items: center; gap: 8px"><span style="width: 14px; height: 14px; border-radius: 3px; background: {{cs}}"></span>Cascade path</div>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.15fr 1fr 0.8fr; gap: 24px; flex: 1">
+
+<div style="background: #FFFFFF; border: 1px solid #DFE9FD; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 13px; font-family: 'IBM Plex Mono', monospace; color: #54595F">BROWSER · Vite + React + TS</div>
+<div style="font-size: 20px; font-weight: 600">AudioEngine (shared by both modes)</div>
+<div style="display: flex; flex-direction: column; gap: 8px; font-size: 15px">
+<div style="padding: 10px 12px; background: #EDF2FF; border-radius: 6px">Mic or Replay WAV → per-speaker PTT gate (release = playback trigger)</div>
+<div style="padding: 10px 12px; background: #EDF2FF; border-radius: 6px">CaptureWorklet → PCM16 16 kHz · energy detector sets <b>T0</b></div>
+<div style="padding: 10px 12px; background: #EDF2FF; border-radius: 6px">MediaStreamDestination → WebRTC send track</div>
+<div style="padding: 10px 12px; background: #EDF2FF; border-radius: 6px">PlaybackWorklet + OutputTap → <b>first audible</b> mark</div>
+</div>
+<div style="font-size: 20px; font-weight: 600; margin-top: 8px">InterpreterTransport</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 15px">
+<div style="padding: 12px; border-radius: 6px; border: 2px solid {{rt}}"><b>RealtimeTransport</b><br>WebRTC + data channel</div>
+<div style="padding: 12px; border-radius: 6px; border: 2px solid {{cs}}"><b>CascadeTransport</b><br>WebSocket, PCM up, events down</div>
+</div>
+<div style="font-size: 15px; color: #54595F; line-height: 1.5">UI consumes only normalized events: source / target partial and final, audio.chunk, stage.timing, error. Every event carries turnId.</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 24px">
+<div style="background: #FFFFFF; border: 2px solid {{cs}}; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 12px; flex: 1">
+<div style="font-size: 13px; font-family: 'IBM Plex Mono', monospace; color: #54595F">ASP.NET CORE · one process, control + media modules</div>
+<div style="font-size: 20px; font-weight: 600">Cascade turn (CancellationToken per turn)</div>
+<div style="display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-family: 'IBM Plex Mono', monospace">
+<div style="padding: 9px 12px; background: #FDE7DE; border-radius: 6px">STT stream</div>
+<div style="padding: 0 12px; color: #A32A00">↓ bounded channel</div>
+<div style="padding: 9px 12px; background: #FDE7DE; border-radius: 6px">CommitPolicy (pure) · segment | clause</div>
+<div style="padding: 0 12px; color: #A32A00">↓ segments</div>
+<div style="padding: 9px 12px; background: #FDE7DE; border-radius: 6px">Translation stream</div>
+<div style="padding: 0 12px; color: #A32A00">↓ tokens</div>
+<div style="padding: 9px 12px; background: #FDE7DE; border-radius: 6px">TTS stream → audio.chunk</div>
+</div>
+<div style="font-size: 14px; color: #54595F; line-height: 1.5">per-stage timeouts · single writer per socket · Polly retry with jitter · circuit breaker failover · Stopwatch durations only</div>
+</div>
+<div style="background: #FFFFFF; border: 2px solid {{rt}}; border-radius: 10px; padding: 20px 24px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 20px; font-weight: 600">Token mint</div>
+<div style="font-size: 15px; color: #54595F; line-height: 1.5">POST /api/realtime/session returns a short-lived client secret. API key never reaches the browser.</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 13px; font-family: 'IBM Plex Mono', monospace; color: #54595F">PROVIDERS (interfaces + DI, keys from .env)</div>
+<div style="padding: 16px; border-radius: 8px; background: #DFE9FD; border: 1px solid {{rt}}; font-size: 15px"><b>OpenAI gpt-realtime</b><br>voice in, voice out. Internal stages not visible.</div>
+<div style="padding: 16px; border-radius: 8px; background: #FFFFFF; border: 1px solid #DFE9FD; font-size: 15px; line-height: 1.6"><b>STT</b> Deepgram<br><b>Translate</b> OpenAI LLM · DeepL<br><b>TTS</b> ElevenLabs · OpenAI TTS</div>
+<div style="font-size: 13px; color: #54595F">Secondary adapters prove a swap is a contained change. Vendor API details marked TODO verify.</div>
+<div style="margin-top: auto; padding: 16px; border-radius: 8px; background: #051E4D; color: #F5F8FF; font-size: 15px; line-height: 1.6">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #B8BCC4">TARGETS (T0 → first audio)</div>
+<div>Realtime &lt; 1.5 s</div>
+<div>Cascade &lt; 3 s, stretch &lt; 2 s</div>
+<div>5 min, no drift or leaks</div>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; font-family: 'IBM Plex Mono', monospace; color: #54595F">TIMING MARKS · browser clock for perceived latency, p50 and p95 only</div>
+<div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; font-size: 14px">
+<div style="padding: 12px; background: #EDF2FF; border-radius: 6px"><b>Access</b><br>press → audio flowing</div>
+<div style="padding: 12px; background: #051E4D; color: #F5F8FF; border-radius: 6px"><b>T0</b><br>speech end, last voiced frame</div>
+<div style="padding: 12px; background: #EDF2FF; border-radius: 6px"><b>Release</b><br>playback trigger</div>
+<div style="padding: 12px; background: #FDE7DE; border-radius: 6px"><b>STT final</b><br>cascade, final segment</div>
+<div style="padding: 12px; background: #FDE7DE; border-radius: 6px"><b>Translate</b><br>first token, segment done</div>
+<div style="padding: 12px; background: #FDE7DE; border-radius: 6px"><b>TTS</b><br>first byte</div>
+<div style="padding: 12px; background: #DFE9FD; border-radius: 6px"><b>RT response</b><br>start (data channel)</div>
+<div style="padding: 12px; background: #051E4D; color: #F5F8FF; border-radius: 6px"><b>First audible</b><br>OutputTap, both modes</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"rt":{"editor":"color","default":"#1462F0"},"cs":{"editor":"color","default":"#DD3900"},"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+renderVals() {
+return { rt: this.props.rt ?? '#1462F0', cs: this.props.cs ?? '#DD3900' };
+}
+}
+</script>
+</body>
+</html>

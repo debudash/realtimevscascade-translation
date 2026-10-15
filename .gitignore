@@ -1,0 +1,29 @@
+# Secrets (.env.example stays tracked)
+.env
+.env.local
+!.env.example
+
+# .NET
+bin/
+obj/
+
+# Node
+node_modules/
+dist/
+
+# Playwright
+test-results/
+playwright-report/
+
+# Harness scratch output
+harness/results/tmp/
+
+# Repo-local .NET SDK (installed by scripts/ensure-dotnet when no global SDK)
+.dotnet/
+
+# IDE / OS
+.vs/
+.vscode/
+*.user
+.DS_Store
+Thumbs.db

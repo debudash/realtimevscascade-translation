@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error and transition states</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1462F0}a:hover{color:#051E4D}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1040px; box-sizing: border-box; padding: 40px 48px; background: #F5F8FF; color: #252224; font-family: 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<img src="/_blob/a8a01581bc56d357d1332a1d73c438ee" alt="Boostlingo" width="152" height="28" style="display: block; width: 152px; height: 28px; margin-bottom: 10px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.08em; color: #54595F">UI STATES · INTERPRETER WORKBENCH FOR BOOSTLINGO · one per error code</div>
+<h1 style="margin: 0; font-size: 32px; font-weight: 600">Error and transition states</h1>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; flex: 1">
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #54595F">mic_denied · blocking panel</div>
+<div role="alertdialog" aria-labelledby="micd" style="flex: 1; background: #FFFFFF; border: 1px solid #DFE9FD; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#B42318" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v1a7 7 0 0 1-14 0v-1"></path><path d="M12 18v4"></path><path d="M3 3l18 18"></path></svg>
+<h2 id="micd" style="margin: 0; font-size: 20px; font-weight: 600">Microphone access is blocked</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #54595F">Allow the microphone in your browser's site settings for localhost, then reload. You can still run sessions with recorded clips.</p>
+<div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: auto">
+<button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 8px; border: 0; background: #1462F0; color: #FFFFFF; font: 600 14px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">Use replay clips</button>
+<button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid #051E4D; background: #FFFFFF; color: #051E4D; font: 600 14px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">Try again</button>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #54595F">socket_drop · banner, PTT disabled</div>
+<div style="flex: 1; background: #FFFFFF; border: 1px solid #DFE9FD; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column">
+<div role="status" style="background: #FFF4D6; color: #6B4E00; padding: 14px 18px; display: flex; align-items: center; gap: 12px; font-size: 15px">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"></path><path d="M21 3v6h-6"></path></svg>
+<span><b>Connection lost.</b> Reconnecting, attempt 2 of 5</span>
+</div>
+<div style="padding: 20px 18px; display: flex; flex-direction: column; gap: 12px; flex: 1">
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #54595F">The turn in progress was cancelled. Transcripts so far are kept.</p>
+<button type="button" disabled="disabled" style="margin-top: auto; min-height: 56px; border-radius: 10px; border: 2px dashed #9FB3D9; background: #F5F8FF; color: #54595F; font: 600 15px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">Push to talk (unavailable)</button>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #54595F">provider_timeout · turn row</div>
+<div style="flex: 1; background: #FFFFFF; border: 1px solid #DFE9FD; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 8px; align-items: center; font-size: 12px; font-family: 'IBM Plex Mono', monospace">
+<span style="padding: 3px 8px; border-radius: 4px; background: #FDE7DE; color: #A32A00">CASCADE</span>
+<span style="color: #54595F">turn 12 · ES → EN</span>
+</div>
+<p style="margin: 0; font-size: 16px">Necesito saber si es alérgico.</p>
+<div style="padding: 12px 14px; border-radius: 8px; background: #FDECEC; color: #9B1C1C; font-size: 14px; display: flex; flex-direction: column; gap: 4px">
+<b>Timed out at translation</b>
+<span>No first token within 2.0 s after one retry.</span>
+</div>
+<button type="button" style="margin-top: auto; align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid #051E4D; background: #FFFFFF; color: #051E4D; font: 600 14px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">Retry turn</button>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #54595F">rate_limited · toast with failover</div>
+<div style="flex: 1; background: #EDF2FF; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; justify-content: flex-end">
+<div role="status" style="background: #051E4D; color: #FFFFFF; border-radius: 10px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 15px">
+<b>Translation provider busy</b>
+<span style="color: #D7DAE0; font-size: 14px">Got 429 three times. Switched to DeepL for 60 s. This is recorded on the turn.</span>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #54595F">empty_result · neutral, not an error</div>
+<div style="flex: 1; background: #FFFFFF; border: 1px solid #DFE9FD; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 8px; align-items: center; font-size: 12px; font-family: 'IBM Plex Mono', monospace">
+<span style="padding: 3px 8px; border-radius: 4px; background: #DFE9FD; color: #0B48B8">REALTIME</span>
+<span style="color: #54595F">turn 13 · EN → ES</span>
+</div>
+<div style="padding: 14px; border-radius: 8px; background: #F5F8FF; color: #54595F; font-size: 15px">No speech detected. Hold the button while you talk.</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #54595F">mode switch · queued until turn ends</div>
+<div style="flex: 1; background: #051E4D; border: 1px solid #051E4D; color: #FFFFFF; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<div role="group" aria-label="Mode" style="display: flex; background: #0A2A66; border-radius: 8px; padding: 4px; gap: 4px; align-self: flex-start">
+<button type="button" aria-pressed="false" style="min-height: 40px; padding: 0 16px; border: 2px dashed {{rt}}; border-radius: 6px; background: transparent; color: #D7DAE0; font: 500 14px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">Realtime · next</button>
+<button type="button" aria-pressed="true" style="min-height: 40px; padding: 0 16px; border: 0; border-radius: 6px; background: {{cs}}; color: #FFFFFF; font: 600 14px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">Cascade</button>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #D7DAE0">Switching to Realtime after this turn finishes playing. Transcripts are kept.</p>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #54595F">floor_denied · deny tone, shake, no queue</div>
+<div style="flex: 1; background: #051E4D; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; color: #FFFFFF">
+<div style="display: flex; gap: 18px; justify-content: center">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<button type="button" aria-label="English speaker, interpreting" style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid #B4DCD9; background: #0A2A66; color: #FFFFFF; font: 700 13px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">Playing</button>
+<span style="font-size: 13px; font-weight: 700">English speaker</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<button type="button" aria-label="Spanish speaker, floor busy" style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid #FFB4A1; background: #0A2A66; color: #FFFFFF; font: 700 13px 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif">Floor busy</button>
+<span style="font-size: 13px; font-weight: 700">Hablante de español</span>
+</div>
+</div>
+<p role="status" style="margin: 0; font-size: 14px; line-height: 1.5; color: #D7DAE0; text-align: center">Floor busy · wait for the interpretation to finish, then press again.</p>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #54595F">config_error · startup panel</div>
+<div role="alert" style="flex: 1; background: #FFFFFF; border: 1px solid #DFE9FD; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-size: 18px; font-weight: 600">Configuration missing</h2>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #54595F">Add these to .env in the project folder, then restart the app.</p>
+<div style="padding: 12px; border-radius: 8px; background: #F5F8FF; font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.7; color: #252224">OpenAI__ApiKey<br>Deepgram__ApiKey<br>ElevenLabs__ApiKey<br>DeepL__ApiKey</div>
+</div>
+</div>
+
+</div>
+
+<div style="display: flex; gap: 20px; font-size: 13px; color: #54595F; flex-wrap: wrap">
+<div><b>provider_error</b> same as timeout row, with HTTP status</div>
+<div><b>internal</b> generic message with turnId for logs</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"rt":{"editor":"color","default":"#1462F0"},"cs":{"editor":"color","default":"#DD3900"},"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+renderVals() {
+return { rt: this.props.rt ?? '#1462F0', cs: this.props.cs ?? '#DD3900' };
+}
+}
+</script>
+</body>
+</html>
