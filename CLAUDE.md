@@ -269,3 +269,8 @@ media modules split into separate services.
   DeepL, ElevenLabs) with doc URLs, contract tests, live e2e in both
   directions. Decided: gpt-4.1-nano from measured TTFT; Deepgram end-of-turn
   by audio coverage (measured behaviour). Pulled clip generation forward.
+- **M5 (agent):** full UI per spec: header controls, pending-switch banner,
+  speaker stage, chips, transcripts with turn numbers and retry, latency
+  waterfall, p50/p95 table, export, every error state, responsive layout;
+  Playwright walkthrough + one spec per error state. Decided: fault
+  injection via URL for fakes; mic denial simulated at getUserMedia.

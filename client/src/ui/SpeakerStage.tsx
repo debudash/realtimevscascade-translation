@@ -63,6 +63,11 @@ export function SpeakerStage() {
           </li>
         ))}
       </ol>
+      <p className="stage__help">
+        {replay
+          ? "Replay input: click a speaker's button to play the selected clip through the same capture path."
+          : "Each speaker holds their own button, or focuses it and holds Space. Capture is muted while the interpretation plays."}
+      </p>
     </section>
   );
 }

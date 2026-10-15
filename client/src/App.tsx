@@ -5,6 +5,8 @@ import { createTransportFactory } from "./transports/factory";
 import { ConfigErrorPanel } from "./ui/ConfigErrorPanel";
 import { SpeakerStage } from "./ui/SpeakerStage";
 import { Header } from "./ui/Header";
+import { LatencyPanel } from "./ui/LatencyPanel";
+import { ConnectionBanner, MicDeniedPanel, PendingSwitchBanner, SessionErrorBanner, Toast } from "./ui/StatusBanners";
 import { Transcripts } from "./ui/Transcripts";
 import { ControllerContext, useSnapshot } from "./ui/useController";
 
@@ -28,7 +30,8 @@ function parseProviders(params: URLSearchParams): Record<string, string> | undef
 function createController(): WorkbenchController {
   const params = new URLSearchParams(window.location.search);
   const mode = (params.get("mode") as Mode | null) ?? "cascade";
-  const c = new WorkbenchController(createTransportFactory(params), mode, parseProviders(params));
+  const strategy = params.get("strategy") === "clause" ? "clause" : "segment";
+  const c = new WorkbenchController(createTransportFactory(params), mode, parseProviders(params), strategy);
   window.__workbench = c;
   return c;
 }
@@ -59,15 +62,21 @@ function Shell({ startError }: { startError: string | null }) {
       <main className="main">
         {startError && (
           <p className="banner banner--error" role="alert">
-            Backend unreachable: {startError}
+            Backend unreachable: {startError}. Start it with npm run dev.
           </p>
         )}
         {missing.length > 0 && <ConfigErrorPanel missing={missing} />}
+        <MicDeniedPanel />
+        <ConnectionBanner />
+        <SessionErrorBanner />
+        <PendingSwitchBanner />
         <div className="columns">
           <SpeakerStage />
           <Transcripts />
+          <LatencyPanel />
         </div>
       </main>
+      <Toast />
     </div>
   );
 }

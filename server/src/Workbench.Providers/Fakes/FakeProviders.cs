@@ -117,7 +117,8 @@ public sealed class FakeSttProvider(FakeOptions? options = null) : ISttProvider
         // Released: finalize.
         if (Options.Fault is FakeFault.Timeout) await Task.Delay(Timeout.Infinite, ct);
         await Task.Delay(Options.FirstLatency, ct);
-        if (heard > segStart) yield return new SttResult(string.Join(' ', words[segStart..heard]), IsFinal: true, FromFinalize: true);
+        // Like Deepgram, answer the finalize with a final even when nothing new was heard (empty text).
+        if (frames > 0) yield return new SttResult(string.Join(' ', words[segStart..heard]), IsFinal: true, FromFinalize: true);
     }
 }
 

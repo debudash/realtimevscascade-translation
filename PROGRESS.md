@@ -149,7 +149,7 @@ uses p50/p95). Evaluation clips were generated here (M6 items 1-2 pulled
 forward) because M4 needs a Spanish clip and no offline Spanish voice exists.
 
 ## M5 · Full UI per spec (≈2 h)
-- [ ] Implement `docs/ui-spec.md` completely:
+- [x] Implement `docs/ui-spec.md` completely:
       - header controls
       - pending switch banner
       - speaker stage
@@ -158,12 +158,22 @@ forward) because M4 needs a Spanish clip and no offline Spanish voice exists.
       - latency waterfall
       - p50/p95 table
       - export button
-- [ ] Every error state in the spec, wired to the real error events.
-- [ ] Responsive layout down to phone width.
+- [x] Every error state in the spec, wired to the real error events.
+- [x] Responsive layout down to phone width.
 
 **Acceptance:** a manual-equivalent Playwright walkthrough passes for both
 modes and a mode switch. The error states are reachable by injecting fake
 failures.
+
+**Notes (M5):** 11 Playwright specs green: walkthrough (cascade turns,
+segment -> clause switch, export JSON), queued mid-turn mode switch then a
+live Realtime turn and back, phone width (390 px, no horizontal scroll,
+44 px targets), and one test per error state: provider_timeout,
+provider_error (HTTP 400), rate_limited toast + failover note, empty_result,
+socket_drop (forced drop, banner "attempt 1 of 5", recovery), config_error
+(stubbed health), internal (stubbed session mint), mic_denied
+(getUserMedia rejects NotAllowedError; headless Chromium ignores the deny
+flags). floor_denied is covered by the M1 spec.
 
 ## M6 · Evaluation harness (≈2 h)
 - [ ] `harness/scripts.json`: 12 EN + 12 ES sentences, with reference
@@ -319,6 +329,14 @@ configurations, plus the soak, provider-swap, and onboarding results.
 - **M4 · Clips:** synthetic speakers are ElevenLabs multilingual_v2 voices
   (EN George, ES Sarah), distinct from the cascade output voice. Clips are
   trimmed to 250 ms lead-in / 150 ms tail.
+- **M5 · Failover toast copy:** the server retries 429s 3 times (4 attempts)
+  before failing over, so the toast shows the server's reason ("429 4 times;
+  circuit open for 60 s. Switched to DeepL.") instead of the mock's fixed
+  "three times".
+- **M5 · Waterfall:** cascade stage marks are browser receipt times of the
+  final segment's stage.timing events; a stage that finished before T0
+  (consecutive playback pre-synthesized it during speech) shows "during
+  speech". Realtime internals show "hidden", never estimated.
 
 ## Blockers
 (The agent appends here.)

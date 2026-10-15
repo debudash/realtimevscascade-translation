@@ -110,13 +110,14 @@ export class WorkbenchController {
     private readonly makeTransport: TransportFactory,
     initialMode: Mode = "cascade",
     providerOverride?: Record<string, string>,
+    initialStrategy: Strategy = "segment",
   ) {
     this.snap = {
       health: null,
       config: null,
       clips: [],
       turn: initialTurnState(initialMode),
-      strategy: "segment",
+      strategy: initialStrategy,
       pairId: "en-es",
       input: "mic",
       connection: { state: "Connecting", kind: "" },
@@ -569,7 +570,7 @@ export class WorkbenchController {
           toast: {
             id: ++this.toastSeq,
             title: "Translation provider busy",
-            body: `Got 429 three times. Switched to ${e.to === "deepl" ? "DeepL" : e.to} for 60 s. This is recorded on the turn.`,
+            body: `${e.reason}. Switched to ${e.to === "deepl" ? "DeepL" : e.to}. This is recorded on the turn.`,
           },
         });
         return;

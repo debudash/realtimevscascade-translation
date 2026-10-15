@@ -38,7 +38,7 @@ function LiveCard({ live }: { live: LiveTurnView }) {
   );
 }
 
-function TurnCard({ turn }: { turn: TurnRecord }) {
+function TurnCard({ turn, n }: { turn: TurnRecord; n: number }) {
   const c = useController();
   const m2e = mouthToEarMs(turn);
   const [src, tgt] = turn.conditions.direction.split("-");
@@ -47,7 +47,9 @@ function TurnCard({ turn }: { turn: TurnRecord }) {
     <article className={`card card--${turn.conditions.mode}`} data-testid="turn-card" data-status={turn.status}>
       <header className="card__head">
         <span className="tag">{tag(turn.conditions.mode, turn.conditions.strategy)}</span>
-        <span className="card__dir">{arrow(turn.conditions.direction)}</span>
+        <span className="card__dir">
+          turn {n} · {arrow(turn.conditions.direction)}
+        </span>
         {m2e !== null && turn.status === "completed" && <span className="badge">first audio {(m2e / 1000).toFixed(2)} s</span>}
       </header>
       {turn.status === "empty" && <p className="card__note">No speech detected. Hold the button while you talk.</p>}
@@ -100,14 +102,19 @@ export function Transcripts() {
   const c = useController();
   const s = useSnapshot();
   void s.metricsVersion; // re-render on metric changes
-  const turns = c.metrics.all().filter((t) => t.turnId !== s.live?.turnId);
+  const all = c.metrics.all();
+  const turns = all.filter((t) => t.turnId !== s.live?.turnId);
+  const number = (id: string) => all.length - all.findIndex((t) => t.turnId === id);
   return (
     <section className="transcripts" aria-label="Live transcripts">
-      <h2 className="section-title">Live transcripts</h2>
+      <div className="panel__head">
+        <h2 className="section-title">Live transcripts</h2>
+        <span className="secondary small">newest first</span>
+      </div>
       {s.live && <LiveCard live={s.live} />}
       {turns.length === 0 && !s.live && <p className="secondary empty">Turns appear here, newest first.</p>}
       {turns.map((t) => (
-        <TurnCard key={t.turnId} turn={t} />
+        <TurnCard key={t.turnId} turn={t} n={number(t.turnId)} />
       ))}
     </section>
   );
