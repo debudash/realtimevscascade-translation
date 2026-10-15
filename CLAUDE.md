@@ -274,3 +274,8 @@ media modules split into separate services.
   waterfall, p50/p95 table, export, every error state, responsive layout;
   Playwright walkthrough + one spec per error state. Decided: fault
   injection via URL for fakes; mic denial simulated at getUserMedia.
+- **M6 (agent):** evaluation harness: 24 synthetic clips through four
+  configurations on live providers, automated judge, WER, answer heuristic,
+  cost per minute, 5-minute soak per mode with a forced drop, EN<->FR
+  onboarding by config. Decided: replay input instead of fake-capture file;
+  heap floors instead of raw start/end. Deferred: longer soaks.

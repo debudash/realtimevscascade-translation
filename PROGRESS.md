@@ -176,20 +176,20 @@ socket_drop (forced drop, banner "attempt 1 of 5", recovery), config_error
 flags). floor_denied is covered by the M1 spec.
 
 ## M6 · Evaluation harness (≈2 h)
-- [ ] `harness/scripts.json`: 12 EN + 12 ES sentences, with reference
+- [x] `harness/scripts.json`: 12 EN + 12 ES sentences, with reference
       transcripts and translations.
-- [ ] Generate the WAV clips once with TTS and cache them in
+- [x] Generate the WAV clips once with TTS and cache them in
       `harness/clips/`. Commit them if they total under 20 MB.
-- [ ] Playwright harness: every clip through four configurations. Results go
+- [x] Playwright harness: every clip through four configurations. Results go
       to `harness/results/`. Respect the CLAUDE.md cost guardrails.
       - Realtime
       - Cascade-segment
       - Cascade-clause
       - Cascade-segment with DeepL as primary translator (provider
         flexibility evidence, config change only)
-- [ ] Automated quality rubric: an LLM judge scores accuracy, completeness,
+- [x] Automated quality rubric: an LLM judge scores accuracy, completeness,
       and fluency 1-5 per turn. Label it "automated judge".
-- [ ] `npm run report`:
+- [x] `npm run report`:
       - p50/p95 per stage, mode, and strategy
       - access time
       - source WER (cascade)
@@ -198,16 +198,28 @@ flags). floor_denied is covered by the M1 spec.
       - "answered instead of interpreted" rate
       - cost per minute from `harness/pricing.json`
       - output to `harness/results/report.md`
-- [ ] Soak test: 5 minutes per mode. Record disconnects, playback buffer
+- [x] Soak test: 5 minutes per mode. Record disconnects, playback buffer
       depth, heap at start vs. end, and recovery time after one forced
       transport drop.
-- [ ] Language-pair onboarding exercise (after everything above passes): add
+- [x] Language-pair onboarding exercise (after everything above passes): add
       English <-> French via config plus 2 clips per direction. Record the
       files touched and the effort for each architecture in
       `harness/results/onboarding.md`.
 
 **Acceptance:** `report.md` exists with real numbers for all four
 configurations, plus the soak, provider-swap, and onboarding results.
+
+**Notes (M6):** run 1 of each configuration (24/24 turns completed in all
+four): mouth-to-ear p50/p95 Realtime 0.89/1.06 s, cascade-segment
+1.41/1.65 s, cascade-clause 1.20/1.46 s, cascade-DeepL 1.15/1.22 s. Cost
+per speech-minute Realtime $0.205, cascade $0.043 (DeepL $0.066, DeepL rate
+unverified). Judge 4.7-5.0 across the board; 0/24 answered-instead-of-
+interpreted in every configuration. Soak 5 min per mode: 45 turns each, 0
+failures, 0 unplanned disconnects, forced-drop recovery 2.1 s (Realtime) /
+1.1 s (cascade), transcripts intact. EN<->FR onboarded by config in ~2 min.
+Harness runs used: 1 of 3 per configuration (the first DeepL attempt
+aborted mid-run on a page reload and saved nothing; see Decisions).
+Soak runs used: 1 of 1 per mode.
 
 ## M7 · Review, docs, and morning handoff (≈1.5 h)
 - [ ] Architecture review pass (use a subagent if available): check every
@@ -337,6 +349,22 @@ configurations, plus the soak, provider-swap, and onboarding results.
   final segment's stage.timing events; a stage that finished before T0
   (consecutive playback pre-synthesized it during speech) shows "during
   speech". Realtime internals show "hidden", never estimated.
+- **M6 · Harness input:** clips go through the app's Replay input (same
+  capture graph as the mic, press/release automated) rather than Chromium's
+  fake-audio-capture file, which loops from browser start and cannot be
+  aligned with a button press. Release lands ~410 ms after T0 (150 ms clip
+  tail + 250 ms), the same for every configuration.
+- **M6 · Page reload during a run:** the first DeepL run aborted at clip
+  es-06 because the page reloaded (most likely the Vite watcher reacting to
+  files I edited elsewhere in the repo). Fixed by restricting Vite's watcher
+  to the client and making the runner retry a clip once after a reload
+  (counted in `pageReloads`). The aborted attempt saved nothing.
+- **M6 · Heap metric:** the soak samples usedJSHeapSize without forcing GC,
+  so it saw-tooths; the report shows the post-GC floor in the first vs. the
+  last minute (both modes +4-5 MB over 45 turns, consistent with retained
+  transcripts) alongside the raw start/end values.
+- **M6 · Judge:** gpt-4.1-mini, temperature 0, JSON output, cached in
+  `harness/results/judge-cache.json` so regenerating the report is free.
 
 ## Blockers
 (The agent appends here.)
