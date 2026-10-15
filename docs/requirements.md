@@ -54,7 +54,7 @@ test, a measurement or a reproducible check.
 | # | Cell | Realtime evidence | Cascade evidence | Where written up | Status |
 |---|---|---|---|---|---|
 | M1 | Latency | report §1: p50 1.09 s / p95 1.46 s (72 turns); stages "hidden" | report §1: segment 1.43 / 1.89 s, clause 1.21 / 1.44 s, DeepL 1.15 / 1.25 s (48 turns each); server stage durations | comparison.md §1 | Met |
-| M2 | Quality (subjective + WER) | report §2: target WER 0.097, judge 4.96 / 4.97 / 4.99, answered-instead 0/72 | report §2: source WER 0.000, target WER 0.059-0.293, judge scores, answered-instead 0/48 per config | comparison.md §2 | Partial: "subjective" rests on the automated judge only; the human sheet in MORNING.md is blank |
+| M2 | Quality (subjective + WER) | report §2: target WER 0.097, judge 4.96 / 4.97 / 4.99, answered-instead 0/72 | report §2: source WER 0.000, target WER 0.059-0.293, judge scores, answered-instead 0/48 per config | comparison.md §2 | Met: automated judge plus a blind human spot-check of 20 turns (44/60 scores identical, all within one point; report §2, `harness/results/human-scores.json`) |
 | M3 | Cost per minute | report §3: $0.210/min (with split) | report §3: $0.043/min (OpenAI), $0.066/min (DeepL) | comparison.md §3 | Partial: OpenAI, Deepgram and ElevenLabs verified 2026-10-15 (Deepgram rate is a promotion); DeepL unverified |
 | M4 | Controllability | Prompt, voice, turn boundaries; internals not observable; prompt-level controls measured (13/14 glossary terms) | Every stage timed and swappable; commit policy measured; formality + glossary enforced (9/9 formal, 14/14 terms) | comparison.md §4, [`translation-controls.md`](translation-controls.md) | Met |
 | M5 | Provider flexibility | Model version only | OpenAI -> DeepL by config only: report §4, `CascadeProviderFactoryTests.Config_alone_swaps_the_default_translator` | comparison.md §5 | Met |
@@ -84,7 +84,7 @@ its "Changes during the build".
 | D-14 | T0 is acoustic speech end | `dsp.test.ts` "EnergyDetector"; `e2e/audio-engine.spec.ts` marks test | Met |
 | D-15 | Metrics mapped to the brief (KPI 3, KPI 1, stability) | `metrics.ts`, `harness/report.ts`, soak results | Partial: playback buffer depth for the cascade only |
 | D-16 | Realtime internals "hidden", never estimated | `LatencyPanel.tsx`; report stage table | Met |
-| D-17 | Quality: WER, rubric, answered-instead, judge + human | `harness/metrics.test.ts`; report §2 | Partial: human spot-check not done |
+| D-17 | Quality: WER, rubric, answered-instead, judge + human | `harness/metrics.test.ts`; report §2; `harness/results/human-scores.json` | Met |
 | D-18 | Fair comparison: identical input, one clock, run conditions | Replay harness; `metrics.test.ts` run-conditions test | Partial: run conditions lack `runId` and `build` sha (C-09) |
 | D-19 | Cost from logged usage x dated prices | `harness/metrics.test.ts` "turnCost"; report §3; `harness/pricing.json` sources with verification date | Partial: OpenAI, Deepgram, ElevenLabs verified 2026-10-15; DeepL unverified |
 | D-20 | Warm-up and press-to-warm | `turnMachine.test.ts` "press while Warming is 'Not ready'"; `CascadeSession.StartTurnAsync` | Met |
@@ -108,6 +108,6 @@ its "Changes during the build".
 |---|---|
 | End-to-end latency (ms) | report §1 |
 | Cost per minute | report §3 |
-| Interpretation quality (subjective + WER) | report §2 (automated judge + WER) and the human scoring sheet in MORNING.md |
+| Interpretation quality (subjective + WER) | report §2 (automated judge + WER, blind human spot-check) |
 | Provider flexibility | report §4 |
 | Time to onboard a new language pair | report §6 → onboarding.md |

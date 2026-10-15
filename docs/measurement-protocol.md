@@ -163,7 +163,7 @@ floor-deny test.
 | Source WER | `harness/metrics.ts` `normalize` + `wer` (word Levenshtein, small numbers spelled out) | `harness/metrics.test.ts` "normalize / wer" |
 | Target WER (crude proxy) | same, against `scripts.json` reference translations; labelled in the report | same |
 | Rubric (automated judge) | `harness/report.ts` `judge`: gpt-4.1-mini, temperature 0, JSON output, cached in `harness/results/judge-cache.json` | none (live call; cached results) |
-| Rubric (human, 10 turns) | Sheet in `MORNING.md` | Not done (blank) |
+| Rubric (human, blind) | Scoring page (blind, random order) for 10 turns per mode from each mode's first run; results joined to the judge in `harness/results/human-scores.json`; `report.ts` "Human spot-check" | Done 2026-10-15 by the project owner |
 | Answered instead of interpreted | `harness/metrics.ts` `answeredHeuristic` + the judge's flag; `report.ts` "Manual review list (flagged turns)" | `harness/metrics.test.ts` "answered instead of interpreted" |
 
 ### 8.4 Cost
@@ -209,7 +209,7 @@ the report's run table (`harness/report.ts` `buildOf`). Exported by the UI's Exp
 | 3 | Access time "audio flowing" for Realtime | Realtime access is press plus the send of `session.update` / `clear`, near zero, because the WebRTC track is always live | No per-turn audio start exists on a live track |
 | 3 | Playback buffer depth for both modes | Cascade: depth over time. Realtime: average jitter-buffer delay and concealment from `getStats()`, not depth over time | Realtime's jitter buffer belongs to the browser; `getStats()` exposes only cumulative counters |
 | 3 | Memory: browser heap and server memory | Browser heap only, reported as post-GC floor plus raw start/end | Raw heap saw-tooths without forced GC; server memory sampling was not built |
-| 4 | Human spot-check of 10 turns | Not done; the sheet in `MORNING.md` is blank | Needs the owner; open in `docs/status.md` |
+| 4 | Human spot-check of 10 turns | 20 turns (10 per mode), scored blind | One mode per 10 turns allows a per-mode comparison with the judge |
 | 6 | `runId`, `providers` object, `failover`, `build` sha, `timestamp` | `runId` and `build` added after the first evaluation (runs before that are inferred, see 8.5); failover is a per-turn `failoverNote`; providers is an array | The schema was written after the build; the two missing fields were added in the product follow-ups |
 | 7 | Playwright fake audio capture | The app's Replay input (same capture graph as the mic, press/release automated) | The fake capture file loops from browser start and cannot be aligned with a press |
 | 7 | Live-voice session per mode | Not recorded | Out of the unattended run; needs a person |

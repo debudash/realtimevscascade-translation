@@ -231,8 +231,8 @@ Brief = `docs/brief.md` (governs). PRD = `docs/prd-summary.md`.
 - **Consequences:** Realtime's source transcript comes from a side
   transcription process, so its WER does not measure what the model
   understood. Disclose this.
-- **Status:** Implemented except the human spot-check
-- **Evidence:** `harness/metrics.ts` (`wer`, answered-instead heuristic), `harness/report.ts` (automated judge gpt-4.1-mini, cached in `harness/results/judge-cache.json`). Tests: `harness/metrics.test.ts` "normalize / wer", "answered instead of interpreted". Not done: the human spot-check; the sheet in `MORNING.md` is blank (`docs/status.md`).
+- **Status:** Implemented
+- **Evidence:** `harness/metrics.ts` (`wer`, answered-instead heuristic), `harness/report.ts` (automated judge gpt-4.1-mini, cached in `harness/results/judge-cache.json`). Tests: `harness/metrics.test.ts` "normalize / wer", "answered instead of interpreted". Human spot-check: 20 turns scored blind by the owner, `harness/results/human-scores.json` (44 of 60 scores identical to the judge, all within one point).
 
 ### D-18 · Fair comparison: identical input, identical clock, recorded run conditions
 - **Decision:**
