@@ -289,3 +289,6 @@ media modules split into separate services.
   `formality` + a v3 multilingual glossary (Free plan: one glossary; literal
   matching needs noun-phrase entries, both verified live). Measured in
   `harness/results-controls/`, written up in docs/translation-controls.md.
+- **Follow-up (agent, at the user's request):** header "Clinic terms" toggle
+  and a per-turn tag for the translation controls, logged as a D-23 scope
+  change in docs/decisions.md; no glossary editing UI.

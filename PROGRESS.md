@@ -394,6 +394,11 @@ Realtime's vendor-side variance; the comparison reflects it. Final suite:
   live). OpenAI translator and Realtime: the same instructions in the prompt.
   Baseline harness configs now pin `controls=off`; the experiment's runs
   and before/after report are in `harness/results-controls/`.
+- **Follow-up · Clinic terms toggle (D-23 change):** header toggle
+  (Clinic terms | Off, both modes, re-warms between turns) and a per-turn
+  "Clinic terms on/off" tag, saved in run conditions and exports. Default
+  from `/api/config` (`translationControls.enabled`). No glossary editing
+  or term highlighting in the UI (still out of scope).
 - **M7 · Optional DeepL key:** DeepL is the failover; without its key the
   cascade runs with no failover instead of refusing to start, and Realtime
   needs only the OpenAI key (`/api/health` reports `missingByMode`).
@@ -407,3 +412,11 @@ where it stopped.)
 
 - 2026-10-14 23:59 → 2026-10-15 ~07:30 local session: M0-M7 in one session; stopped
   after M7 with `npm run dev` running.
+- 2026-10-15 daytime, follow-ups at the user's request: translation controls
+  (+ `harness/results-controls/`, docs/translation-controls.md), the user's
+  planning docs committed (00-planning-session, decisions, measurement-protocol),
+  Clinic terms toggle + card tag. Stopped with a clean tree at `7e168f9`+.
+  **Resume notes:** nothing pushed yet (pushing is the user's to do:
+  `git push -u origin main`). Harness budget used: realtime 3/3, cascade
+  baselines 2/3 each, each `*-controls` config 1/3, soaks 1/1 per mode.
+  Open idea: test the glossary on held-out sentences (MORNING.md next steps).
