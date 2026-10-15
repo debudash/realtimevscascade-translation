@@ -1,6 +1,7 @@
 using Workbench.Api.Config;
 using Workbench.Api.Endpoints;
 using Workbench.Core;
+using Workbench.Core.Commit;
 using Workbench.Api.Control;
 using Workbench.Providers.DeepL;
 using Workbench.Providers.Deepgram;
@@ -50,6 +51,8 @@ builder.Services.Configure<ResilienceOptions>(builder.Configuration.GetSection("
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<FailoverCircuitRegistry>();
 builder.Services.AddSingleton<CascadeProviderFactory>();
+builder.Services.Configure<CascadeOptions>(builder.Configuration.GetSection("Cascade"));
+builder.Services.AddSingleton<ICommitPolicyFactory, CommitPolicyFactory>();
 
 var app = builder.Build();
 

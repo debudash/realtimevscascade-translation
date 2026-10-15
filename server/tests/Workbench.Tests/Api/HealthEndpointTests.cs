@@ -32,6 +32,21 @@ public class HealthEndpointTests
     }
 
     [Fact]
+    public async Task A_missing_DeepL_key_blocks_neither_mode_and_Realtime_needs_only_OpenAI()
+    {
+        await using var app = Factory(new()
+        {
+            ["OpenAI:ApiKey"] = "a", ["Deepgram:ApiKey"] = "", ["ElevenLabs:ApiKey"] = "c", ["DeepL:ApiKey"] = "",
+        });
+
+        var json = await app.CreateClient().GetFromJsonAsync<JsonElement>("/api/health");
+        var byMode = json.GetProperty("missingByMode");
+
+        Assert.Empty(byMode.GetProperty("realtime").EnumerateArray());
+        Assert.Equal(["Deepgram__ApiKey"], byMode.GetProperty("cascade").EnumerateArray().Select(e => e.GetString()).ToList());
+    }
+
+    [Fact]
     public async Task Config_ok_when_all_keys_present()
     {
         await using var app = Factory(new()

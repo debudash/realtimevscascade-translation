@@ -87,24 +87,7 @@ public sealed class DeepgramSttProvider(
         var url = $"{o.ListenUrl}?model={o.Model}&language={lang}&encoding=linear16&sample_rate={opts.SampleRate}&channels=1" +
                   $"&interim_results=true&punctuate=true&smart_format=true&endpointing={o.EndpointingMs}";
 
-        using var ws = new ClientWebSocket();
-        ws.Options.SetRequestHeader("Authorization", $"Token {o.ApiKey}");
-        ws.Options.CollectHttpResponseDetails = true;
-        try
-        {
-            await ws.ConnectAsync(new Uri(url), ct);
-        }
-        catch (WebSocketException e) when (!ct.IsCancellationRequested)
-        {
-            throw ws.HttpStatusCode switch
-            {
-                HttpStatusCode.TooManyRequests => new RateLimitedException(Name, "stt", "Deepgram returned 429"),
-                HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
-                    new ProviderErrorException(Name, "stt", $"Deepgram rejected the API key ({(int)ws.HttpStatusCode})", (int)ws.HttpStatusCode),
-                0 => new ProviderErrorException(Name, "stt", $"Deepgram connection failed: {e.Message}", inner: e),
-                var s => new ProviderErrorException(Name, "stt", $"Deepgram returned {(int)s}", (int)s),
-            };
-        }
+        using var ws = await ConnectWithRetryAsync(new Uri(url), o.ApiKey!, ct);
 
         var stream = new Stream(ws, opts.SampleRate);
         var results = Channel.CreateUnbounded<SttResult>();
@@ -127,6 +110,46 @@ public sealed class DeepgramSttProvider(
             catch (Exception) { }
         }
     }
+
+    /// <summary>
+    /// Connects, retrying 429 / 5xx / network failures up to <see cref="ConnectRetries"/> times with
+    /// jittered backoff. Safe because nothing has been sent yet: the turn's audio waits in its channel.
+    /// </summary>
+    private async Task<ClientWebSocket> ConnectWithRetryAsync(Uri url, string apiKey, CancellationToken ct)
+    {
+        for (var attempt = 0; ; attempt++)
+        {
+            var ws = new ClientWebSocket();
+            ws.Options.SetRequestHeader("Authorization", $"Token {apiKey}");
+            ws.Options.CollectHttpResponseDetails = true;
+            try
+            {
+                using var connectTimeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                connectTimeout.CancelAfter(ConnectTimeout);
+                await ws.ConnectAsync(url, connectTimeout.Token);
+                return ws;
+            }
+            catch (Exception e) when (e is WebSocketException or OperationCanceledException && !ct.IsCancellationRequested)
+            {
+                var status = ws.HttpStatusCode;
+                ws.Dispose();
+                ProviderException error = status switch
+                {
+                    HttpStatusCode.TooManyRequests => new RateLimitedException(Name, "stt", "Deepgram returned 429"),
+                    HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
+                        new ProviderErrorException(Name, "stt", $"Deepgram rejected the API key ({(int)status})", (int)status),
+                    0 when e is OperationCanceledException => new ProviderTimeoutException(Name, "stt", $"Deepgram connect took over {ConnectTimeout.TotalSeconds:0} s"),
+                    0 => new ProviderErrorException(Name, "stt", $"Deepgram connection failed: {e.Message}", inner: e),
+                    var s => new ProviderErrorException(Name, "stt", $"Deepgram returned {(int)s}", (int)s),
+                };
+                if (attempt >= ConnectRetries || !error.Retryable) throw error;
+                await Task.Delay(TimeSpan.FromMilliseconds(150 * (attempt + 1) + Random.Shared.Next(0, 100)), ct);
+            }
+        }
+    }
+
+    private const int ConnectRetries = 2;
+    private static readonly TimeSpan ConnectTimeout = TimeSpan.FromSeconds(3);
 
     /// <summary>Streams frames as they arrive; on release sends Finalize (skipped when no audio was sent).</summary>
     private static async Task SendLoopAsync(Stream s, ChannelReader<AudioFrame> audio, CancellationToken ct)

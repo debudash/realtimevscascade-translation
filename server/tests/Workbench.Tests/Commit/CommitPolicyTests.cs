@@ -181,8 +181,9 @@ public class ClauseCommitPolicyTests
     [Fact]
     public void Factory_selects_by_name_and_defaults_to_segment()
     {
-        Assert.IsType<ClauseCommitPolicy>(CommitPolicyFactory.Create("clause"));
-        Assert.IsType<SegmentCommitPolicy>(CommitPolicyFactory.Create("segment"));
-        Assert.IsType<SegmentCommitPolicy>(CommitPolicyFactory.Create("anything"));
+        var f = new CommitPolicyFactory();
+        Assert.IsType<ClauseCommitPolicy>(f.Create("clause"));
+        Assert.IsType<SegmentCommitPolicy>(f.Create("segment"));
+        Assert.IsType<SegmentCommitPolicy>(f.Create("anything"));
     }
 }

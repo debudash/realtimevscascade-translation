@@ -1,15 +1,13 @@
+using Workbench.Api.Control;
+
 namespace Workbench.Api.Config;
 
-/// <summary>The four provider keys, as configuration paths and as the variable names users set in .env.</summary>
+/// <summary>The provider keys, as configuration paths and as the variable names users set in .env.</summary>
 public static class RequiredKeys
 {
-    public static readonly IReadOnlyList<(string ConfigPath, string VariableName)> All =
-    [
-        ("OpenAI:ApiKey", "OpenAI__ApiKey"),
-        ("Deepgram:ApiKey", "Deepgram__ApiKey"),
-        ("ElevenLabs:ApiKey", "ElevenLabs__ApiKey"),
-        ("DeepL:ApiKey", "DeepL__ApiKey"),
-    ];
+    /// <summary>Single source: the provider factory's key table.</summary>
+    public static IReadOnlyList<(string ConfigPath, string VariableName)> All =>
+        CascadeProviderFactory.Keys.Values.Select(k => (k.ConfigPath, k.Variable)).ToList();
 
     /// <summary>Names (never values) of the keys that are missing or blank.</summary>
     public static IReadOnlyList<string> Missing(IConfiguration config) =>

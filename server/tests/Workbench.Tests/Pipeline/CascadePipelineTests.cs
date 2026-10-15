@@ -311,6 +311,30 @@ public class CascadePipelineTests
     }
 
     [Fact]
+    public async Task A_stream_that_stalls_after_its_first_token_is_a_provider_timeout()
+    {
+        // First token arrives fast, then the stream goes silent for longer than the idle timeout.
+        var stalling = new FakeTranslationProvider("openai", new FakeOptions { FirstLatency = TimeSpan.FromMilliseconds(5), StepLatency = TimeSpan.FromSeconds(30) });
+        var stt = new FakeSttProvider(Fast()) { FramesPerWord = 2, WordsPerSegment = 3 };
+        var sink = new RecordingSink();
+        var sw = Stopwatch.StartNew();
+        var res = new ResilienceOptions { StreamIdleTimeout = TimeSpan.FromMilliseconds(200), RetryBaseDelay = TimeSpan.FromMilliseconds(1) };
+        var p = new CascadeTurnPipeline(
+            new CascadeTurnSpec("t1", "en", "en", "es"), stt,
+            new ResilientTranslationProvider(stalling, null, new FailoverCircuit(TimeProvider.System), res, TimeProvider.System),
+            new ResilientTtsProvider(new FakeTtsProvider(Fast()), res, TimeProvider.System),
+            new SegmentCommitPolicy(), new PipelineOptions(), sink, () => sw.Elapsed.TotalMilliseconds, CancellationToken.None);
+        var run = p.RunAsync();
+        await Feed(p, 8);
+        p.Release();
+        await run.WaitAsync(TimeSpan.FromSeconds(10));
+
+        var err = Assert.Single(sink.Of<ErrorEvent>());
+        Assert.Equal(("provider_timeout", "translation"), (err.Code, err.Stage));
+        Assert.Contains("stalled", err.Message);
+    }
+
+    [Fact]
     public async Task Clause_policy_commits_inside_a_segment_during_speech()
     {
         var stt = new FakeSttProvider(Fast()) { FramesPerWord = 1, WordsPerSegment = 50 };

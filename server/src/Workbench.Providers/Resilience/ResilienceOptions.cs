@@ -7,6 +7,9 @@ public sealed class ResilienceOptions
     public TimeSpan TranslationFirstTokenTimeout { get; set; } = TimeSpan.FromSeconds(2);
     public TimeSpan TtsFirstByteTimeout { get; set; } = TimeSpan.FromSeconds(2);
 
+    /// <summary>A started translation/TTS stream that goes silent this long is a provider_timeout (stall).</summary>
+    public TimeSpan StreamIdleTimeout { get; set; } = TimeSpan.FromSeconds(5);
+
     /// <summary>Retries after a first-token / first-byte timeout before provider_timeout.</summary>
     public int TimeoutRetries { get; set; } = 1;
 

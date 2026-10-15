@@ -12,6 +12,8 @@ internal sealed class StartedStream<T> : IAsyncDisposable
     private readonly IAsyncEnumerator<T> _enumerator;
     private readonly CancellationTokenSource _attempt;
     private readonly bool _hasFirst;
+    private string _provider = "";
+    private string _stage = "";
 
     private StartedStream(IAsyncEnumerator<T> e, CancellationTokenSource attempt, bool hasFirst)
     {
@@ -44,7 +46,7 @@ internal sealed class StartedStream<T> : IAsyncDisposable
                 ct.ThrowIfCancellationRequested();
                 throw new ProviderTimeoutException(provider, stage, $"No {what} within {firstItemTimeout.TotalSeconds:0.0} s");
             }
-            return new StartedStream<T>(e, attempt, await move);
+            return new StartedStream<T>(e, attempt, await move) { _provider = provider, _stage = stage };
         }
         catch
         {
@@ -55,12 +57,23 @@ internal sealed class StartedStream<T> : IAsyncDisposable
         }
     }
 
-    /// <summary>Yields the first item and the rest of the stream.</summary>
-    public async IAsyncEnumerable<T> ReadAllAsync()
+    /// <summary>Yields the first item and the rest; a gap longer than <paramref name="idleTimeout"/> is a stall.</summary>
+    public async IAsyncEnumerable<T> ReadAllAsync(TimeSpan idleTimeout, TimeProvider time)
     {
         if (!_hasFirst) yield break;
         yield return _enumerator.Current;
-        while (await _enumerator.MoveNextAsync()) yield return _enumerator.Current;
+        while (true)
+        {
+            var move = _enumerator.MoveNextAsync().AsTask();
+            if (await Task.WhenAny(move, Task.Delay(idleTimeout, time, _attempt.Token)) != move)
+            {
+                _ = move.ContinueWith(t => _ = t.Exception, TaskContinuationOptions.OnlyOnFaulted);
+                _attempt.Token.ThrowIfCancellationRequested();
+                throw new ProviderTimeoutException(_provider, _stage, $"Stream stalled for {idleTimeout.TotalSeconds:0.0} s");
+            }
+            if (!await move) yield break;
+            yield return _enumerator.Current;
+        }
     }
 
     public async ValueTask DisposeAsync()

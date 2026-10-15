@@ -73,15 +73,24 @@ public sealed class CascadeProviderFactory(
         return new ProviderSet(sel?.Stt ?? d.Stt, translation, fallback, sel?.Tts ?? d.Tts);
     }
 
-    /// <summary>Names of missing .env variables for the selected providers (never values).</summary>
+    /// <summary>
+    /// Names of missing .env variables (never values) that block the selected providers. The fallback
+    /// translator is optional: without its key the session simply has no failover.
+    /// </summary>
     public IReadOnlyList<string> MissingKeys(ProviderSet names) =>
-        new[] { names.Stt, names.Translation, names.TranslationFallback, names.Tts }
+        new[] { names.Stt, names.Translation, names.Tts }
             .Where(n => Keys.ContainsKey(n))
             .Select(n => Keys[n])
-            .Where(k => string.IsNullOrWhiteSpace(config[k.ConfigPath]))
+            .Where(k => !HasKey(k.ConfigPath))
             .Select(k => k.Variable)
             .Distinct()
             .ToList();
+
+    private bool HasKey(string configPath) => !string.IsNullOrWhiteSpace(config[configPath]);
+
+    /// <summary>The fallback to use: "none" when its key is missing.</summary>
+    public string UsableFallback(ProviderSet names) =>
+        Keys.TryGetValue(names.TranslationFallback, out var k) && !HasKey(k.ConfigPath) ? "none" : names.TranslationFallback;
 
     public IReadOnlyList<string> UnknownProviders(ProviderSet n)
     {
@@ -99,7 +108,8 @@ public sealed class CascadeProviderFactory(
 
         var stt = _stt[names.Stt](Fake(faults?.Stt));
         var primary = _translation[names.Translation](Fake(faults?.Translation));
-        var fallback = names.TranslationFallback == "none" ? null : _translation[names.TranslationFallback](Fake(faults?.TranslationFallback));
+        var fallbackName = UsableFallback(names);
+        var fallback = fallbackName == "none" ? null : _translation[fallbackName](Fake(faults?.TranslationFallback));
         var tts = _tts[names.Tts](Fake(faults?.Tts));
 
         // Real providers share one breaker per provider; fakes get a fresh one per session.

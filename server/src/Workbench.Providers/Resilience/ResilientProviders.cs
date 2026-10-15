@@ -94,7 +94,7 @@ public sealed class ResilientTranslationProvider : ITranslationProvider
 
         await using (stream)
         {
-            await foreach (var token in stream.ReadAllAsync().WithCancellation(ct)) yield return token;
+            await foreach (var token in stream.ReadAllAsync(_opts.StreamIdleTimeout, _time).WithCancellation(ct)) yield return token;
         }
     }
 
@@ -123,7 +123,7 @@ public sealed class ResilientTtsProvider(ITtsProvider inner, ResilienceOptions o
             ct);
         await using (stream)
         {
-            await foreach (var chunk in stream.ReadAllAsync().WithCancellation(ct)) yield return chunk;
+            await foreach (var chunk in stream.ReadAllAsync(opts.StreamIdleTimeout, time).WithCancellation(ct)) yield return chunk;
         }
     }
 }

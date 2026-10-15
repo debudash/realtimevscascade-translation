@@ -8,3 +8,9 @@ public sealed class ProvidersOptions
     public string TranslationFallback { get; set; } = "deepl";
     public string Tts { get; set; } = "elevenlabs";
 }
+
+/// <summary>Cascade defaults. The UI overrides the strategy per session.</summary>
+public sealed class CascadeOptions
+{
+    public string DefaultStrategy { get; set; } = "segment";
+}

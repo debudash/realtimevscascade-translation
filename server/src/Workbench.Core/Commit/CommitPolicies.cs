@@ -153,9 +153,18 @@ public sealed class ClauseCommitPolicy : ICommitPolicy
     }
 }
 
-public static class CommitPolicyFactory
+/// <summary>Creates a fresh commit policy per turn. Registered in DI; the session picks by name.</summary>
+public interface ICommitPolicyFactory
 {
-    public static ICommitPolicy Create(string name) => name switch
+    IReadOnlyList<string> Names { get; }
+    ICommitPolicy Create(string name);
+}
+
+public sealed class CommitPolicyFactory : ICommitPolicyFactory
+{
+    public IReadOnlyList<string> Names { get; } = ["segment", "clause"];
+
+    public ICommitPolicy Create(string name) => name switch
     {
         "clause" => new ClauseCommitPolicy(),
         _ => new SegmentCommitPolicy(),

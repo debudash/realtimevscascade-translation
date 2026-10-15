@@ -9,6 +9,7 @@ using Workbench.Core;
 using Workbench.Core.Commit;
 using Workbench.Core.Events;
 using Workbench.Core.Pipeline;
+using Workbench.Api.Config;
 using Workbench.Providers.Resilience;
 
 namespace Workbench.Api.Control;
@@ -27,6 +28,8 @@ public sealed class CascadeSession(
     CascadeProviderFactory factory,
     IOptions<LanguagesOptions> languages,
     IOptions<ResilienceOptions> resilience,
+    IOptions<CascadeOptions> cascade,
+    ICommitPolicyFactory policies,
     ILogger<CascadeSession> log) : IEventSink
 {
     private static readonly TimeSpan WarmUpTimeout = TimeSpan.FromSeconds(5);
@@ -36,7 +39,7 @@ public sealed class CascadeSession(
         new BoundedChannelOptions(4096) { SingleReader = true, FullMode = BoundedChannelFullMode.Wait });
     private readonly Stopwatch _clock = Stopwatch.StartNew();
     private CascadeProviderSet? _providers;
-    private string _strategy = "segment";
+    private string _strategy = cascade.Value.DefaultStrategy;
     private CascadeTurnPipeline? _turn;
     private Task _turnTask = Task.CompletedTask;
     private DateTime _lastActivity = DateTime.UtcNow;
@@ -168,7 +171,7 @@ public sealed class CascadeSession(
             return;
         }
 
-        _strategy = msg.Strategy == "clause" ? "clause" : "segment";
+        _strategy = msg.Strategy is { } s && policies.Names.Contains(s) ? s : cascade.Value.DefaultStrategy;
         _providers = factory.Create(names, msg.Faults);
 
         // Warm-up: pre-connect provider clients (DNS, TLS, pooled connections) before Ready.
@@ -234,7 +237,7 @@ public sealed class CascadeSession(
             _providers.Stt,
             _providers.Translation,
             _providers.Tts,
-            CommitPolicyFactory.Create(_strategy),
+            policies.Create(_strategy),
             new PipelineOptions { SttFinalTimeout = resilience.Value.SttFinalTimeout },
             this,
             () => _clock.Elapsed.TotalMilliseconds,

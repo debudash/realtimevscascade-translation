@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Options;
 using Workbench.Api.Config;
+using Workbench.Api.Control;
+using Workbench.Providers.OpenAI;
 using Workbench.Core;
 
 namespace Workbench.Api.Endpoints;
@@ -9,14 +11,21 @@ public static class HealthEndpoints
     public static void MapHealthEndpoints(this WebApplication app)
     {
         // Names of missing variables only, never values.
-        app.MapGet("/api/health", (IConfiguration config, IOptions<ProvidersOptions> providers) =>
+        app.MapGet("/api/health", (IConfiguration config, IOptions<ProvidersOptions> providers, CascadeProviderFactory factory) =>
         {
             var missing = RequiredKeys.Missing(config);
+            var cascadeNames = factory.Resolve(null);
             return Results.Ok(new
             {
                 status = "ok",
                 configOk = missing.Count == 0,
                 missing,
+                // What blocks each mode. DeepL (failover) is optional; Realtime needs only OpenAI.
+                missingByMode = new
+                {
+                    realtime = missing.Where(m => m == OpenAIOptions.KeyVariable).ToList(),
+                    cascade = factory.MissingKeys(cascadeNames),
+                },
                 providers = providers.Value,
             });
         });
