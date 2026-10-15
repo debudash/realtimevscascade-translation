@@ -1,0 +1,34 @@
+{
+  "description": "Evaluation sentences (clinic setting). text = what the synthetic speaker says (reference transcript); reference = reference translation. question = true marks utterances a model might answer instead of interpret.",
+  "voices": {
+    "en": { "name": "George", "voiceId": "JBFqnCBsd6RMkjVDRZzb" },
+    "es": { "name": "Sarah", "voiceId": "EXAVITQu4vr4xnSDxMaL" },
+    "fr": { "name": "Charlie", "voiceId": "IKne3meq5aSn9XLyUdCD" }
+  },
+  "clips": [
+    { "id": "en-01", "lang": "en", "target": "es", "text": "My son has had a fever since last night.", "reference": "Mi hijo tiene fiebre desde anoche." },
+    { "id": "en-02", "lang": "en", "target": "es", "text": "Is he allergic to any medication?", "reference": "¿Es alérgico a algún medicamento?", "question": true },
+    { "id": "en-03", "lang": "en", "target": "es", "text": "I need to move my appointment to Friday morning.", "reference": "Necesito cambiar mi cita al viernes por la mañana." },
+    { "id": "en-04", "lang": "en", "target": "es", "text": "The pain started after lunch, and it is getting worse.", "reference": "El dolor empezó después del almuerzo y está empeorando." },
+    { "id": "en-05", "lang": "en", "target": "es", "text": "Please take one tablet twice a day with food.", "reference": "Por favor, tome una tableta dos veces al día con comida." },
+    { "id": "en-06", "lang": "en", "target": "es", "text": "Have you had any surgery in the last five years?", "reference": "¿Ha tenido alguna cirugía en los últimos cinco años?", "question": true },
+    { "id": "en-07", "lang": "en", "target": "es", "text": "Your blood pressure is a little high today.", "reference": "Su presión arterial está un poco alta hoy." },
+    { "id": "en-08", "lang": "en", "target": "es", "text": "We will call you when the test results are ready.", "reference": "Le llamaremos cuando los resultados de las pruebas estén listos." },
+    { "id": "en-09", "lang": "en", "target": "es", "text": "Does it hurt when you breathe deeply?", "reference": "¿Le duele cuando respira profundamente?", "question": true },
+    { "id": "en-10", "lang": "en", "target": "es", "text": "She has been coughing for two weeks and cannot sleep.", "reference": "Ella ha estado tosiendo durante dos semanas y no puede dormir." },
+    { "id": "en-11", "lang": "en", "target": "es", "text": "Do not eat or drink anything after midnight before the procedure.", "reference": "No coma ni beba nada después de la medianoche antes del procedimiento." },
+    { "id": "en-12", "lang": "en", "target": "es", "text": "What is your date of birth?", "reference": "¿Cuál es su fecha de nacimiento?", "question": true },
+    { "id": "es-01", "lang": "es", "target": "en", "text": "Tengo una cita a las tres con la doctora.", "reference": "I have an appointment at three with the doctor." },
+    { "id": "es-02", "lang": "es", "target": "en", "text": "No entiendo las instrucciones de la receta.", "reference": "I don't understand the instructions on the prescription." },
+    { "id": "es-03", "lang": "es", "target": "en", "text": "Mi esposa necesita un intérprete mañana.", "reference": "My wife needs an interpreter tomorrow." },
+    { "id": "es-04", "lang": "es", "target": "en", "text": "¿Cuántas veces al día debe tomarlo?", "reference": "How many times a day should he take it?", "question": true },
+    { "id": "es-05", "lang": "es", "target": "en", "text": "Me duele mucho la cabeza desde ayer.", "reference": "My head has hurt a lot since yesterday." },
+    { "id": "es-06", "lang": "es", "target": "en", "text": "Mi hija es alérgica a la penicilina.", "reference": "My daughter is allergic to penicillin." },
+    { "id": "es-07", "lang": "es", "target": "en", "text": "¿Puedo tomar este medicamento con el estómago vacío?", "reference": "Can I take this medication on an empty stomach?", "question": true },
+    { "id": "es-08", "lang": "es", "target": "en", "text": "Tengo diabetes y tomo insulina todas las mañanas.", "reference": "I have diabetes and I take insulin every morning." },
+    { "id": "es-09", "lang": "es", "target": "en", "text": "El niño se cayó y se lastimó el brazo izquierdo.", "reference": "The boy fell and hurt his left arm." },
+    { "id": "es-10", "lang": "es", "target": "en", "text": "¿Cuánto tiempo tengo que esperar para ver al médico?", "reference": "How long do I have to wait to see the doctor?", "question": true },
+    { "id": "es-11", "lang": "es", "target": "en", "text": "No tengo seguro médico, pero puedo pagar en efectivo.", "reference": "I don't have health insurance, but I can pay in cash." },
+    { "id": "es-12", "lang": "es", "target": "en", "text": "Necesito una receta nueva porque se me acabaron las pastillas.", "reference": "I need a new prescription because I ran out of pills." }
+  ]
+}
