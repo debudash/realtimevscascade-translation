@@ -23,7 +23,8 @@ received only its output: the starter pack.
 7. Wrote a control-room prompt for a Claude Project. It defined a nine-doc
    pack and DOCS / NEXT / REVIEW / STATUS modes.
 8. Updated the UI design artifact to match the decisions (D-26).
-9. Replaced the control-room loop with one unattended overnight run (D-27),
+9. Replaced the control-room loop with a build phase run by the agent from a
+   prepared pack, followed by owner-directed rounds (D-27),
    using a starter pack: CLAUDE.md, PROGRESS.md, docs/architecture.md,
    docs/ui-spec.md, docs/design/, .claude/settings.json, KICKOFF.md.
 10. Moved secrets to a gitignored `.env` (D-22).
@@ -44,8 +45,8 @@ check found them missing. This entry, `docs/decisions.md`, and
 session to close that gap.
 
 ## Prompts actually sent (from the transcripts)
-- [01-overnight-run.md](01-overnight-run.md): pre-kickoff setup and the
+- [01-initial-build.md](01-initial-build.md): pre-kickoff setup and the
   kickoff prompt, with timestamps.
-- [02-conformance-fix.md](02-conformance-fix.md): the morning follow-ups,
+- [02-conformance-fix.md](02-conformance-fix.md): the first owner-directed follow-ups,
   the conformity check (with the full control-room prompt) and the
   conformance fix.

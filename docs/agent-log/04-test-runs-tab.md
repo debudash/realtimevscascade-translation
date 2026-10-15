@@ -24,3 +24,14 @@ Confirmed design:
 Build order, each its own commit and test-first: WER into the client;
 test-runs API and store; controller setup switching; the tab (runner,
 list, detail, compare); docs (UI spec, decisions C-23, README, status).
+
+## Results (written at the end of the round)
+
+Built in the planned order, each step its own commit: WER into the client
+(4cd00c6), the API and file store (18b1842), setup switching and the header
+lock (46ff473), clip details for estimates (e8bded1), measured cost per
+minute (e1bf223, 7eec1bd), the pure logic (9ed932e), the tab (aeabac3) and
+docs (13b16d6). A screenshot caught the Workbench panel showing under the
+Test Runs tab (a CSS rule overrode `hidden`); fixed and covered by e2e.
+The owner then ran four real-provider Test Runs, committed as data
+(ba1ce6e); all met their p95 targets.

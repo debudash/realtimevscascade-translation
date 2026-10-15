@@ -1,0 +1,1218 @@
+{
+  "name": "Test run 10/15/2026, 12:13:43 PM",
+  "status": "completed",
+  "setup": {
+    "key": "realtime",
+    "label": "Realtime",
+    "mode": "realtime",
+    "strategy": "segment",
+    "controls": true
+  },
+  "clips": [
+    "en-01",
+    "en-02",
+    "en-03",
+    "en-04",
+    "en-05",
+    "en-06",
+    "en-07",
+    "en-08",
+    "en-09",
+    "en-10",
+    "en-11",
+    "en-12",
+    "es-01",
+    "es-02",
+    "es-03",
+    "es-04",
+    "es-05",
+    "es-06",
+    "es-07",
+    "es-08",
+    "es-09",
+    "es-10",
+    "es-11",
+    "es-12"
+  ],
+  "passes": 1,
+  "pair": "en-es",
+  "build": "9ed932e",
+  "runId": "c4c308a6",
+  "summary": {
+    "turns": 24,
+    "completed": 24,
+    "failed": 0,
+    "p50Ms": 989,
+    "p95Ms": 1301,
+    "targetMs": 1500,
+    "meetsTarget": true,
+    "accessP50Ms": 0,
+    "releaseToAudibleP50Ms": 577,
+    "stageP50Ms": {
+      "release": 407,
+      "rtResponseStart": 525,
+      "firstAudible": 989
+    },
+    "sourceWer": 0,
+    "targetWer": 0.074,
+    "costUsd": 0.2578838,
+    "voicedMinutes": 1.1760350000006456,
+    "usdPerMinute": 0.21928241931563128
+  },
+  "turns": [
+    {
+      "turnId": "3bd0ca89",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-01",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:22:08.794Z",
+      "marks": {
+        "press": 505658.5,
+        "access": 505659,
+        "speechStart": 505920.89999999845,
+        "release": 508462.1000000015,
+        "t0": 508053.8023255814,
+        "rtResponseStart": 508582.19999999553,
+        "firstAudible": 509124
+      },
+      "stages": [],
+      "sourceText": "My son has had a fever since last night.",
+      "targetText": "Mi hijo ha tenido fiebre desde anoche.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.884,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 24,
+          "inputTextTokens": 303,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 48,
+          "outputTextTokens": 20
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "534d2720",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-02",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:22:14.465Z",
+      "marks": {
+        "press": 511329.69999999553,
+        "access": 511329.799999997,
+        "speechStart": 511593.1666666666,
+        "release": 513740.69999999553,
+        "t0": 513336.4689922481,
+        "rtResponseStart": 513861.8999999985,
+        "firstAudible": 514262.19999999553
+      },
+      "stages": [],
+      "sourceText": "Is he allergic to any medication?",
+      "targetText": "\u00BFEs al\u00E9rgico a alg\u00FAn medicamento?",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.492,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 93,
+          "inputTextTokens": 333,
+          "cachedInputTokens": 320,
+          "outputAudioTokens": 43,
+          "outputTextTokens": 22
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "0b618474",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-03",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:22:19.465Z",
+      "marks": {
+        "press": 516330.19999999553,
+        "access": 516330.299999997,
+        "speechStart": 516590.3999999984,
+        "release": 519324.19999999553,
+        "t0": 518910.799999997,
+        "rtResponseStart": 519450.8999999985,
+        "firstAudible": 519862.299999997
+      },
+      "stages": [],
+      "sourceText": "I need to move my appointment to Friday morning.",
+      "targetText": "Necesito cambiar mi cita al viernes por la ma\u00F1ana.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.076,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 115,
+          "inputTextTokens": 357,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 65,
+          "outputTextTokens": 23
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "9e7557f6",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-04",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:22:26.166Z",
+      "marks": {
+        "press": 523031.19999999553,
+        "access": 523031.3999999985,
+        "speechStart": 523270.6000000015,
+        "release": 526351.5,
+        "t0": 525931.5356589132,
+        "rtResponseStart": 526467.1000000015,
+        "firstAudible": 526863.1000000015
+      },
+      "stages": [],
+      "sourceText": "The pain started after lunch and it is getting worse.",
+      "targetText": "El dolor comenz\u00F3 despu\u00E9s del almuerzo y est\u00E1 empeorando.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.401,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 143,
+          "inputTextTokens": 360,
+          "cachedInputTokens": 320,
+          "outputAudioTokens": 71,
+          "outputTextTokens": 25
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "2ffb008b",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-05",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:22:33.485Z",
+      "marks": {
+        "press": 530349.6999999955,
+        "access": 530350.1999999955,
+        "speechStart": 530610.3999999985,
+        "release": 533441.6999999955,
+        "t0": 533050.799999997,
+        "rtResponseStart": 533557.6999999955,
+        "firstAudible": 534000.6999999955
+      },
+      "stages": [],
+      "sourceText": "Please take one tablet twice a day with food.",
+      "targetText": "Por favor, tome una tableta dos veces al d\u00EDa con comida.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.174,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 156,
+          "inputTextTokens": 361,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 86,
+          "outputTextTokens": 26
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "11644ad3",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-06",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:22:41.342Z",
+      "marks": {
+        "press": 538207.299999997,
+        "access": 538207.6000000015,
+        "speechStart": 538450.4356589117,
+        "release": 541122.1000000015,
+        "t0": 540708.1333333304,
+        "rtResponseStart": 541246.3999999985,
+        "firstAudible": 541671.8999999985
+      },
+      "stages": [],
+      "sourceText": "Have you had any surgery in the last five years?",
+      "targetText": "\u00BFHa tenido alguna cirug\u00EDa en los \u00FAltimos cinco a\u00F1os?",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.004,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 170,
+          "inputTextTokens": 364,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 86,
+          "outputTextTokens": 23
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "5166cad7",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-07",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:22:48.683Z",
+      "marks": {
+        "press": 545547.8999999985,
+        "access": 545548.1000000015,
+        "speechStart": 545809.3356589101,
+        "release": 548082.299999997,
+        "t0": 547690.8356589102,
+        "rtResponseStart": 548238.799999997,
+        "firstAudible": 548654.299999997
+      },
+      "stages": [],
+      "sourceText": "Your blood pressure is a little high today.",
+      "targetText": "Su presi\u00F3n arterial est\u00E1 un poco alta hoy.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.616,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 162,
+          "inputTextTokens": 362,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 61,
+          "outputTextTokens": 21
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "0c4a51e0",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-08",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:22:54.739Z",
+      "marks": {
+        "press": 551603.799999997,
+        "access": 551604.1000000015,
+        "speechStart": 551838.1333333304,
+        "release": 554562.5,
+        "t0": 554140.2356589162,
+        "rtResponseStart": 554690.6000000015,
+        "firstAudible": 555154.1000000015
+      },
+      "stages": [],
+      "sourceText": "We will call you when the test results are ready.",
+      "targetText": "Le llamaremos cuando los resultados de las pruebas est\u00E9n listos.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.04,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 136,
+          "inputTextTokens": 357,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 101,
+          "outputTextTokens": 27
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "2acb4577",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-09",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:23:02.817Z",
+      "marks": {
+        "press": 559681.799999997,
+        "access": 559682,
+        "speechStart": 559917.0689922496,
+        "release": 562002,
+        "t0": 561596.9689922481,
+        "rtResponseStart": 562117.6999999955,
+        "firstAudible": 562573
+      },
+      "stages": [],
+      "sourceText": "Does it hurt when you breathe deeply?",
+      "targetText": "\u00BFLe duele cuando respira profundamente?",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.401,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 170,
+          "inputTextTokens": 361,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 77,
+          "outputTextTokens": 20
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "fa319abd",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-10",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:23:08.724Z",
+      "marks": {
+        "press": 565588.5,
+        "access": 565588.8999999985,
+        "speechStart": 565846.8689922466,
+        "release": 568831.3999999985,
+        "t0": 568408.1689922436,
+        "rtResponseStart": 568945.3999999985,
+        "firstAudible": 569360.8999999985
+      },
+      "stages": [],
+      "sourceText": "She has been coughing for two weeks and cannot sleep.",
+      "targetText": "Ella ha estado tosiendo durante dos semanas y no puede dormir.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.324,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 153,
+          "inputTextTokens": 360,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 88,
+          "outputTextTokens": 26
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "434eeb92",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-11",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:23:16.803Z",
+      "marks": {
+        "press": 573667.1999999955,
+        "access": 573667.5,
+        "speechStart": 573904.3023255813,
+        "release": 577602.1000000015,
+        "t0": 577205.9666666636,
+        "rtResponseStart": 577721.1999999955,
+        "firstAudible": 578184
+      },
+      "stages": [],
+      "sourceText": "Do not eat or drink anything after midnight before the procedure.",
+      "targetText": "No coma ni beba nada despu\u00E9s de la medianoche antes del procedimiento.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 4.016,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 173,
+          "inputTextTokens": 361,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 106,
+          "outputTextTokens": 30
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "87bf0ad1",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "en-12",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:23:26.506Z",
+      "marks": {
+        "press": 583370.299999997,
+        "access": 583370.299999997,
+        "speechStart": 583622.5,
+        "release": 585221.5,
+        "t0": 584767.0689922494,
+        "rtResponseStart": 585334.5,
+        "firstAudible": 585773.1000000015
+      },
+      "stages": [],
+      "sourceText": "What is your date of birth?",
+      "targetText": "\u00BFCu\u00E1l es su fecha de nacimiento?",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 1.933,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 187,
+          "inputTextTokens": 369,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 42,
+          "outputTextTokens": 18
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "8735e820",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-01",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:23:30.914Z",
+      "marks": {
+        "press": 587778.299999997,
+        "access": 587778.5,
+        "speechStart": 588034.1000000015,
+        "release": 590234.1999999955,
+        "t0": 589832.5,
+        "rtResponseStart": 590352.799999997,
+        "firstAudible": 590780.8999999985
+      },
+      "stages": [],
+      "sourceText": "Tengo una cita a las tres con la doctora.",
+      "targetText": "I have an appointment at 3 with the doctor.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.536,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 116,
+          "inputTextTokens": 346,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 48,
+          "outputTextTokens": 21
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "6a83567a",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-02",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:23:36.245Z",
+      "marks": {
+        "press": 593109.6999999955,
+        "access": 593111.799999997,
+        "speechStart": 593367.6666666667,
+        "release": 595911.3999999985,
+        "t0": 595503.7023255798,
+        "rtResponseStart": 596122.8999999985,
+        "firstAudible": 596533.8999999985
+      },
+      "stages": [],
+      "sourceText": "No entiendo las instrucciones de la receta.",
+      "targetText": "I don\u2019t understand the instructions of the prescription.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.884,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 111,
+          "inputTextTokens": 341,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 55,
+          "outputTextTokens": 20
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "26777e3c",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-03",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:23:42.352Z",
+      "marks": {
+        "press": 599216.1999999955,
+        "access": 599216.1999999955,
+        "speechStart": 599463.8023255814,
+        "release": 602041.8999999985,
+        "t0": 601640.6999999955,
+        "rtResponseStart": 602165.799999997,
+        "firstAudible": 602570.3999999985
+      },
+      "stages": [],
+      "sourceText": "Mi esposa necesita un int\u00E9rprete ma\u00F1ana.",
+      "targetText": "My spouse needs an interpreter tomorrow.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.908,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 127,
+          "inputTextTokens": 343,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 44,
+          "outputTextTokens": 17
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "3a41e98b",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-04",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:23:47.802Z",
+      "marks": {
+        "press": 604666.1000000015,
+        "access": 604666.5,
+        "speechStart": 604921,
+        "release": 607151,
+        "t0": 606741.1356589147,
+        "rtResponseStart": 607261.299999997,
+        "firstAudible": 608213.799999997
+      },
+      "stages": [],
+      "sourceText": "\u00BFCu\u00E1ntas veces al d\u00EDa debe tomarlo?",
+      "targetText": "How many times a day should they take it?",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.566,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 116,
+          "inputTextTokens": 339,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 69,
+          "outputTextTokens": 20
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "2e456728",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-05",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:23:53.931Z",
+      "marks": {
+        "press": 610795,
+        "access": 610795.3999999985,
+        "speechStart": 611070.5,
+        "release": 613492,
+        "t0": 613089.9356589116,
+        "rtResponseStart": 613606.8999999985,
+        "firstAudible": 614363.8999999985
+      },
+      "stages": [],
+      "sourceText": "Me duele mucho la cabeza desde ayer.",
+      "targetText": "My head has been hurting a lot since yesterday.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.778,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 140,
+          "inputTextTokens": 339,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 59,
+          "outputTextTokens": 22
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "ef0a64f8",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-06",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:24:00.062Z",
+      "marks": {
+        "press": 616925.8999999985,
+        "access": 616926.299999997,
+        "speechStart": 617176.5689922496,
+        "release": 619387.1000000015,
+        "t0": 618976.768992245,
+        "rtResponseStart": 619498.6000000015,
+        "firstAudible": 620182.8999999985
+      },
+      "stages": [],
+      "sourceText": "Mi hija es al\u00E9rgica a la penicilina.",
+      "targetText": "My daughter is allergic to penicillin.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.541,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 127,
+          "inputTextTokens": 344,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 52,
+          "outputTextTokens": 18
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "f653cb5f",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-07",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:24:05.554Z",
+      "marks": {
+        "press": 622418.1999999955,
+        "access": 622418.299999997,
+        "speechStart": 622666.4689922481,
+        "release": 626030.8999999985,
+        "t0": 625626.5689922494,
+        "rtResponseStart": 626161.5,
+        "firstAudible": 626932.8999999985
+      },
+      "stages": [],
+      "sourceText": "\u00BFPuedo tomar este medicamento con el est\u00F3mago vac\u00EDo?",
+      "targetText": "Can I take this medication on an empty stomach?",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.694,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 131,
+          "inputTextTokens": 340,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 96,
+          "outputTextTokens": 20
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "712bc353",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-08",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:24:13.125Z",
+      "marks": {
+        "press": 629988.299999997,
+        "access": 629988.3999999985,
+        "speechStart": 630236.768992245,
+        "release": 633271,
+        "t0": 632836.5689922496,
+        "rtResponseStart": 633385.1999999955,
+        "firstAudible": 633852.3999999985
+      },
+      "stages": [],
+      "sourceText": "Tengo diabetes y tomo insulina todas las ma\u00F1anas.",
+      "targetText": "I have diabetes and I take insulin every morning.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.364,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 181,
+          "inputTextTokens": 340,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 62,
+          "outputTextTokens": 22
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "18beb2e7",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-09",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:24:19.953Z",
+      "marks": {
+        "press": 636817.1000000015,
+        "access": 636817.1999999955,
+        "speechStart": 637065.3666666623,
+        "release": 640112.1000000015,
+        "t0": 639708.2333333319,
+        "rtResponseStart": 640225.3999999985,
+        "firstAudible": 640724.1000000015
+      },
+      "stages": [],
+      "sourceText": "El ni\u00F1o se cay\u00F3 y se lastim\u00F3 el brazo izquierdo.",
+      "targetText": "The child fell and injured their left arm.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.377,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 155,
+          "inputTextTokens": 344,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 56,
+          "outputTextTokens": 19
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "5cc83266",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-10",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:24:26.503Z",
+      "marks": {
+        "press": 643367,
+        "access": 643367,
+        "speechStart": 643620.6000000014,
+        "release": 646362.1000000015,
+        "t0": 645954.8023255813,
+        "rtResponseStart": 646480.1999999955,
+        "firstAudible": 646953.8999999985
+      },
+      "stages": [],
+      "sourceText": "\u00BFCu\u00E1nto tiempo tengo que esperar para ver al m\u00E9dico?",
+      "targetText": "How long do I have to wait to see the doctor?",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.076,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 143,
+          "inputTextTokens": 341,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 56,
+          "outputTextTokens": 22
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "6db93a05",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-11",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:24:32.773Z",
+      "marks": {
+        "press": 649636.6000000015,
+        "access": 649636.6000000015,
+        "speechStart": 649886.4689922481,
+        "release": 653292,
+        "t0": 652886.4689922481,
+        "rtResponseStart": 653409.6000000015,
+        "firstAudible": 653932.8999999985
+      },
+      "stages": [],
+      "sourceText": "No tengo seguro m\u00E9dico, pero puedo pagar en efectivo.",
+      "targetText": "I don\u2019t have health insurance, but I can pay in cash.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.736,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 147,
+          "inputTextTokens": 343,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 63,
+          "outputTextTokens": 26
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    },
+    {
+      "turnId": "a3c4e1a3",
+      "speaker": "es",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "es-en",
+        "inputSource": "es-12",
+        "controls": true,
+        "runId": "c4c308a6",
+        "build": "9ed932e"
+      },
+      "startedAtIso": "2026-10-15T17:24:40.052Z",
+      "marks": {
+        "press": 656916.1999999955,
+        "access": 656916.1999999955,
+        "speechStart": 657185.3666666623,
+        "release": 660533,
+        "t0": 660127.1689922436,
+        "rtResponseStart": 660649.6999999955,
+        "firstAudible": 661085
+      },
+      "stages": [],
+      "sourceText": "Necesito una receta nueva porque se me acabaron las pastillas.",
+      "targetText": "I need a new prescription because I ran out of the pills.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.697,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 157,
+          "inputTextTokens": 350,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 96,
+          "outputTextTokens": 25
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ]
+    }
+  ],
+  "id": "20261015-172448093-test-run-10-15-2026-12-13-43-pm",
+  "createdAt": "2026-10-15T17:24:48.0935114\u002B00:00"
+}

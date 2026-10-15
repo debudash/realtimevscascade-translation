@@ -38,7 +38,7 @@ test, a measurement or a reproducible check.
 | Q3 | Targeted tests on the cascade pipeline and provider boundaries | `CascadePipelineTests`, `CommitPolicyTests`, `CascadeSocketTests`, `ProviderContractTests`, `RealtimeSessionEndpointTests` | `npm test` | test output | Met |
 | Q4 | Error handling: rate limits, timeouts, empty results, mic denied | resilience decorators (Polly retry with jitter, first-item and stalled-stream timeouts), `FailoverCircuit`, Deepgram connect retry, STT final watchdog, Realtime response-start timeout, error taxonomy, UI states | xUnit `Repeated_429_retries_with_backoff_then_fails_over_to_deepl_and_records_it`, `Translation_timeout_retries_once_then_reports_provider_timeout`, `A_stream_that_stalls_after_its_first_token_is_a_provider_timeout`, `Empty_stt_result_is_a_neutral_empty_result`; e2e `error-states.spec.ts` (one test per code), `mic-denied.spec.ts` | Playwright | Met |
 | Q5 | README with setup, run, architecture | [`README.md`](../README.md) sections Setup, Run, Architecture (Mermaid), Why C# / .NET | Reproducible check: `npm run dev` from the README started a healthy app (`/api/health` status ok, 2026-10-15) | README.md; [`architecture.md`](architecture.md) index | Met |
-| Q6 | AGENTS.md / CLAUDE.md describing agent usage | [`CLAUDE.md`](../CLAUDE.md) "How I directed the agent" | One agent-log line per milestone M0-M7 plus follow-ups; prompts recorded in [`agent-log/`](agent-log/) | CLAUDE.md, `docs/agent-log/00-planning-session.md`, `01-overnight-run.md`, `02-conformance-fix.md` | Met |
+| Q6 | AGENTS.md / CLAUDE.md describing agent usage | [`CLAUDE.md`](../CLAUDE.md) "How I directed the agent" | One agent-log line per milestone M0-M7 plus follow-ups; prompts recorded in [`agent-log/`](agent-log/) | CLAUDE.md, `docs/agent-log/00-planning-session.md`, `01-initial-build.md`, `02-conformance-fix.md` | Met |
 | Q7 | Scoped commits with meaningful messages, no single dump | git history (conventional commits per milestone) | `git log --oneline` | [`build-plan.md`](build-plan.md) lists every commit per milestone (scaffold to M7 in 38 commits) | Met |
 
 ## Other specific requirements
@@ -47,7 +47,7 @@ test, a measurement or a reproducible check.
 |---|---|---|---|---|---|
 | O1 | Streaming throughout the cascade | Deepgram interim/final stream, Chat Completions SSE, ElevenLabs HTTP streaming, bounded channels between stages | `Translation_and_tts_stream_before_the_turn_ends` | report §1 stage breakdown | Met (DeepL has no streaming API: its segment arrives whole, noted in report §4) |
 | O2 | Per-stage latency instrumentation visible in the UI | see F7 | see F7 | `e2e/ui-walkthrough.spec.ts` (waterfall rows and p50/p95 table) | Met |
-| O3 | Agentic coding assistant used; git history reflects iterative development | Claude Code, unattended run per KICKOFF.md; per-milestone commits and subagent reviews | Transcript prompts in [`agent-log/`](agent-log/); review fixes visible as `fix(...)` commits (99d7815, 2cc1516, 439ac5f, 28e4ab0, a2992e0) | CLAUDE.md agent log, PROGRESS.md session log, [`build-plan.md`](build-plan.md) | Met |
+| O3 | Agentic coding assistant used; git history reflects iterative development | Claude Code: a build phase from the pack (KICKOFF.md), then owner-directed rounds; per-milestone commits and subagent reviews | Transcript prompts in [`agent-log/`](agent-log/); review fixes visible as `fix(...)` commits (99d7815, 2cc1516, 439ac5f, 28e4ab0, a2992e0) | CLAUDE.md agent log, PROGRESS.md session log, [`build-plan.md`](build-plan.md) | Met |
 
 ## Comparison matrix cells (both modes, with evidence)
 
@@ -91,10 +91,10 @@ its "Changes during the build".
 | D-21 | Deny tone never counts as first audible | `denyTone.test.ts` "never produces first_audible..." | Met |
 | D-22 | Secrets in gitignored `.env` | `HealthEndpointTests.Reports_missing_key_names_and_never_values`; `.gitignore`; settings deny rules | Met |
 | D-23 | Scope filter | This file traces every feature; one owner-approved change (C-12) | Met |
-| D-24 | Synthetic clips, cached | `harness/clips/`, `harness/scripts.json`; disclosed | Partial: no recorded live-voice session |
+| D-24 | Synthetic clips, cached | `harness/clips/`, `harness/scripts.json`; disclosed; live English session in `harness/results/live-voice/` (report §7) | Met for English to Spanish; Spanish to English synthetic only |
 | D-25 | DeepL swap and onboarding runs | report §4; `harness/results/onboarding.md` | Met |
 | D-26 | UI follows the approved design | `e2e/error-states.spec.ts`, `e2e/ui-walkthrough.spec.ts` | Met |
-| D-27 | One unattended run driven by PROGRESS.md | `KICKOFF.md`, `PROGRESS.md`, [`build-plan.md`](build-plan.md) | Met |
+| D-27 | Build phase from the pack, then owner-directed rounds | `KICKOFF.md`, `PROGRESS.md`, [`build-plan.md`](build-plan.md) | Met |
 
 ## Follow-up: translation controls (beyond the brief)
 
