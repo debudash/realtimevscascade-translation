@@ -117,6 +117,39 @@ on {current}".
    - a note above the blocks: "Same input in both" or "Different inputs",
      naming both inputs; a mode with no turn yet says how to fill it
 
+## Test Runs tab (added after the build, decisions C-23)
+
+Under the header, two tabs: **Workbench** (everything above) and **Test
+Runs**. The open tab is kept in the URL hash (`#test-runs`).
+
+- **New test run** (left):
+  - Name (defaults to "Test run" plus date and time).
+  - Setup, exactly one: Realtime, Cascade · segment, Cascade · clause,
+    Cascade · DeepL, each with its providers.
+  - Clinic terms: On or Off.
+  - Utterances: All, English, Spanish, or Pick clips (a checklist of the
+    replay clips with their text).
+  - Passes: 1-3.
+  - Estimate line: turns, voiced minutes, about how long, and about how
+    much (press-to-release minutes × the measured cost per minute from
+    `harness/results/cost-per-minute.json`; "fake providers, no API cost"
+    when the session uses fakes).
+  - Start, then an in-page confirmation naming the turns, setup and cost.
+  - While running: a progress bar ("3 of 12 · Replay: en-03") and Cancel
+    (stops after the turn in progress and saves what ran, marked
+    cancelled). The header's setup controls are disabled until it ends.
+  - Result line: "Saved: {name}" or "Not saved: {reason}".
+- **Saved test runs** (right): newest first; name, setup and Clinic terms,
+  turns, p50, p95 (green under the setup's target, red over), cost, date.
+  A checkbox per row; "Compare selected" needs exactly two.
+- **Detail** (opening a name): summary (mouth-to-ear p50 / p95 vs target,
+  turns completed, access p50, release to first audible p50, source and
+  target WER, cost and per minute), every turn (clip, status,
+  mouth-to-ear, access, source, interpretation), Export JSON.
+- **Compare**: the two summaries side by side, then per clip the mean
+  mouth-to-ear of each run and B minus A.
+- Runs are saved by the backend to `harness/results/test-runs/<id>.json`.
+
 ## Error and transition states (one per error code)
 
 - **`mic_denied`:** a blocking panel, "Microphone access is blocked", with

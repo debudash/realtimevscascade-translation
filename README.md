@@ -61,6 +61,15 @@ providers, no keys, no cost), `?providers=fake&faults=translation:429` (inject f
 `timeout`, `empty`, `500`, `400` for `stt`/`translation`/`tts`), `?transport=fake` (client-only
 simulator).
 
+## Test Runs
+
+The **Test Runs** tab runs chosen replay clips on one setup (Realtime, Cascade segment, Cascade
+clause or Cascade with DeepL; Clinic terms on or off) and saves each run to
+`harness/results/test-runs/<id>.json` with every turn and a summary: mouth-to-ear p50/p95 against the
+target, access time, source and target WER, and cost. It shows a cost estimate and asks before
+starting. Open a saved run for its turns, or select two and **Compare selected** for a per-clip
+difference. Add `?providers=fake` to try it without API cost.
+
 ## Architecture
 
 ```mermaid

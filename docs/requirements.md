@@ -63,7 +63,7 @@ test, a measurement or a reproducible check.
 ## Planning decisions (D-01 to D-27)
 
 Status and evidence per decision are in [`decisions.md`](decisions.md);
-this table is the summary. Code-vs-plan differences are C-01 to C-22 in
+this table is the summary. Code-vs-plan differences are C-01 to C-23 in
 its "Changes during the build".
 
 | # | Decision | Evidence (short) | Status |
@@ -101,6 +101,7 @@ its "Changes during the build".
 | # | What | Implemented in | Proved by | Evidence | Status |
 |---|---|---|---|---|---|
 | X1 | Formal register and clinic glossary, in both architectures | `TranslationControls` (Core), `DeepLTranslationProvider` (formality + v3 glossary), `InterpreterPrompt.Controls` (OpenAI translator + Realtime), header "Clinic terms" toggle and `?controls=` | xUnit `TranslationControlsTests`, live `DeepLControlsContractTests` (formality, glossary); e2e `ui-walkthrough.spec.ts` (toggle and per-turn tag) | [`translation-controls.md`](translation-controls.md), `harness/results-controls/report.md` | Met (glossary evaluated on the same clips it was written for) |
+| X2 | Test Runs tab: chosen clips on one setup, saved, listed, compared | `client/src/ui/TestRuns.tsx`, `client/src/session/TestRunner.ts`, `client/src/session/testRun.ts`, `GET/POST /api/test-runs` (`TestRunEndpoints.cs`) | vitest `testRun.test.ts` (setups, estimate, summary, comparison); xUnit `TestRunEndpointTests`, `ClipEndpointTests`; e2e `test-runs.spec.ts` (run, save, list, detail, compare, header lock) | `harness/results/test-runs/` | Met |
 
 ## Impact metrics (brief, "Key Impact Metrics")
 
