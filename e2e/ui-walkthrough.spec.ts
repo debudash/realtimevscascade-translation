@@ -104,6 +104,22 @@ test.describe("UI walkthrough", () => {
     await expect(page.getByTestId("turn-card")).toHaveCount(2); // transcripts kept across switches
   });
 
+  test("transcripts show the latest four turns, then scroll for earlier ones", async ({ page }) => {
+    await page.goto("/?transport=fake"); // client-only simulator: no backend audio path, no cost
+    await waitReady(page);
+    const list = page.getByTestId("transcript-list");
+    const scrollable = () => list.evaluate((el) => el.scrollHeight > el.clientHeight + 1);
+    for (const clip of ["en-01", "en-02", "en-03", "en-04"]) await replayTurn(page, clip, "en");
+    expect(await scrollable()).toBe(false);
+    await replayTurn(page, "en-05", "en");
+    await expect(page.getByTestId("turn-card")).toHaveCount(5);
+    expect(await scrollable()).toBe(true);
+    await expect(page.getByTestId("transcript-count")).toHaveText("latest 4 of 5 · scroll for earlier");
+    // The oldest turn is reachable by scrolling the list.
+    await list.evaluate((el) => (el.scrollTop = el.scrollHeight));
+    await expect(page.getByTestId("turn-card").last()).toBeInViewport();
+  });
+
   test("phone width: one column, no horizontal scroll, 44px+ targets", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/?providers=fake");

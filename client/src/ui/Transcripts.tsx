@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import { mouthToEarMs, type TurnRecord } from "../state/metrics";
 import type { LiveTurnView } from "../session/controller";
 import { useController, useSnapshot } from "./useController";
@@ -76,6 +77,9 @@ function TurnCard({ turn, n }: { turn: TurnRecord; n: number }) {
   );
 }
 
+/** Cards shown before the list starts to scroll (the live card counts as one). */
+const VISIBLE_CARDS = 4;
+
 const STAGE_NAME: Record<string, string> = { stt: "speech-to-text", translation: "translation", tts: "speech synthesis" };
 
 /** provider_timeout / provider_error / internal shown inline on the turn card. */
@@ -113,17 +117,33 @@ export function Transcripts() {
   const all = c.metrics.all();
   const turns = all.filter((t) => t.turnId !== s.live?.turnId);
   const number = (id: string) => all.length - all.findIndex((t) => t.turnId === id);
+  const total = turns.length + (s.live ? 1 : 0);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // Cap the list at the first VISIBLE_CARDS cards (their heights vary) and scroll the rest.
+  // Runs after every render, so a live card growing with its text keeps the cap right.
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const cards = list.children as HTMLCollectionOf<HTMLElement>;
+    list.style.maxHeight = cards.length > VISIBLE_CARDS ? `${cards[VISIBLE_CARDS].offsetTop - cards[0].offsetTop}px` : "";
+  });
+
   return (
     <section className="transcripts" aria-label="Live transcripts">
       <div className="panel__head">
         <h2 className="section-title">Live transcripts</h2>
-        <span className="secondary small">newest first</span>
+        <span className="secondary small" data-testid="transcript-count">
+          {total > VISIBLE_CARDS ? `latest ${VISIBLE_CARDS} of ${total} · scroll for earlier` : "newest first"}
+        </span>
       </div>
-      {s.live && <LiveCard live={s.live} />}
-      {turns.length === 0 && !s.live && <p className="secondary empty">Turns appear here, newest first.</p>}
-      {turns.map((t) => (
-        <TurnCard key={t.turnId} turn={t} n={number(t.turnId)} />
-      ))}
+      {total === 0 && <p className="secondary empty">Turns appear here, newest first.</p>}
+      <div className="transcripts__list" ref={listRef} data-testid="transcript-list" tabIndex={total > VISIBLE_CARDS ? 0 : -1} aria-label="Turns, newest first">
+        {s.live && <LiveCard live={s.live} />}
+        {turns.map((t) => (
+          <TurnCard key={t.turnId} turn={t} n={number(t.turnId)} />
+        ))}
+      </div>
     </section>
   );
 }

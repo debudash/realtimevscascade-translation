@@ -75,7 +75,10 @@ on {current}".
        Playing
      - Cascade: Capture, STT, Commit, Translate, TTS, Playing
      - The active chip is highlighted.
-2. **Live transcripts**, newest first:
+2. **Live transcripts**, newest first. The list shows the latest four cards
+   (the live card counts as one) and scrolls for earlier turns; the header
+   then reads "latest 4 of N · scroll for earlier". Added after the build at
+   the owner's request.
    - **Live turn card:** mode tag, direction, a LIVE blink. Source text shows
      stable words in normal ink and partial words in grey. Target text
      streams with a caret.

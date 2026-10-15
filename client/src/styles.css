@@ -176,6 +176,9 @@ main { padding: 24px; }
 }
 .section-title { font-size: 14px; font-family: var(--mono); letter-spacing: .06em; text-transform: uppercase; margin: 0 0 8px; }
 .transcripts { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+/* Scrolls once there are more than four cards; the cap is measured in Transcripts.tsx. */
+.transcripts__list { display: flex; flex-direction: column; gap: 10px; min-width: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; border-radius: 12px; }
+.transcripts__list:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; animation: wbIn .2s ease-out; }
 .card__head { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; }
 .tag { font-weight: 600; color: var(--accent); }
