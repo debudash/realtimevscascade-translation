@@ -1,0 +1,59 @@
+# Requirements traceability
+
+Every requirement in [`brief.md`](brief.md) → where it is implemented → the test that proves it →
+the evidence → status. Test names are xUnit (`server/tests/Workbench.Tests`), vitest (`client/src`,
+`harness/`), and Playwright (`e2e/`). Report sections refer to
+[`harness/results/report.md`](../harness/results/report.md).
+
+Status: **Met** · **Partly met** (see note) · **Not met**.
+
+## Functional requirements (must-haves)
+
+| # | Requirement | Implemented in | Proved by | Evidence | Status |
+|---|---|---|---|---|---|
+| F1 | Browser SPA with microphone capture and audio playback | `client/src/audio/captureEngine.ts` (mic → capture worklet), `audio/player.ts` + `worklets/playback.worklet.ts`, `transports/realtime/RealtimeTransport.ts` (remote audio element) | e2e `audio-engine.spec.ts` "keyboard hold (Space) runs a turn" (fake mic device); every replay spec plays through the same capture graph | Playwright runs; manual check in MORNING.md | Met |
+| F2 | Realtime mode with `gpt-realtime`, voice in / voice out | `server/.../OpenAI/RealtimeSessionClient.cs` (client secret, model `gpt-realtime`), `RealtimeTransport.ts` (WebRTC to `/v1/realtime/calls`), `eventMapper.ts` | e2e `realtime.spec.ts` "EN clip -> Spanish audio and transcripts, first_audible recorded"; xUnit `Mints_a_push_to_talk_session_and_never_returns_the_api_key`; vitest `eventMapper.test.ts` | report §1 Realtime rows (24 live turns) | Met |
+| F3 | Cascade mode: STT → Translation → TTS with streaming, no full-utterance blocking | `server/src/Workbench.Core/Pipeline/CascadeTurnPipeline.cs`, `Commit/CommitPolicies.cs`, adapters in `Workbench.Providers` | xUnit `Translation_and_tts_stream_before_the_turn_ends`, `Events_are_ordered_and_every_event_carries_the_turn`; e2e `cascade-real.spec.ts` | report §1 cascade rows; stage breakdown shows stages completing during speech | Met |
+| F4 | UI toggle to switch modes, pre-session or mid-session | `ui/Header.tsx` (mode toggle), `state/turnMachine.ts` (switch queued until Ready), `ui/StatusBanners.tsx` (pending banner, "Stay on …") | vitest `turnMachine.test.ts` ("switch mid-turn is queued", "queued switch applies when the turn ends"); e2e `ui-walkthrough.spec.ts` "mode switch mid-turn is queued, then Realtime runs a turn, then back to Cascade" | Playwright | Met |
+| F5 | Language pair selection, minimum EN ↔ ES | `appsettings.json` `Languages`, `GET /api/config`, `ui/Header.tsx` pair selector, per-speaker direction | xUnit `Config_lists_the_default_english_spanish_pair`; e2e `cascade-real.spec.ts` (both directions) | report §1 "By direction"; onboarding.md (EN ↔ FR added by config) | Met |
+| F6 | Live source and target transcripts as produced | `ui/Transcripts.tsx` (live card: stable vs partial words, streaming target with caret), `source.partial/final`, `target.partial/final` events | xUnit `Events_are_ordered...` (cumulative partials); e2e walkthrough + realtime spec (source text arrives after audio and is shown when it arrives) | Playwright | Met |
+| F7 | Per-stage latency visible to the user | `ui/LatencyPanel.tsx` (headline, waterfall, p50/p95 table, export), `stage.timing` events | e2e walkthrough ("latency panel and p50/p95"); vitest `metrics.test.ts` | screenshots / Playwright | Met |
+| F8 | Comparison write-up (latency, quality, cost, controllability, recommendation) | [`docs/comparison.md`](comparison.md) | built from report.md numbers only | report.md | Met |
+
+## Performance benchmarks
+
+| # | Requirement | Implemented in | Proved by | Evidence | Status |
+|---|---|---|---|---|---|
+| P1 | Realtime < 1.5 s speech end → first audio | Realtime transport; T0 energy detector; AnalyserNode first-audible tap | harness `run.harness.ts` (24 clips) | report §1: p50 0.89 s, p95 1.06 s (24/24) | Met |
+| P2 | Cascade < 3 s, target < 2 s with full streaming | cascade pipeline, warm-up, press-to-warm, consecutive playback | harness (segment, clause, DeepL configurations) | report §1: segment p95 1.65 s, clause p95 1.46 s, DeepL p95 1.22 s, all under 2 s | Met (stretch met too) |
+| P3 | 5-minute back-and-forth without disconnects, audio drift or memory leaks | reconnect (1-5) in both transports, bounded channels, jitter buffer, per-turn cleanup | `soak.harness.ts` (5 min per mode, forced drop at midpoint) | report §5: 45 turns/mode, 0 failed, 0 unplanned disconnects, forced-drop recovery 2.1 s / 1.1 s, 0 underruns (cascade), heap floor +4-5 MB over 45 turns | Met for 5 min (a slow leak beyond 5 min is not ruled out) |
+
+## Code quality expectations
+
+| # | Requirement | Implemented in | Proved by | Evidence | Status |
+|---|---|---|---|---|---|
+| Q1 | Clean separation: mode-specific transport vs mode-agnostic UI | `transports/types.ts` (`InterpreterTransport`, `TransportSink`), `session/controller.ts`, `ui/*` import no transport | event contract tests (C# `EventContractTests`, TS `events.test.ts`) | code layout; README "Architecture" | Met |
+| Q2 | Provider abstractions; swapping is a contained change | `ISttProvider`, `ITranslationProvider`, `ITtsProvider`, `ICommitPolicy`; `CascadeProviderFactory` | harness `cascade-deepl` configuration (URL/config only); xUnit `Factory_selects_by_name...` | report §4 (provider swap) | Met |
+| Q3 | Targeted tests on the cascade pipeline and provider boundaries | `CascadePipelineTests`, `CommitPolicyTests`, `CascadeSocketTests`, `ProviderContractTests`, `RealtimeSessionEndpointTests` | `npm test` | test output | Met |
+| Q4 | Error handling: rate limits, timeouts, empty results, mic denied | resilience decorators (Polly), `FailoverCircuit`, pipeline timeouts, error taxonomy, UI states | xUnit `Repeated_429_retries_with_backoff_then_fails_over_to_deepl_and_records_it`, `Translation_timeout_retries_once_then_reports_provider_timeout`, `Empty_stt_result_is_a_neutral_empty_result`; e2e `error-states.spec.ts` (one test per code), `mic-denied.spec.ts` | Playwright | Met |
+| Q5 | README with setup, run, architecture | [`README.md`](../README.md) | — | — | Met |
+| Q6 | AGENTS.md / CLAUDE.md describing agent usage | [`CLAUDE.md`](../CLAUDE.md) "How I directed the agent" | — | — | Met |
+| Q7 | Scoped commits with meaningful messages, no single dump | git history (conventional commits per milestone) | `git log --oneline` | — | Met |
+
+## Other specific requirements
+
+| # | Requirement | Implemented in | Proved by | Evidence | Status |
+|---|---|---|---|---|---|
+| O1 | Streaming throughout the cascade | Deepgram interim/final stream, Chat Completions SSE, ElevenLabs HTTP streaming, bounded channels between stages | `Translation_and_tts_stream_before_the_turn_ends` | report §1 stage breakdown | Met (DeepL has no streaming API: its segment arrives whole, noted in report §4) |
+| O2 | Per-stage latency instrumentation visible in the UI | see F7 | see F7 | — | Met |
+| O3 | Agentic coding assistant used; git history reflects iterative development | Claude Code, unattended run per KICKOFF.md; per-milestone commits and subagent reviews | — | CLAUDE.md agent log, PROGRESS.md | Met |
+
+## Impact metrics (brief, "Key Impact Metrics")
+
+| Metric | Where measured |
+|---|---|
+| End-to-end latency (ms) | report §1 |
+| Cost per minute | report §3 |
+| Interpretation quality (subjective + WER) | report §2 (automated judge + WER) and the human scoring sheet in MORNING.md |
+| Provider flexibility | report §4 |
+| Time to onboard a new language pair | report §6 → onboarding.md |
