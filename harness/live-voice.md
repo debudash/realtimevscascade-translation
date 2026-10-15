@@ -5,6 +5,10 @@ six of the same clinic sentences into the microphone in each mode, so the
 results can be compared line by line with the synthetic runs. It takes
 about 10 minutes and costs a few cents.
 
+**English only.** The session covers English to Spanish. Spanish to English
+stays measured on the synthetic clips only, because no Spanish speaker was
+available; the results say so.
+
 ## Before you start
 
 1. `npm run dev`, open http://localhost:5173 in Chrome, allow the
@@ -17,14 +21,16 @@ about 10 minutes and costs a few cents.
 Hold the speaker's button, read the line at a normal pace, release. Wait
 for the interpretation to finish before the next line.
 
-| # | Button | Say | Clip id |
+All lines use the **English speaker** button.
+
+| # | Say | Clip id | Why this line |
 |---|---|---|---|
-| 1 | English speaker | My son has had a fever since last night. | en-01 |
-| 2 | English speaker | I need to move my appointment to Friday morning. | en-03 |
-| 3 | English speaker | Your blood pressure is a little high today. | en-07 |
-| 4 | Hablante de español | No entiendo las instrucciones de la receta. | es-02 |
-| 5 | Hablante de español | ¿Cuántas veces al día debe tomarlo? | es-04 |
-| 6 | Hablante de español | Tengo diabetes y tomo insulina todas las mañanas. | es-08 |
+| 1 | My son has had a fever since last night. | en-01 | short statement |
+| 2 | The pain started after lunch, and it is getting worse. | en-04 | two clauses (commit policy) |
+| 3 | Please take one tablet twice a day with food. | en-05 | dosage instruction |
+| 4 | Your blood pressure is a little high today. | en-07 | short statement |
+| 5 | Does it hurt when you breathe deeply? | en-09 | question: must be interpreted, not answered |
+| 6 | Do not eat or drink anything after midnight before the procedure. | en-11 | longest line, several segments |
 
 If a line goes wrong (a cough, a false start), say it again; note which
 turn to drop.

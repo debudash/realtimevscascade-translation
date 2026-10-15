@@ -458,6 +458,69 @@ async function main() {
   line(existsSync(join(resultsDir, "onboarding.md")) ? "See [onboarding.md](onboarding.md)." : "Not yet run.");
   line();
 
+  // Live voice: a person reading script lines into the microphone (harness/live-voice.md), exported from the UI.
+  line("## 7. Live voice (real speaker, microphone)");
+  line();
+  const liveDir = join(resultsDir, "live-voice");
+  const liveModes = [
+    { mode: "cascade", file: "cascade.json", synthetic: "cascade-segment" },
+    { mode: "realtime", file: "realtime.json", synthetic: "realtime" },
+  ].filter((m) => existsSync(join(liveDir, m.file)));
+  if (liveModes.length) {
+    const enClips = [...clipById.values()].filter((c) => c.lang === "en");
+    // Each live turn is matched to the script line its transcript is closest to.
+    const lineOf = (t: Turn) => enClips.map((c) => ({ c, w: wer(c.text, t.sourceText, "en") })).sort((a, b) => a.w - b.w)[0];
+    const synthMean = (config: string, clipId: string) => {
+      const v = runs.find((r) => r.config === config)?.turns.filter((t) => t.clipId === clipId && t.status === "completed").map((t) => since(t, "firstAudible")).filter((x): x is number => x !== null) ?? [];
+      return v.length ? mean(v) : null;
+    };
+    const live = liveModes.map((m) => {
+      const all = JSON.parse(readFileSync(join(liveDir, m.file), "utf8")).turns as (Turn & { conditions: { controls?: boolean } })[];
+      const done = all.filter((t) => t.status === "completed");
+      return { ...m, all, done, matched: done.map((t) => ({ t, ...lineOf(t) })) };
+    });
+    line("| Mode | Turns (excluded) | Clinic terms | Mouth-to-ear p50 / p95 | Release lag p50 | Release → first audible p50 | Source WER | Target WER (proxy) |");
+    line("|---|---|---|---|---|---|---|---|");
+    for (const m of live) {
+      const m2e = m.done.map((t) => since(t, "firstAudible"));
+      const controls = [...new Set(m.done.map((t) => (t.conditions.controls ? "on" : "off")))].join(", ");
+      const tgt = m.matched.map(({ t, c }) => wer(c.reference, t.targetText, c.target));
+      line(
+        `| ${m.mode} | ${m.done.length} (${m.all.length - m.done.length}) | ${controls} | ${pp(m2e)} | ${sec(percentile(m.done.map((t) => since(t, "release")).filter((x): x is number => x !== null), 50))} | ` +
+          `${sec(percentile(m.done.map((t) => (t.marks.firstAudible ?? NaN) - (t.marks.release ?? NaN)).filter(Number.isFinite), 50))} | ${fix(mean(m.matched.map((x) => x.w)), 3)} | ${fix(mean(tgt), 3)} |`,
+      );
+    }
+    line();
+    line("Per line, live vs. the same clip in the synthetic harness runs (mean mouth-to-ear):");
+    line();
+    line(`| Line | ${live.map((m) => `${m.mode} live | ${m.mode} synthetic`).join(" | ")} |`);
+    line(`|---|${live.map(() => "---|---").join("|")}|`);
+    for (const id of [...new Set(live.flatMap((m) => m.matched.map((x) => x.c.id)))].sort()) {
+      const cells = live.map((m) => {
+        const mine = m.matched.filter((x) => x.c.id === id).map((x) => since(x.t, "firstAudible")).filter((x): x is number => x !== null);
+        return `${sec(mine.length ? mean(mine) : null)} | ${sec(synthMean(m.synthetic, id))}`;
+      });
+      line(`| ${id} | ${cells.join(" | ")} |`);
+    }
+    const rt = live.find((m) => m.mode === "realtime");
+    const pb = rt?.done.map((t) => (t as Turn & { playback?: { jitterBufferMs: number; concealedPct: number; packetsLost: number } }).playback).filter((p) => !!p) ?? [];
+    if (pb.length) {
+      line();
+      line(
+        `Realtime playback health (WebRTC getStats, ${pb.length} turns): jitter-buffer delay p50 ${fix(percentile(pb.map((p) => p!.jitterBufferMs), 50)!, 0)} ms, ` +
+          `concealed audio ${fix(mean(pb.map((p) => p!.concealedPct)), 2)}%, packets lost ${pb.reduce((a, p) => a + p!.packetsLost, 0)}.`,
+      );
+    }
+    line();
+    line(
+      "One English speaker, one microphone, six script lines per mode (English to Spanish only: Spanish to English stays synthetic). Release lag is how long the speaker kept holding the button after speaking. " +
+        "The two sessions used different Clinic terms settings where the table says so: that changes register, not latency. Turns that were not completed (for example a false start) are excluded and counted.",
+    );
+  } else {
+    line("Not yet run. See harness/live-voice.md.");
+  }
+  line();
+
   // Appendix
   line("## Appendix: every turn");
   line();

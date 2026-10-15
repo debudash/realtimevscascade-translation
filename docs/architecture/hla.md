@@ -1,6 +1,6 @@
 # High-level architecture (as built)
 
-Source: as built at commit fdc469c (code last changed in 7e168f9).
+Source: as built at commit 1e3f900 (code last changed there).
 
 This page describes what the code does today. The pre-build target is [../architecture.md](../architecture.md). Detail lives in [lla.md](lla.md) (modules, contracts, state machines) and [sequences.md](sequences.md) (message flows). Measured results are in [../comparison.md](../comparison.md).
 
@@ -13,6 +13,7 @@ flowchart LR
         spa["Browser SPA<br/>Vite + React + TS<br/>http://localhost:5173"]
         api["ASP.NET Core backend (.NET 10)<br/>Workbench.Api<br/>http://localhost:5080"]
         env[(".env (repo root)")]
+        runs[("harness/results/test-runs/*.json")]
     end
     dg["Deepgram<br/>streaming STT (nova-3)"]
     oaiChat["OpenAI Chat Completions<br/>streamed translation (gpt-4.1-nano)"]
@@ -22,6 +23,7 @@ flowchart LR
 
     user --> spa
     spa -- "Vite proxy: /api and /ws" --> api
+    api -- "Test Runs: one JSON file per run" --> runs
     env -. "DotNetEnv at startup" .-> api
     api -- "WebSocket" --> dg
     api -- "HTTPS SSE" --> oaiChat
@@ -33,8 +35,8 @@ flowchart LR
 
 | Element | Role |
 |---|---|
-| Browser SPA (`client/`) | Mic capture, push-to-talk floor control, playback, transcripts, latency panel. Measures perceived latency on `performance.now()`. |
-| Backend (`server/`) | One process. Serves `/api/*` and `/ws/cascade`. Runs the cascade pipeline and mints Realtime client secrets. |
+| Browser SPA (`client/`) | Three tabs: Workbench (mic capture, push-to-talk floor control, playback, transcripts, latency panel, mode comparison), Test Runs (scripted replay runs, saved and compared), Documentation (static how-to). Measures perceived latency on `performance.now()`. |
+| Backend (`server/`) | One process. Serves `/api/*` and `/ws/cascade`. Runs the cascade pipeline, mints Realtime client secrets, and stores Test Runs as JSON files. |
 | Vite dev server | Serves the SPA on 5173 and proxies `/api` and `/ws` to 5080 (`client/vite.config.ts`). |
 | Deepgram, OpenAI, ElevenLabs, DeepL | External providers. Only the backend holds their keys. |
 
@@ -78,7 +80,28 @@ flowchart TB
 | Turn control | Data channel: `session.update`, `input_audio_buffer.commit`, `response.create` | JSON: `turn.start`, `turn.release`, `turn.cancel` |
 | Internal stages | Not observable, shown as "hidden" | `stage.timing` per stage |
 
-Both transports implement one `InterpreterTransport` interface and feed the same normalized events to the UI (see [lla.md](lla.md#3-contracts)).
+Both transports implement one `InterpreterTransport` interface and feed the same normalized events to the UI (see [lla.md](lla.md#2-contracts)).
+
+### Test Runs path
+
+```mermaid
+flowchart LR
+    tester(["Tester"])
+    tab["Test Runs tab<br/>(ui/TestRuns.tsx)"]
+    runner["TestRunner<br/>(session/TestRunner.ts)"]
+    ctl["WorkbenchController<br/>applySetup, runReplayTurn"]
+    tr["Realtime or Cascade transport<br/>(same paths as above)"]
+    ep["/api/test-runs<br/>(TestRunEndpoints)"]
+    files[("harness/results/test-runs/*.json")]
+    tester --> tab --> runner --> ctl --> tr
+    runner -- "POST run with turns" --> ep
+    tab -- "GET list, GET by id" --> ep
+    ep <--> files
+```
+
+- A Test Run plays chosen replay clips through one of four setups (Realtime, Cascade segment, Cascade clause, Cascade DeepL), the same replay path the harness uses. Turns are real turns on the live transport.
+- The runner lives outside React, so a run keeps going when the tester switches tabs. While it runs, the header's setup controls are locked.
+- The backend stores each run as sent, plus `id` and `createdAt`. Saved runs can be opened or compared clip by clip in the tab.
 
 ## 3. Control plane vs media plane
 
@@ -86,7 +109,7 @@ Both transports implement one `InterpreterTransport` interface and feed the same
 flowchart LR
     subgraph proc["Workbench.Api process (one process, logical modules)"]
         subgraph control["Control module"]
-            ep["Endpoints: /api/health, /api/config,<br/>/api/clips, /api/realtime/session"]
+            ep["Endpoints: /api/health, /api/config,<br/>/api/clips, /api/realtime/session,<br/>/api/test-runs"]
             sess["CascadeSession<br/>session + turn lifecycle, socket reader/writer"]
             fac["CascadeProviderFactory<br/>provider routing, missing keys"]
             mint["RealtimeSessionClient<br/>client-secret minting"]
@@ -116,7 +139,9 @@ flowchart LR
 
 - Local only. `npm run dev` starts the backend (`dotnet run`, launch profile `http`, port 5080) and Vite (port 5173, `strictPort`) together via `concurrently`.
 - The SPA calls relative `/api/...` and `ws://<host>/ws/cascade`, so it only works through the Vite proxy (or same origin).
-- The backend also serves cached evaluation clips from `harness/clips/` and `e2e/fixtures/` (`/api/clips`) for the Replay input.
+- The backend also serves cached evaluation clips from `harness/clips/` and `e2e/fixtures/` (`/api/clips`) for the Replay input and Test Runs. The clip list carries target language, reference translation and duration (from the WAV header).
+- Test Runs are written to `harness/results/test-runs/` (config `TestRuns:Directory`), one JSON file per run, so they survive restarts.
+- The UI tab is kept in the URL hash (`#test-runs`, `#documentation`), so a reload stays on it.
 - No containers, no cloud resources.
 
 ## 5. Secrets
@@ -124,7 +149,7 @@ flowchart LR
 - `DotEnvLoader.Load()` runs first in `Program.cs`, before `WebApplication.CreateBuilder`. It walks up from the app folder to find `.env` and loads it with DotNetEnv `NoClobber`, so real environment variables win.
 - Keys bind through the usual double-underscore names: `OpenAI__ApiKey`, `Deepgram__ApiKey`, `ElevenLabs__ApiKey`, `DeepL__ApiKey`.
 - The OpenAI key never reaches the browser: Realtime uses the minted client secret only.
-- `/api/health` returns missing variable names (never values), split by mode. The UI shows the `config_error` panel naming them. DeepL is optional: without it the cascade simply has no failover.
+- `/api/health` returns missing variable names (never values), split by mode, plus `build`: the short git sha stamped into the assembly's informational version (`BuildInfo.Sha`, `unknown` if not stamped). Every turn records it in its run conditions. The UI shows the `config_error` panel naming missing variables. DeepL is optional: without it the cascade simply has no failover.
 
 ## 6. Translation controls
 

@@ -1,6 +1,6 @@
 # Evaluation report
 
-Generated 2026-10-15T16:22:24.036Z by `npm run report` from every saved harness run, pooled per configuration.
+Generated 2026-10-15T18:02:48.751Z by `npm run report` from every saved harness run, pooled per configuration.
 All numbers are measured; p50/p95 use linear interpolation. Clips are synthetic speech (ElevenLabs), 24 clinic sentences (12 EN, 12 ES).
 
 | Configuration | Runs | Build | Turns |
@@ -128,6 +128,28 @@ Not measured yet: getStats() sampling was added after these runs. A Realtime run
 ## 6. Time to onboard a language pair
 
 See [onboarding.md](onboarding.md).
+
+## 7. Live voice (real speaker, microphone)
+
+| Mode | Turns (excluded) | Clinic terms | Mouth-to-ear p50 / p95 | Release lag p50 | Release → first audible p50 | Source WER | Target WER (proxy) |
+|---|---|---|---|---|---|---|---|
+| cascade | 6 (1) | off | 1.27 s / 1.81 s | 0.15 s | 1.04 s | 0.017 | 0.095 |
+| realtime | 6 (0) | on | 0.87 s / 1.24 s | 0.15 s | 0.55 s | 0.021 | 0.089 |
+
+Per line, live vs. the same clip in the synthetic harness runs (mean mouth-to-ear):
+
+| Line | cascade live | cascade synthetic | realtime live | realtime synthetic |
+|---|---|---|---|---|
+| en-01 | 1.85 s | 1.78 s | 0.53 s | 1.19 s |
+| en-04 | 1.05 s | 1.38 s | 0.71 s | 1.02 s |
+| en-05 | 1.34 s | 1.55 s | 1.04 s | 1.03 s |
+| en-07 | 1.14 s | 1.47 s | 0.97 s | 1.20 s |
+| en-09 | 1.66 s | 1.39 s | 1.31 s | 1.06 s |
+| en-11 | 1.21 s | 1.44 s | 0.78 s | 1.02 s |
+
+Realtime playback health (WebRTC getStats, 6 turns): jitter-buffer delay p50 30 ms, concealed audio 0.00%, packets lost 0.
+
+One English speaker, one microphone, six script lines per mode (English to Spanish only: Spanish to English stays synthetic). Release lag is how long the speaker kept holding the button after speaking. The two sessions used different Clinic terms settings where the table says so: that changes register, not latency. Turns that were not completed (for example a false start) are excluded and counted.
 
 ## Appendix: every turn
 
