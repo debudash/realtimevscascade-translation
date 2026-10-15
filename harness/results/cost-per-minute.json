@@ -1,0 +1,10 @@
+{
+  "source": "harness/results/report.md section 3",
+  "pricesReadOn": "2026-10-15",
+  "usdPerMinute": {
+    "realtime": 0.2096,
+    "cascade-segment": 0.0433,
+    "cascade-clause": 0.0435,
+    "cascade-deepl": 0.0658
+  }
+}

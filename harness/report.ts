@@ -1,5 +1,6 @@
 // npm run report: builds harness/results/report.md from the saved harness runs (latest run per
 // configuration), the soak results, and an LLM "automated judge" rubric (cached; only new turns cost).
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -21,6 +22,7 @@ interface Turn {
   providersUsed?: string[];
   usage?: UsageLike;
   failoverNote?: string;
+  playback?: { jitterBufferMs: number; concealedPct: number; packetsLost: number };
   error?: { code: string; message: string };
 }
 
@@ -62,6 +64,19 @@ function pooledRuns(): Run[] {
       return { config, label: CONFIGS[config].label, turns, files: mine };
     })
     .filter((r) => r.files.length > 0);
+}
+
+/** The build a run file records, or for older runs the commit that was HEAD when it started (inferred). */
+function buildOf(file: string): string {
+  const run = JSON.parse(readFileSync(join(runsDir, file), "utf8")) as { build?: string; startedAt?: string };
+  if (run.build) return run.build;
+  if (!run.startedAt) return "not recorded";
+  try {
+    const sha = execFileSync("git", ["log", "-1", `--before=${run.startedAt}`, "--format=%h"], { encoding: "utf8" }).trim();
+    return sha ? `${sha} (inferred)` : "not recorded";
+  } catch {
+    return "not recorded";
+  }
 }
 
 const sec = (ms: number | null) => (ms === null ? "–" : `${(ms / 1000).toFixed(2)} s`);
@@ -156,9 +171,12 @@ async function main() {
   line(`Generated ${new Date().toISOString()} by \`npm run report\` from every saved harness run, pooled per configuration.`);
   line("All numbers are measured; p50/p95 use linear interpolation. Clips are synthetic speech (ElevenLabs), 24 clinic sentences (12 EN, 12 ES).");
   line();
-  line("| Configuration | Runs | Turns |");
-  line("|---|---|---|");
-  for (const r of runs) line(`| ${r.label} | ${r.files.map((f) => `\`runs/${f}\``).join("<br>")} | ${r.turns.length} |`);
+  line("| Configuration | Runs | Build | Turns |");
+  line("|---|---|---|---|");
+  for (const r of runs)
+    line(`| ${r.label} | ${r.files.map((f) => `\`runs/${f}\``).join("<br>")} | ${r.files.map(buildOf).join("<br>")} | ${r.turns.length} |`);
+  line();
+  line("Build = the server commit recorded with the run. \"(inferred)\" marks runs saved before runs recorded it: the commit that was HEAD when the run started (uncommitted changes at the time are not visible).");
   line();
 
   // Headline latency
@@ -274,7 +292,7 @@ async function main() {
     );
   }
   line();
-  line(`Rubric scores are 1-5 from an **automated judge** (${JUDGE_MODEL}, temperature 0) comparing each output with the source and the reference translation; spot-check them with the human sheet in MORNING.md.`);
+  line(`Rubric scores are 1-5 from an **automated judge** (${JUDGE_MODEL}, temperature 0) comparing each output with the source and the reference translation; the blind human spot-check below checks it.`);
   line("Target WER against a single reference translation penalizes valid paraphrases, so it is a crude proxy. Realtime's source transcript comes from OpenAI's side transcription (gpt-4o-transcribe), not from what the speech-to-speech model understood.");
   line("\"Answered instead of interpreted\" = flagged by the heuristic (a question rendered as a statement, output > 1.8x the reference, or output in the wrong language) or by the judge. Flags are a review list, not a verdict.");
   line();
@@ -287,19 +305,52 @@ async function main() {
     line();
   }
 
+  // Human spot-check: blind scores for a sample of turns, beside the judge's scores for the same outputs.
+  const humanPath = join(resultsDir, "human-scores.json");
+  line("### Human spot-check (blind)");
+  line();
+  if (existsSync(humanPath)) {
+    type Scores = { accuracy: number; completeness: number; fluency: number; answeredInsteadOfInterpreted: boolean };
+    const items = (JSON.parse(readFileSync(humanPath, "utf8")).items ?? []) as { config: string; human: Scores; judge: Scores }[];
+    const dims = ["accuracy", "completeness", "fluency"] as const;
+    line("| Configuration | Turns | Human acc / comp / flu | Judge acc / comp / flu (same turns) | Answered instead (human) |");
+    line("|---|---|---|---|---|");
+    for (const config of [...new Set(items.map((i) => i.config))]) {
+      const mine = items.filter((i) => i.config === config);
+      const avg = (who: "human" | "judge") => dims.map((d) => fix(mean(mine.map((i) => i[who][d])))).join(" / ");
+      line(`| ${CONFIGS[config]?.label ?? config} | ${mine.length} | ${avg("human")} | ${avg("judge")} | ${mine.filter((i) => i.human.answeredInsteadOfInterpreted).length} / ${mine.length} |`);
+    }
+    const pairs = items.flatMap((i) => dims.map((d) => i.human[d] - i.judge[d]));
+    const exact = pairs.filter((x) => x === 0).length;
+    const within1 = pairs.filter((x) => Math.abs(x) <= 1).length;
+    const lower = pairs.filter((x) => x < 0).length;
+    line();
+    line(`Agreement over ${pairs.length} individual scores: ${exact} identical, ${within1} within one point, ${lower} where the human scored lower than the judge. Scored blind by the project owner (configuration hidden, random order); source: \`human-scores.json\`. Ten turns per configuration can check the judge, not rank the configurations.`);
+  } else {
+    line("Not done yet.");
+  }
+  line();
+
   // Cost
   line("## 3. Cost per minute of input speech");
   line();
-  line(`Logged usage per turn × \`harness/pricing.json\` (prices read ${pricing.verifiedOn}; marked "verify"; DeepL rate UNVERIFIED).`);
+  line(`Logged usage per turn × \`harness/pricing.json\`. Prices: ${(pricing as Pricing & { status?: string }).status ?? `read ${pricing.verifiedOn}`}.`);
   line();
   line("| Configuration | Speech minutes | Total USD | USD per minute |");
   line("|---|---|---|---|");
+  const perMinute: Record<string, number> = {};
   for (const r of runs) {
     const ok = r.turns.filter((t) => t.usage);
     const minutes = ok.reduce((a, t) => a + ((t.marks.release ?? 0) - (t.marks.press ?? 0)), 0) / 60000;
     const usd = ok.reduce((a, t) => a + turnCost(t.usage!, pricing, (t.providersUsed ?? [])[1] ?? t.conditions.providers[1] ?? ""), 0);
+    if (minutes) perMinute[r.config] = Number((usd / minutes).toFixed(4));
     line(`| ${r.label} | ${minutes.toFixed(2)} | ${usd.toFixed(4)} | ${minutes ? (usd / minutes).toFixed(4) : "–"} |`);
   }
+  // The UI's Test Runs tab estimates a run's cost from these measured rates (press-to-release minutes).
+  writeFileSync(
+    join(resultsDir, "cost-per-minute.json"),
+    JSON.stringify({ source: "harness/results/report.md section 3", pricesReadOn: pricing.verifiedOn, usdPerMinute: perMinute }, null, 2) + "\n",
+  );
   line();
   const rt = runs.find((r) => r.config === "realtime");
   if (rt) {
@@ -377,7 +428,26 @@ async function main() {
       );
     }
     line();
-    line("Unplanned disconnects excludes the one forced drop. Realtime plays through a media element, so its jitter buffer is the browser's and is not observable (0 / –). The cascade's max buffer is synthesized audio queued ahead of playback (TTS runs faster than real time); it drains to zero every turn.");
+    line("Unplanned disconnects excludes the one forced drop. Realtime plays through a media element, so its jitter buffer is the browser's and its depth over time is not observable (0 / –); see the getStats summary below. The cascade's max buffer is synthesized audio queued ahead of playback (TTS runs faster than real time); it drains to zero every turn.");
+    line();
+    line("### Realtime playback health (WebRTC getStats)");
+    line();
+    // Per turn: inbound-rtp audio counters at release vs. after playback (client/src/transports/realtime/rtcStats.ts).
+    const rtTurns = runs.filter((r) => r.config === "realtime").flatMap((r) => r.turns).filter((t) => t.playback);
+    const rtSoak = soaks.map(({ m, path }) => ({ m, s: JSON.parse(readFileSync(path, "utf8")) })).find((x) => x.m === "realtime" && x.s.rtJitterBufferMsAtEnd != null);
+    if (rtTurns.length || rtSoak) {
+      line("| Source | Turns | Jitter-buffer delay p50 / p95 | Concealed audio (mean) | Packets lost |");
+      line("|---|---|---|---|---|");
+      if (rtTurns.length) {
+        const jb = rtTurns.map((t) => t.playback!.jitterBufferMs);
+        line(`| Harness turns | ${rtTurns.length} | ${fix(percentile(jb, 50)!, 0)} / ${fix(percentile(jb, 95)!, 0)} ms | ${fix(mean(rtTurns.map((t) => t.playback!.concealedPct)), 2)}% | ${rtTurns.reduce((a, t) => a + t.playback!.packetsLost, 0)} |`);
+      }
+      if (rtSoak) line(`| 5-minute soak (cumulative) | ${rtSoak.s.turns} | ${fix(rtSoak.s.rtJitterBufferMsAtEnd, 0)} ms (average) | ${fix(rtSoak.s.rtConcealedPctAtEnd ?? NaN, 2)}% | – |`);
+      line();
+      line("Jitter-buffer delay is the average time each played sample spent in the browser's buffer; concealed audio is the share synthesized to cover gaps (glitches). Buffer depth over time stays unobservable.");
+    } else {
+      line("Not measured yet: getStats() sampling was added after these runs. A Realtime run or soak records it per turn.");
+    }
   } else {
     line("Not yet run.");
   }

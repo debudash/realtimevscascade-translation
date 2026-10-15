@@ -75,7 +75,10 @@ on {current}".
        Playing
      - Cascade: Capture, STT, Commit, Translate, TTS, Playing
      - The active chip is highlighted.
-2. **Live transcripts**, newest first:
+2. **Live transcripts**, newest first. The list shows the latest four cards
+   (the live card counts as one) and scrolls for earlier turns; the header
+   then reads "latest 4 of N · scroll for earlier". Added after the build at
+   the owner's request.
    - **Live turn card:** mode tag, direction, a LIVE blink. Source text shows
      stable words in normal ink and partial words in grey. Target text
      streams with a caret.
@@ -88,15 +91,7 @@ on {current}".
        "gpt-realtime")
      - a failover note if one occurred
      - the translation controls used: "Clinic terms on" or "Clinic terms off"
-3. **Latency panel:**
-   - **"Last turn · final segment from T0":**
-     - a large headline value with the caption "speech end → first audible"
-     - a line: "T0 = last voiced frame, not release" · "Access time X.XX s"
-     - waterfall rows on a shared axis:
-       - Realtime: Release, Response start, STT / LLM / TTS (dashed track,
-         "hidden"), First audible
-       - Cascade: Release, STT final, Translate 1st tok, TTS first byte,
-         First audible
+3. **Latency panel** (right column):
    - **"Session p50 / p95" table:**
      - columns: Mode, n, p50, p95, Target
      - rows: Realtime (< 1.5 s), Cascade · segment (< 3.0 s), Cascade · clause
@@ -104,6 +99,59 @@ on {current}".
      - the Target cell is green when p95 is under target, red when over
    - **"Export session metrics" button:** downloads JSON of all turns, marks,
      and run conditions.
+4. **"Compare modes" row** (full width under the columns; added after the
+   build, replacing the single "Last turn" card, see decisions C-22):
+   - two blocks side by side, Realtime and Cascade, each showing that mode's
+     latest completed turn (final segment from T0); one column on phones
+   - each block: mode tag, the input ("Microphone" or "Replay: en-03"),
+     direction, the headline "speech end → first audible" with the
+     difference to the other mode, then Access time, Release lag, Release →
+     first audible, Segments committed (cascade), Turn cost and the per-minute
+     equivalent (logged usage × `harness/pricing.json`)
+   - waterfall rows on a shared axis:
+     - Realtime: Release, Response start, STT / LLM / TTS (dashed track,
+       "hidden"), First audible
+     - Cascade: Release, STT final, Translate 1st tok, Translate done, TTS
+       first byte, First audible
+   - the turn's source and interpreted text and the providers used
+   - a note above the blocks: "Same input in both" or "Different inputs",
+     naming both inputs; a mode with no turn yet says how to fill it
+
+## Test Runs tab (added after the build, decisions C-23)
+
+Under the header, three tabs: **Workbench** (everything above), **Test
+Runs** and **Documentation** (a plain how-to for testers: before you
+start, interpreting, reading the measurements, comparing modes, test runs,
+errors, terms). The open tab is kept in the URL hash (`#test-runs`,
+`#documentation`).
+
+- **New test run** (left):
+  - Name (defaults to "Test run" plus date and time).
+  - Setup, exactly one: Realtime, Cascade · segment, Cascade · clause,
+    Cascade · DeepL, each with its providers.
+  - Clinic terms: On or Off.
+  - Utterances: All, English, Spanish, or Pick clips (a checklist of the
+    replay clips with their text).
+  - Passes: 1-3.
+  - Estimate line: turns, voiced minutes, about how long, and about how
+    much (press-to-release minutes × the measured cost per minute from
+    `harness/results/cost-per-minute.json`; "fake providers, no API cost"
+    when the session uses fakes).
+  - Start, then an in-page confirmation naming the turns, setup and cost.
+  - While running: a progress bar ("3 of 12 · Replay: en-03") and Cancel
+    (stops after the turn in progress and saves what ran, marked
+    cancelled). The header's setup controls are disabled until it ends.
+  - Result line: "Saved: {name}" or "Not saved: {reason}".
+- **Saved test runs** (right): newest first; name, setup and Clinic terms,
+  turns, p50, p95 (green under the setup's target, red over), cost, date.
+  A checkbox per row; "Compare selected" needs exactly two.
+- **Detail** (opening a name): summary (mouth-to-ear p50 / p95 vs target,
+  turns completed, access p50, release to first audible p50, source and
+  target WER, cost and per minute), every turn (clip, status,
+  mouth-to-ear, access, source, interpretation), Export JSON.
+- **Compare**: the two summaries side by side, then per clip the mean
+  mouth-to-ear of each run and B minus A.
+- Runs are saved by the backend to `harness/results/test-runs/<id>.json`.
 
 ## Error and transition states (one per error code)
 
@@ -116,6 +164,9 @@ on {current}".
   No first token within 2.0 s after one retry", with a "Retry turn" button.
 - **`rate_limited`:** a toast, "Translation provider busy / Got 429 three
   times. Switched to DeepL for 60 s. This is recorded on the turn."
+  When the stage has no fallback (TTS, or translation without a DeepL key),
+  the turn fails inline like the timeout row: "Rate limited at {stage}
+  (HTTP 429)" with "Retry turn".
 - **`empty_result`:** neutral, not an error. "No speech detected. Hold the
   button while you talk."
 - **`config_error`:** a startup panel, "Configuration missing", listing the

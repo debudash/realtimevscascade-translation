@@ -47,6 +47,15 @@ public class HealthEndpointTests
     }
 
     [Fact]
+    public async Task Reports_the_build_commit_so_runs_can_be_traced_to_code()
+    {
+        await using var app = Factory(new());
+        var json = await app.CreateClient().GetFromJsonAsync<JsonElement>("/api/health");
+        // The SDK stamps the git commit into the assembly's informational version at build time.
+        Assert.Matches("^[0-9a-f]{7}$", json.GetProperty("build").GetString());
+    }
+
+    [Fact]
     public async Task Config_ok_when_all_keys_present()
     {
         await using var app = Factory(new()

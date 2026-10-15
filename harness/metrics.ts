@@ -1,39 +1,8 @@
 // Pure helpers for the evaluation report (unit-tested in metrics.test.ts).
 
-const NUMBERS: Record<string, string[]> = {
-  en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"],
-  es: ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce"],
-  fr: ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze"],
-};
-
-/** Lowercase, strip punctuation (incl. ¿ ¡), spell out 0-12, collapse whitespace. */
-export function normalize(text: string, lang = "en"): string[] {
-  const words = text
-    .toLowerCase()
-    .replace(/[.,;:!?¿¡"“”()\[\]]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .split(" ")
-    .filter(Boolean);
-  const nums = NUMBERS[lang] ?? NUMBERS.en;
-  return words.map((w) => (/^\d+$/.test(w) && Number(w) < nums.length ? nums[Number(w)] : w));
-}
-
-/** Word error rate: word-level Levenshtein distance / reference length. */
-export function wer(reference: string, hypothesis: string, lang = "en"): number {
-  const r = normalize(reference, lang);
-  const h = normalize(hypothesis, lang);
-  if (r.length === 0) return h.length === 0 ? 0 : 1;
-  let prev = Array.from({ length: h.length + 1 }, (_, j) => j);
-  for (let i = 1; i <= r.length; i++) {
-    const cur = [i];
-    for (let j = 1; j <= h.length; j++) {
-      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (r[i - 1] === h[j - 1] ? 0 : 1));
-    }
-    prev = cur;
-  }
-  return prev[h.length] / r.length;
-}
+// WER is shared with the UI (Experiments tab), so it lives with the client code.
+import { normalize } from "../client/src/state/wer";
+export { normalize, wer } from "../client/src/state/wer";
 
 /** Linear-interpolated percentile (numpy default). */
 export function percentile(values: number[], p: number): number | null {
@@ -89,44 +58,5 @@ export function answeredHeuristic(opts: {
   return { flagged: reasons.length > 0, reasons };
 }
 
-export interface Pricing {
-  verifiedOn: string;
-  realtime: { audioInPer1M: number; cachedInPer1M: number; textInPer1M: number; audioOutPer1M: number; textOutPer1M: number };
-  realtimeTranscriptionPerMinute: number;
-  deepgramPerMinute: number;
-  openaiTranslation: { inPer1M: number; outPer1M: number };
-  deeplPer1MChars: number;
-  elevenLabsPer1kChars: number;
-}
-
-export interface UsageLike {
-  sttAudioSeconds: number;
-  translationInputTokens: number;
-  translationOutputTokens: number;
-  translationCharacters: number;
-  ttsCharacters: number;
-  realtime?: { inputAudioTokens: number; inputTextTokens: number; cachedInputTokens: number; outputAudioTokens: number; outputTextTokens: number };
-}
-
-/** USD for one turn from its logged usage. `translation` is the provider that served it. */
-export function turnCost(u: UsageLike, p: Pricing, translation: string): number {
-  if (u.realtime) {
-    const r = u.realtime;
-    const uncachedText = Math.max(0, r.inputTextTokens - r.cachedInputTokens);
-    const model =
-      (r.inputAudioTokens * p.realtime.audioInPer1M +
-        uncachedText * p.realtime.textInPer1M +
-        r.cachedInputTokens * p.realtime.cachedInPer1M +
-        r.outputAudioTokens * p.realtime.audioOutPer1M +
-        r.outputTextTokens * p.realtime.textOutPer1M) /
-      1e6;
-    return model + (u.sttAudioSeconds / 60) * p.realtimeTranscriptionPerMinute;
-  }
-  const stt = (u.sttAudioSeconds / 60) * p.deepgramPerMinute;
-  const tr =
-    translation === "deepl"
-      ? (u.translationCharacters * p.deeplPer1MChars) / 1e6
-      : (u.translationInputTokens * p.openaiTranslation.inPer1M + u.translationOutputTokens * p.openaiTranslation.outPer1M) / 1e6;
-  const tts = (u.ttsCharacters / 1000) * p.elevenLabsPer1kChars;
-  return stt + tr + tts;
-}
+// Cost per turn is shared with the UI (comparison blocks), so it lives with the client code.
+export { turnCost, type Pricing, type UsageLike } from "../client/src/state/cost";

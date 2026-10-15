@@ -8,6 +8,7 @@ export interface TurnLike {
   targetText: string;
   conditions: Record<string, unknown>;
   error?: { code: string; message: string };
+  playback?: { jitterBufferMs: number; concealedPct: number; packetsLost: number };
 }
 
 /** Reads all turns (newest first) from the app's test hook. */

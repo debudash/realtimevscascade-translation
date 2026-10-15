@@ -16,8 +16,21 @@ test.describe("UI walkthrough", () => {
     await expect(card).toContainText(/first audio \d\.\d\d s/);
     await expect(card).toContainText("Fake · Fake · Fake");
     await expect(card.getByTestId("controls-tag")).toHaveText("Clinic terms on");
-    await expect(page.getByTestId("headline-latency")).toHaveText(/\d\.\d\d s/);
-    await expect(page.getByTestId("waterfall")).toContainText("TTS first byte");
+    // Run conditions trace each turn to its session (runId) and the server's build commit.
+    const health = await (await page.request.get("/api/health")).json();
+    const [first] = await turns(page);
+    expect(first.conditions.runId).toMatch(/^[0-9a-f]{8}$/);
+    expect(first.conditions.build).toBe(health.build);
+    // Mode comparison: one block per mode, each showing the latest turn of that mode and its input.
+    const cascadeBlock = page.getByTestId("compare-cascade");
+    await expect(cascadeBlock.getByTestId("headline-latency")).toHaveText(/\d\.\d\d s/);
+    await expect(cascadeBlock).toContainText("Replay: en-01");
+    await expect(cascadeBlock.getByTestId("waterfall")).toContainText("TTS first byte");
+    await expect(cascadeBlock.getByTestId("waterfall")).toContainText("Translate done");
+    await expect(cascadeBlock).toContainText("Release lag");
+    await expect(cascadeBlock).toContainText("Fake · Fake · Fake");
+    await expect(cascadeBlock.getByTestId("turn-cost")).toHaveText(/\$\d\.\d{4}/);
+    await expect(page.getByTestId("compare-realtime")).toContainText("No Realtime turn yet");
     await expect(page.locator('[data-key="cascade-segment"] td').nth(1)).toHaveText("1");
 
     // Commit policy switch between turns.
@@ -70,7 +83,18 @@ test.describe("UI walkthrough", () => {
     expect(rt.status).toBe("completed");
     expect(rt.conditions).toMatchObject({ mode: "realtime", direction: "es-en" });
     await expect(page.getByTestId("turn-card").first()).toContainText("REALTIME");
-    await expect(page.getByTestId("waterfall")).toContainText("hidden");
+    const realtimeBlock = page.getByTestId("compare-realtime");
+    await expect(realtimeBlock).toContainText("Replay: es-04");
+    await expect(realtimeBlock.getByTestId("waterfall")).toContainText("hidden");
+    await expect(realtimeBlock).toContainText("gpt-realtime");
+    await expect(realtimeBlock.getByTestId("turn-cost")).toHaveText(/\$\d\.\d{4}/);
+    // The cascade block keeps its own latest turn, and the different inputs are called out.
+    await expect(page.getByTestId("compare-cascade")).toContainText("Replay: en-03");
+    await expect(page.getByTestId("compare-note")).toContainText("Different inputs");
+    // The jitter buffer is the browser's, but WebRTC getStats() gives its average delay and concealment per turn.
+    await expect
+      .poll(async () => (await turns(page)).find((t) => t.turnId === rt.turnId)?.playback, { timeout: 10_000 })
+      .toMatchObject({ jitterBufferMs: expect.any(Number), concealedPct: expect.any(Number), packetsLost: expect.any(Number) });
     await expect(page.locator(".chip--hidden")).toContainText("internals not visible");
 
     // Back to Cascade between turns: applies immediately.
@@ -78,6 +102,22 @@ test.describe("UI walkthrough", () => {
     await expect(page.getByTestId("connection-pill")).toHaveText(/WebSocket connected/);
     await waitReady(page);
     await expect(page.getByTestId("turn-card")).toHaveCount(2); // transcripts kept across switches
+  });
+
+  test("transcripts show the latest four turns, then scroll for earlier ones", async ({ page }) => {
+    await page.goto("/?transport=fake"); // client-only simulator: no backend audio path, no cost
+    await waitReady(page);
+    const list = page.getByTestId("transcript-list");
+    const scrollable = () => list.evaluate((el) => el.scrollHeight > el.clientHeight + 1);
+    for (const clip of ["en-01", "en-02", "en-03", "en-04"]) await replayTurn(page, clip, "en");
+    expect(await scrollable()).toBe(false);
+    await replayTurn(page, "en-05", "en");
+    await expect(page.getByTestId("turn-card")).toHaveCount(5);
+    expect(await scrollable()).toBe(true);
+    await expect(page.getByTestId("transcript-count")).toHaveText("latest 4 of 5 · scroll for earlier");
+    // The oldest turn is reachable by scrolling the list.
+    await list.evaluate((el) => (el.scrollTop = el.scrollHeight));
+    await expect(page.getByTestId("turn-card").last()).toBeInViewport();
   });
 
   test("phone width: one column, no horizontal scroll, 44px+ targets", async ({ page }) => {

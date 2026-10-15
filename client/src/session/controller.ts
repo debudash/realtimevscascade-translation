@@ -65,6 +65,18 @@ export interface Snapshot {
   /** Bumps whenever turn metrics change. */
   metricsVersion: number;
   providerOverride: Record<string, string> | undefined;
+  /** True while a Test Run drives the session: the header's setup controls are disabled. */
+  setupLocked: boolean;
+}
+
+/** One Test Run setup: a mode plus the session settings that go with it. */
+export interface Setup {
+  mode: Mode;
+  /** Cascade commit policy; ignored in Realtime. */
+  strategy: Strategy;
+  controls: boolean;
+  /** Provider overrides, e.g. { translation: "deepl" }. */
+  providers?: Record<string, string>;
 }
 
 export interface TransportFactoryArgs {
@@ -97,6 +109,8 @@ function newTurnId(): string {
 
 export class WorkbenchController {
   readonly metrics = new MetricsStore();
+  /** Identifies this page session in every turn's run conditions (measurement-protocol section 6). */
+  readonly runId = crypto.randomUUID().replace(/-/g, "").slice(0, 8);
   private readonly capture = new CaptureEngine();
   private readonly player = new Player();
   private readonly detector = new EnergyDetector();
@@ -138,7 +152,9 @@ export class WorkbenchController {
       toast: null,
       metricsVersion: 0,
       providerOverride,
+      setupLocked: false,
     };
+    this.baseProviders = providerOverride;
     this.capture.onFrame = (f) => this.onFrame(f);
     this.metrics.subscribe(() => this.set({ metricsVersion: this.metrics.getVersion() }));
   }
@@ -254,21 +270,23 @@ export class WorkbenchController {
   }
 
   /** Replay: plays the selected clip through the capture path with press/release automated around it. */
-  async runReplayTurn(speaker: string, buffer: AudioBuffer | null = this.clipBuffer): Promise<void> {
-    if (!buffer) return;
+  /** Resolves with the turn id once the clip has played and the turn is released (null if not started). */
+  async runReplayTurn(speaker: string, buffer: AudioBuffer | null = this.clipBuffer): Promise<string | null> {
+    if (!buffer) return null;
     if (this.replayRunning) {
       this.dispatch({ type: "PRESS", speaker, turnId: newTurnId() }); // will be denied / not ready
-      return;
+      return null;
     }
     const turnId = newTurnId();
     this.dispatch({ type: "PRESS", speaker, turnId });
-    if (this.snap.turn.turnId !== turnId) return;
+    if (this.snap.turn.turnId !== turnId) return null;
     this.replayRunning = true;
     try {
       await Promise.all([this.capture.resume(), this.player.resume()]);
       await this.capture.playClip(buffer);
       await new Promise((r) => setTimeout(r, REPLAY_TAIL_MS));
       this.dispatch({ type: "RELEASE", speaker });
+      return turnId;
     } finally {
       this.replayRunning = false;
     }
@@ -313,6 +331,49 @@ export class WorkbenchController {
     if (pairId === this.snap.pairId || this.snap.turn.phase !== "Ready") return;
     this.set({ pairId });
     await this.rewarm();
+  }
+
+  /** URL provider overrides from page load; an all-fake session stays all-fake whatever a setup asks. */
+  private readonly baseProviders: Record<string, string> | undefined;
+
+  /**
+   * Test Runs: apply a whole setup between turns (mode, commit policy, Clinic terms, providers)
+   * and resolve once the session is Ready on it. Rejects if the session is busy or fails to warm.
+   */
+  async applySetup(setup: Setup): Promise<void> {
+    if (this.snap.turn.phase !== "Ready") throw new Error(`Cannot change setup while ${this.snap.turn.phase}.`);
+    const base = this.baseProviders;
+    const providers = this.usesOnlyFakes() ? base : setup.providers ? { ...base, ...setup.providers } : base;
+    const changed =
+      setup.mode !== this.snap.turn.mode ||
+      setup.strategy !== this.snap.strategy ||
+      setup.controls !== this.snap.controls ||
+      JSON.stringify(providers ?? null) !== JSON.stringify(this.snap.providerOverride ?? null);
+    this.set({ strategy: setup.strategy, controls: setup.controls, providerOverride: providers });
+    if (!changed) return;
+    if (setup.mode !== this.snap.turn.mode) this.dispatch({ type: "SWITCH_MODE", mode: setup.mode });
+    else void this.rewarm();
+    await this.untilReady();
+  }
+
+  /** Lock or unlock the header's setup controls (a Test Run owns the session while it runs). */
+  lockSetup(locked: boolean): void {
+    this.set({ setupLocked: locked });
+  }
+
+  /** Resolves when the turn machine is Ready; rejects on a session error or after the timeout. */
+  untilReady(timeoutMs = 30000): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let unsub = () => {};
+      const timer = setTimeout(() => (unsub(), reject(new Error("Session did not become ready in time."))), timeoutMs);
+      const check = () => {
+        const { phase } = this.snap.turn;
+        if (phase === "Ready") (clearTimeout(timer), unsub(), resolve());
+        else if (phase === "Error") (clearTimeout(timer), unsub(), reject(new Error(this.snap.sessionError?.message ?? "Session error.")));
+      };
+      unsub = this.subscribe(check);
+      check();
+    });
   }
 
   /** Re-open the current mode's transport with new session settings (only between turns). */
@@ -424,6 +485,8 @@ export class WorkbenchController {
       direction: `${speaker}-${target}`,
       inputSource: this.snap.input,
       controls: this.snap.controls,
+      runId: this.runId,
+      build: this.snap.health?.build ?? "unknown",
     };
   }
 
@@ -550,6 +613,9 @@ export class WorkbenchController {
         if (!live() || this.snap.turn.turnId !== turnId) return;
         this.set({ activeChip: "playing" });
         this.dispatch({ type: "PLAYBACK_START" });
+      },
+      playbackStats: (turnId, stats) => {
+        if (live() && this.metrics.get(turnId)) this.metrics.update(turnId, { playback: stats });
       },
       playbackEnded: (turnId) => {
         if (!live()) return;

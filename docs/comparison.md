@@ -37,6 +37,11 @@ cascade configuration 48 turns (2 runs).
 Source WER was 0.000 everywhere: clean synthetic speech. Realtime's figure is from its side
 transcription. **Neither architecture ever answered a question instead of interpreting it.**
 
+A blind human spot-check (10 turns per mode, pipeline hidden) agreed with the judge on 44 of 60
+scores and was never more than one point off; the human was slightly stricter (Realtime
+4.70 / 4.60 / 4.60, cascade 5.00 / 4.60 / 4.80, against the judge's 5.00 / 4.90-5.00 / 5.00 on the same turns).
+That confirms the judge's ceiling-level scores. With 10 turns per mode it does not rank the modes.
+
 The judge and WER miss three things that matter in a clinic:
 
 1. **Register.** DeepL used informal *tú* throughout ("¿Te duele cuando respiras…?"). Realtime used *usted*. The OpenAI cascade mixed the two. This explains most of DeepL's higher WER.
@@ -55,8 +60,11 @@ are with the controls off.
 |---|---|---|
 | **$0.210** | **$0.043** | $0.066 (DeepL rate unverified) |
 
-Usage was logged per turn and priced from `harness/pricing.json` (read 2026-10-15, marked "verify").
-The cascade is about **4.8× cheaper**. Realtime's cost is 45% input audio (which includes earlier turns
+Usage was logged per turn and priced from `harness/pricing.json`. OpenAI, Deepgram and ElevenLabs
+prices were checked against their official pricing pages on 2026-10-15. Two caveats: Deepgram's
+streaming rate is a limited-time promotion (list price would add about $0.003/min to the cascade),
+and DeepL's API rate could not be confirmed on deepl.com (the Growth plan's overage would add about
+$0.0025/min). The cascade is about **4.8× cheaper** (about 4.5× at Deepgram's list price). Realtime's cost is 45% input audio (which includes earlier turns
 re-billed as context, pruned here to 2 turns), 45% output audio, 7% text and 3% side transcription.
 
 ## 4. Controllability: control plane vs. media plane
@@ -108,7 +116,7 @@ Both modes completed 45 turns with no failures and no unplanned disconnects. The
 recovered to Ready in 2.1 s (Realtime) and 1.1 s (Cascade), with transcripts kept. The cascade had no
 playback underruns; Realtime's jitter buffer is the browser's and can't be observed. The post-GC heap
 floor grew 4.9 MB (Realtime) and 3.7 MB (cascade) over 45 turns, consistent with retained transcripts; 5 minutes
-cannot rule out a slow leak.
+cannot rule out a slow leak. How production would manage it: [production.md](production.md).
 
 ## 8. Recommendation by scenario
 
@@ -135,7 +143,7 @@ In practice, run both behind the same UI and route per tenant or per call type.
 - **Push-to-talk.** Both modes use two push-to-talk buttons (deterministic turns, fair timing). That is less natural than hands-free conversation, and the latencies here exclude any voice-activity endpointing a hands-free product would add.
 - **Release lag.** Release came about 0.41 s after T0 in every configuration (clip tail plus automated release), and both architectures wait for release.
 - **Output measurement differs.** Cascade first-audible includes the device's output latency; Realtime's AnalyserNode sees samples just before it. This favors Realtime by tens of ms.
-- **Automated judge.** Quality scores come from gpt-4.1-mini; spot-check them with the human sheet in MORNING.md. Target WER against one reference is a crude proxy.
+- **Automated judge.** Quality scores come from gpt-4.1-mini, checked by a blind human spot-check of 20 turns (report §2). Target WER against one reference is a crude proxy.
 
 ## Path to production
 

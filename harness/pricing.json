@@ -1,16 +1,26 @@
 {
   "verifiedOn": "2026-10-15",
-  "status": "verify: read from the providers' official pricing pages on the date above (sources below); DeepL is UNVERIFIED",
+  "status": "OpenAI, Deepgram and ElevenLabs verified on the official pricing pages on 2026-10-15 (Deepgram's streaming rate is a limited-time promotion; list price $0.0077/min). DeepL is unverified: deepl.com does not render API prices, and third-party sources give $25 per 1M characters (legacy API Pro) or about $27.50 (API Growth overage)",
   "sources": {
-    "openai": "https://developers.openai.com/api/docs/pricing and https://developers.openai.com/api/docs/guides/realtime-costs",
-    "deepgram": "https://deepgram.com/pricing (Nova-3 monolingual streaming, pay-as-you-go, marked limited-time promotional)",
-    "elevenlabs": "https://elevenlabs.io/pricing/api (Flash, per 1K characters)",
-    "deepl": "UNVERIFIED: no public API rate on deepl.com; 25 USD per 1M characters is the legacy DeepL API Pro rate from memory. The key in use is a Free-plan key (0 USD)."
+    "openai": "VERIFIED 2026-10-15 https://developers.openai.com/api/docs/pricing: gpt-realtime audio in $32 / cached $0.40 / text in $4 / audio out $64 / text out $16 per 1M tokens; gpt-4.1-nano $0.10 / $0.40 per 1M (Standard); gpt-4o-transcribe $0.006 per minute (estimated)",
+    "deepgram": "VERIFIED 2026-10-15 https://deepgram.com/pricing: Nova-3 monolingual streaming, pay as you go, $0.0048/min, labelled 'limited-time promotional' (previous $0.0077/min)",
+    "elevenlabs": "VERIFIED 2026-10-15 https://elevenlabs.io/pricing/api: Flash/Turbo $0.04 per 1K characters on every tier (tiers change included characters, not the rate)",
+    "deepl": "UNVERIFIED 2026-10-15: https://www.deepl.com/en/pro-api does not render API prices; support pages refused automated access. Third-party: $25 per 1M chars + $5.49/month (legacy API Pro), about $27.50 per 1M over the API Growth allowance. The key in use is Free-plan (0 USD)."
   },
-  "realtime": { "audioInPer1M": 32, "cachedInPer1M": 0.4, "textInPer1M": 4, "audioOutPer1M": 64, "textOutPer1M": 16 },
+  "realtime": {
+    "audioInPer1M": 32,
+    "cachedInPer1M": 0.4,
+    "textInPer1M": 4,
+    "audioOutPer1M": 64,
+    "textOutPer1M": 16
+  },
   "realtimeTranscriptionPerMinute": 0.006,
   "deepgramPerMinute": 0.0048,
-  "openaiTranslation": { "model": "gpt-4.1-nano", "inPer1M": 0.1, "outPer1M": 0.4 },
+  "openaiTranslation": {
+    "model": "gpt-4.1-nano",
+    "inPer1M": 0.1,
+    "outPer1M": 0.4
+  },
   "deeplPer1MChars": 25,
   "elevenLabsPer1kChars": 0.04
 }

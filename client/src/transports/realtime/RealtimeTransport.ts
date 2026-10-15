@@ -9,6 +9,7 @@ import { RemoteAudioTap } from "../../audio/remoteTap";
 import { parseEvent } from "../../contracts/events";
 import type { InterpreterTransport, TransportOptions, TransportSink, TurnSpec } from "../types";
 import { RealtimeEventMapper, type MapperOutput } from "./eventMapper";
+import { playbackStatsBetween, readInboundAudio, type InboundAudioCounters } from "./rtcStats";
 
 const OPENAI_CALLS_URL = "https://api.openai.com/v1/realtime/calls";
 const MAX_RECONNECTS = 5;
@@ -47,6 +48,11 @@ export class RealtimeTransport implements InterpreterTransport {
   private reconnecting = false;
   private responseActive = false;
   private responseTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Inbound-audio counters at each turn's release, for the turn's playback stats. */
+  private readonly statsAtRelease = new Map<string, Promise<InboundAudioCounters | null>>();
+  /** Latest counters, sampled every STATS_SAMPLE_MS, for diagnostics() (soak). */
+  private lastCounters: InboundAudioCounters | null = null;
+  private statsTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private readonly sink: TransportSink,
@@ -86,6 +92,7 @@ export class RealtimeTransport implements InterpreterTransport {
 
     const pc = new RTCPeerConnection();
     this.pc = pc;
+    this.statsTimer ??= setInterval(() => void this.inboundAudio(), STATS_SAMPLE_MS);
     pc.addTrack(this.opts.captureTrack, new MediaStream([this.opts.captureTrack]));
 
     const remote = new Promise<MediaStream>((resolve) => {
@@ -202,6 +209,7 @@ export class RealtimeTransport implements InterpreterTransport {
     if (this.currentTurn?.turnId !== turnId) return;
     this.mapper.setAudioSeconds(turnId, (performance.now() - this.pressAt) / 1000);
     this.tap?.arm();
+    this.statsAtRelease.set(turnId, this.inboundAudio());
     this.send({ type: "input_audio_buffer.commit" });
     const dir = this.session?.directions.find((d) => d.source === this.currentTurn!.source && d.target === this.currentTurn!.target);
     this.send({ type: "response.create", response: dir ? { instructions: dir.instructions } : {} });
@@ -218,6 +226,7 @@ export class RealtimeTransport implements InterpreterTransport {
     this.sink.event({ type: "turn.end", turnId, t, speaker: this.currentTurn.speaker, direction: dir, status: "failed" }, performance.now());
     this.cancel(turnId);
     this.sink.playbackEnded(turnId);
+    this.statsAtRelease.delete(turnId);
   }
 
   cancel(turnId: string): void {
@@ -254,8 +263,29 @@ export class RealtimeTransport implements InterpreterTransport {
     for (const id of out.playbackEnded) {
       if (this.currentTurn?.turnId === id) this.tap?.disarm();
       this.sink.playbackEnded(id);
+      void this.reportPlayback(id);
     }
     for (const msg of out.send) this.send(msg);
+  }
+
+  /** WebRTC inbound audio counters (jitter buffer, concealment); null before audio flows. */
+  private async inboundAudio(): Promise<InboundAudioCounters | null> {
+    try {
+      const counters = this.pc ? readInboundAudio(await this.pc.getStats()) : null;
+      if (counters) this.lastCounters = counters;
+      return counters;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Playback stats for one turn: counters at release vs. after its playback ended. */
+  private async reportPlayback(turnId: string): Promise<void> {
+    const before = await this.statsAtRelease.get(turnId);
+    this.statsAtRelease.delete(turnId);
+    const after = await this.inboundAudio();
+    const stats = before && after ? playbackStatsBetween(before, after) : null;
+    if (stats) this.sink.playbackStats?.(turnId, stats);
   }
 
   /** Soak-test hook: drop the transport to measure recovery. */
@@ -274,6 +304,8 @@ export class RealtimeTransport implements InterpreterTransport {
 
   async close(): Promise<void> {
     this.closed = true;
+    if (this.statsTimer) clearInterval(this.statsTimer);
+    this.statsTimer = null;
     this.teardown();
     await this.tap?.close();
     if (this.audioEl) this.audioEl.srcObject = null;
@@ -281,9 +313,17 @@ export class RealtimeTransport implements InterpreterTransport {
   }
 
   diagnostics(): Record<string, number> {
-    return { reconnecting: this.reconnecting ? 1 : 0 };
+    const c = this.lastCounters;
+    return {
+      reconnecting: this.reconnecting ? 1 : 0,
+      // Cumulative since the peer connection opened (getStats inbound-rtp audio).
+      ...(c && c.jitterBufferEmittedCount > 0 ? { rtJitterBufferMs: (c.jitterBufferDelay / c.jitterBufferEmittedCount) * 1000 } : {}),
+      ...(c ? { rtConcealedSamples: c.concealedSamples, rtTotalSamples: c.totalSamplesReceived, rtPacketsLost: c.packetsLost } : {}),
+    };
   }
 }
+
+const STATS_SAMPLE_MS = 2000;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
