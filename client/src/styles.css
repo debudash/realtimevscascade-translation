@@ -64,3 +64,79 @@ main { padding: 24px; }
 
 .config-error { max-width: 520px; }
 .config-error h2 { margin: 0 0 8px; font-size: 18px; }
+
+/* ---------- speaker stage ---------- */
+@keyframes wbRing { 0% { transform: scale(1); opacity: .6 } 100% { transform: scale(1.75); opacity: 0 } }
+@keyframes wbSpin { to { transform: rotate(360deg) } }
+@keyframes wbShake { 0%, 100% { transform: translateX(0) } 20% { transform: translateX(-8px) } 40% { transform: translateX(7px) } 60% { transform: translateX(-5px) } 80% { transform: translateX(3px) } }
+@keyframes wbBlink { 50% { opacity: .35 } }
+@keyframes wbIn { from { opacity: 0; transform: translateY(-8px) } to { opacity: 1; transform: none } }
+
+.stage {
+  background: var(--stage);
+  color: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+}
+.stage__title { font-family: var(--mono); font-size: 13px; letter-spacing: .06em; color: var(--teal); }
+.stage__buttons { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+.stage__level { width: 100%; height: 6px; border-radius: 3px; background: #0a2a66; overflow: hidden; }
+.stage__level-fill { height: 100%; background: var(--teal); transition: width 60ms linear; }
+.stage__status { margin: 0; font-family: var(--mono); font-size: 13px; color: #c9d6f2; text-align: center; min-height: 1.4em; }
+
+.talk { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.talk__button {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 4px solid #0a2a66;
+  background: var(--teal);
+  color: var(--stage);
+  font: 600 16px var(--ui-font);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  box-shadow: 0 0 22px #82c5bf8c;
+  transition: transform 150ms, box-shadow 300ms, background 150ms;
+}
+.talk__button:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.talk__label { font-weight: 600; font-size: 15px; }
+.talk__dir { font-family: var(--mono); font-size: 12px; color: var(--teal); }
+.talk__timer { font-family: var(--mono); font-size: 13px; }
+.talk__rings, .talk__rings::after {
+  position: absolute; inset: 18px; border-radius: 50%; border: 2px solid var(--teal);
+  animation: wbRing 1.6s ease-out infinite; pointer-events: none;
+}
+.talk__rings::after { content: ""; inset: -2px; animation-delay: .8s; }
+.talk__spinner {
+  position: absolute; inset: 6px; border-radius: 50%; border: 4px solid #0a2a66; border-top-color: #ff8a5c;
+  animation: wbSpin 1s linear infinite; pointer-events: none;
+}
+.talk--listening .talk__button { transform: scale(1.06); box-shadow: 0 0 56px #82c5bf8c; }
+.talk--interpreting .talk__button, .talk--playing .talk__button { background: #0a2a66; color: #fff; border-color: #b4dcd9; box-shadow: 0 0 12px #82c5bf8c; }
+.talk--wait .talk__button { background: #0a2a66; color: #c9d6f2; border-color: #2b4a85; box-shadow: none; opacity: .7; }
+.talk--notready .talk__button { background: #0a2a66; color: #9fb3d9; border-color: #2b4a85; box-shadow: none; cursor: not-allowed; }
+.talk--denied .talk__button { background: #0a2a66; color: #fff; border-color: var(--deny); box-shadow: none; animation: wbShake .4s ease-in-out; }
+
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.chip {
+  font-family: var(--mono); font-size: 12px; padding: 6px 10px; border-radius: 999px;
+  border: 1px solid #2b4a85; color: #9fb3d9;
+}
+.chip--hidden { border-style: dashed; }
+.chip--active { background: var(--accent, var(--cascade)); border-color: var(--accent, var(--cascade)); color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .talk__rings, .talk__rings::after, .talk__spinner, .talk--denied .talk__button { animation: none; }
+}
