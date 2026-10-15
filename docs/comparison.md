@@ -111,7 +111,7 @@ Both modes completed 45 turns with no failures and no unplanned disconnects. The
 recovered to Ready in 2.1 s (Realtime) and 1.1 s (Cascade), with transcripts kept. The cascade had no
 playback underruns; Realtime's jitter buffer is the browser's and can't be observed. The post-GC heap
 floor grew 4.9 MB (Realtime) and 3.7 MB (cascade) over 45 turns, consistent with retained transcripts; 5 minutes
-cannot rule out a slow leak.
+cannot rule out a slow leak. How production would manage it: [production.md](production.md).
 
 ## 8. Recommendation by scenario
 
