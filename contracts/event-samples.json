@@ -1,0 +1,17 @@
+[
+  { "type": "session.ready", "t": 12.5, "mode": "cascade", "providers": { "stt": "deepgram", "translation": "openai", "translationFallback": "deepl", "tts": "elevenlabs" }, "strategy": "segment" },
+  { "type": "turn.start", "turnId": "t-1", "t": 100, "speaker": "en", "direction": "en-es" },
+  { "type": "source.partial", "turnId": "t-1", "t": 410.25, "text": "My son has had", "lang": "en", "stable": "My son" },
+  { "type": "source.final", "turnId": "t-1", "t": 900, "text": "My son has had a fever since last night.", "lang": "en" },
+  { "type": "segment.commit", "turnId": "t-1", "t": 901, "segment": 0, "text": "My son has had a fever since last night." },
+  { "type": "target.partial", "turnId": "t-1", "t": 1100, "text": "Mi hijo", "lang": "es" },
+  { "type": "target.final", "turnId": "t-1", "t": 1400, "text": "Mi hijo tiene fiebre desde anoche.", "lang": "es" },
+  { "type": "audio.chunk", "turnId": "t-1", "t": 1500, "data": "AAABAAIA", "sampleRate": 24000, "segment": 0 },
+  { "type": "stage.timing", "turnId": "t-1", "t": 1101, "stage": "translate_first_token", "durationMs": 199.5, "segment": 0, "provider": "openai" },
+  { "type": "provider.failover", "turnId": "t-1", "t": 1200, "stage": "translation", "from": "openai", "to": "deepl", "reason": "429 three times; circuit open for 60 s" },
+  { "type": "turn.end", "turnId": "t-1", "t": 2500, "speaker": "en", "direction": "en-es", "status": "completed", "usage": { "sttAudioSeconds": 2.4, "translationInputTokens": 80, "translationOutputTokens": 12, "translationCharacters": 41, "ttsCharacters": 34 }, "providersUsed": [ "deepgram", "openai", "elevenlabs" ], "failoverNote": "Translation switched to DeepL" },
+  { "type": "turn.end", "turnId": "t-2", "t": 3000, "speaker": "es", "direction": "es-en", "status": "empty" },
+  { "type": "floor.denied", "turnId": "t-1", "t": 1600, "speaker": "es" },
+  { "type": "error", "turnId": "t-1", "t": 2600, "code": "provider_timeout", "message": "No first token within 2.0 s after one retry", "retryable": true, "provider": "openai", "stage": "translation" },
+  { "type": "error", "t": 2700, "code": "provider_error", "message": "Upstream returned 503", "retryable": true, "provider": "elevenlabs", "stage": "tts", "httpStatus": 503 }
+]

@@ -1,0 +1,66 @@
+:root {
+  --ground: #f5f8ff;
+  --surface: #ffffff;
+  --border: #dfe9fd;
+  --ink: #252224;
+  --heading: #051e4d;
+  --secondary: #54595f;
+  --realtime: #1462f0;
+  --cascade: #dd3900;
+  --stage: #051e4d;
+  --teal: #82c5bf;
+  --deny: #ffb4a1;
+  --ok: #1b7f4b;
+  --bad: #c62828;
+  --ui-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--ui-font);
+}
+
+h1, h2, h3 { color: var(--heading); }
+
+.app { min-height: 100vh; }
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.header h1 { font-size: 20px; font-weight: 600; margin: 0; }
+
+.divider { width: 1px; height: 28px; background: var(--border); }
+
+main { padding: 24px; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.secondary { color: var(--secondary); }
+
+.mono-box {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--ground);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.config-error { max-width: 520px; }
+.config-error h2 { margin: 0 0 8px; font-size: 18px; }
