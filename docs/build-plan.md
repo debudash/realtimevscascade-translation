@@ -63,7 +63,14 @@ the UTC time, corrected there.
 | 06:51-07:43 | Translation controls (formality + glossary), before/after harness runs, write-up | 56cecb1, 04b0e30 | 0.9 h |
 | 06:58-07:07 (separate session) | Conformity check against the control-room prompt (no changes) | none | 0.15 h |
 | 07:47-08:39 | Planning docs committed, Clinic terms toggle, resume notes | a5f7616, 7e168f9, fdc469c | 0.9 h |
-| 08:42 onward | This conformance fix (docs only) | see [`agent-log/02-conformance-fix.md`](agent-log/02-conformance-fix.md) | in progress |
+| 08:42-08:54 | Conformance fix (docs only) | 13d7a09 to 37127be | 0.25 h |
+| 10:15-10:19 | Git history guide and commit rule; first push | 6eb52f2 | 0.1 h |
+| 10:19-11:23 | Product follow-ups: rate-limit title, runId and build, getStats, prices, production notes, human scoring (includes the owner's scoring time) | 1c30dde to 8f7c4bd | 1.1 h |
+| 11:30-11:52 | Compare modes row, scrolling transcripts | 802e18b to d2c1bf2 | 0.4 h |
+| 11:55-12:20 | Test Runs tab (API, runner, UI) | 300b73b to bb2e528 | 0.45 h |
+| 12:25-12:31 | Documentation tab | 1e3f900 | 0.15 h |
+| 12:50-13:07 | Live voice in English (owner session, analysis), owner test runs as data | f5ed4c9 to ba1ce6e | 0.3 h |
+| 13:07 onward | End-of-round wrap-up (status, conformance, architecture sync, logs) | `docs/round-wrap-up` branch | 0.3 h |
 
 ## 4. Hours against the 15-20 h budget
 
@@ -72,10 +79,10 @@ the UTC time, corrected there.
 | Planning session (brief analysis, decisions, design, pack) | not recorded | claude.ai conversation, not in this repo |
 | Pre-kickoff setup | 0.6 | transcript timestamps |
 | Unattended run M0-M7 | 2.3 | commit and transcript timestamps |
-| Follow-ups and conformance work | 2.0 so far | commit and transcript timestamps |
-| **Recorded total** | **about 4.9** | |
+| Follow-ups, conformance and product rounds | 5.0 | commit and transcript timestamps (section 3) |
+| **Recorded total** | **about 7.9** | |
 
-The recorded total is agent wall clock. Human time spent planning and
+The recorded total is agent wall clock, including short waits for the owner inside a round (for example the scoring and the live session). Human time spent planning and
 reviewing is not recorded anywhere in the repo, so the budget comparison is
 incomplete. From now on, CLAUDE.md requires hours to be tracked here per
 milestone.
