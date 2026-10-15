@@ -386,6 +386,14 @@ Realtime's vendor-side variance; the comparison reflects it. Final suite:
 - **M7 · Output latency not corrected:** Realtime's first-audible could be
   shifted by an estimated `outputLatency`, but that would be an estimate in
   a "measured only" report; the asymmetry is disclosed instead.
+- **Follow-up · Translation controls:** formal register + clinic glossary,
+  on by default (`TranslationControls` in appsettings.json, `?controls=off`
+  per session). DeepL: `formality: prefer_more` + one v3 multilingual
+  glossary (the Free plan allows a single glossary; matching is literal, so
+  noun phrases like "la receta" need their own entries — both verified
+  live). OpenAI translator and Realtime: the same instructions in the prompt.
+  Baseline harness configs now pin `controls=off`; the experiment's runs
+  and before/after report are in `harness/results-controls/`.
 - **M7 · Optional DeepL key:** DeepL is the failover; without its key the
   cascade runs with no failover instead of refusing to start, and Realtime
   needs only the OpenAI key (`/api/health` reports `missingByMode`).

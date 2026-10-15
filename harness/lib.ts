@@ -3,7 +3,9 @@ import { join } from "node:path";
 import { repoRoot } from "../scripts/env.mjs";
 
 export const harnessDir = join(repoRoot, "harness");
-export const resultsDir = join(harnessDir, "results");
+/** Baseline results live in harness/results; HARNESS_RESULTS_DIR (e.g. results-controls) selects another folder. */
+export const baselineResultsDir = join(harnessDir, "results");
+export const resultsDir = join(harnessDir, process.env.HARNESS_RESULTS_DIR ?? "results");
 export const runsDir = join(resultsDir, "runs");
 
 export interface ScriptClip {
@@ -24,13 +26,25 @@ export function loadScripts(): Scripts {
   return JSON.parse(readFileSync(join(harnessDir, "scripts.json"), "utf8"));
 }
 
-/** The four evaluation configurations: URL only, no code changes (provider flexibility evidence). */
+/**
+ * The four baseline configurations: URL only, no code changes (provider flexibility evidence).
+ * They pin controls=off: the baseline runs predate the translation controls, which now default on.
+ */
 export const CONFIGS: Record<string, { url: string; label: string }> = {
-  realtime: { url: "/?mode=realtime", label: "Realtime (gpt-realtime)" },
-  "cascade-segment": { url: "/", label: "Cascade · segment (Deepgram · OpenAI · ElevenLabs)" },
-  "cascade-clause": { url: "/?strategy=clause", label: "Cascade · clause (Deepgram · OpenAI · ElevenLabs)" },
-  "cascade-deepl": { url: "/?providers=translation:deepl", label: "Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs)" },
+  realtime: { url: "/?mode=realtime&controls=off", label: "Realtime (gpt-realtime)" },
+  "cascade-segment": { url: "/?controls=off", label: "Cascade · segment (Deepgram · OpenAI · ElevenLabs)" },
+  "cascade-clause": { url: "/?strategy=clause&controls=off", label: "Cascade · clause (Deepgram · OpenAI · ElevenLabs)" },
+  "cascade-deepl": { url: "/?providers=translation:deepl&controls=off", label: "Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs)" },
 };
+
+/** The same pipelines with translation controls on (formal register + clinic glossary). */
+export const CONTROL_CONFIGS: Record<string, { url: string; label: string; baseline: string }> = {
+  "realtime-controls": { url: "/?mode=realtime&controls=on", label: "Realtime + controls (prompt only)", baseline: "realtime" },
+  "cascade-segment-controls": { url: "/?controls=on", label: "Cascade · segment + controls (OpenAI prompt)", baseline: "cascade-segment" },
+  "cascade-deepl-controls": { url: "/?providers=translation:deepl&controls=on", label: "Cascade · DeepL + controls (formality + glossary)", baseline: "cascade-deepl" },
+};
+
+export const ALL_CONFIGS: Record<string, { url: string; label: string }> = { ...CONFIGS, ...CONTROL_CONFIGS };
 
 /** Cost guardrail (CLAUDE.md): at most 3 full harness runs per configuration. */
 export const MAX_RUNS_PER_CONFIG = 3;

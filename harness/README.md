@@ -34,3 +34,10 @@ npm run report
 
 `HARNESS_CONFIGS=realtime,cascade-clause` and `SOAK_MODES=cascade` limit what runs. The harness
 starts `npm run dev` itself if the app is not already running.
+
+**Translation controls experiment** (formal register + clinic glossary; results in `results-controls/`):
+
+```bash
+HARNESS_RESULTS_DIR=results-controls HARNESS_CONFIGS=realtime-controls,cascade-segment-controls,cascade-deepl-controls   npx playwright test -c harness/playwright.harness.config.ts run.harness.ts
+npx tsx harness/controls-report.ts     # before/after vs. results/ → results-controls/report.md
+```

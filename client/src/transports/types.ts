@@ -18,6 +18,8 @@ export interface TransportOptions {
   providers?: Record<string, string>;
   /** The gated capture track (Realtime sends it over WebRTC). */
   captureTrack: MediaStreamTrack;
+  /** Translation controls (formal register + glossary); undefined = server default. */
+  controls?: boolean;
 }
 
 /**

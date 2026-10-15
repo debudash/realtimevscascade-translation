@@ -8,15 +8,19 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { hasKey } from "../scripts/env.mjs";
 import { replayTurn, waitReady } from "../e2e/helpers";
-import { CONFIGS, MAX_RUNS_PER_CONFIG, ensureDir, loadScripts, runsDir, runsFor, stamp } from "./lib";
+import { ALL_CONFIGS as CONFIGS, MAX_RUNS_PER_CONFIG, ensureDir, loadScripts, runsDir, runsFor, stamp } from "./lib";
 
-const selected = (process.env.HARNESS_CONFIGS ?? Object.keys(CONFIGS).join(",")).split(",").map((s) => s.trim());
+// Default: the four baseline configurations. Control configurations run only when named.
+const selected = (process.env.HARNESS_CONFIGS ?? "realtime,cascade-segment,cascade-clause,cascade-deepl").split(",").map((s) => s.trim());
 const clipFilter = process.env.HARNESS_CLIPS?.split(",");
 const NEEDS: Record<string, string[]> = {
   realtime: ["OpenAI__ApiKey"],
   "cascade-segment": ["Deepgram__ApiKey", "OpenAI__ApiKey", "ElevenLabs__ApiKey"],
   "cascade-clause": ["Deepgram__ApiKey", "OpenAI__ApiKey", "ElevenLabs__ApiKey"],
   "cascade-deepl": ["Deepgram__ApiKey", "DeepL__ApiKey", "ElevenLabs__ApiKey"],
+  "realtime-controls": ["OpenAI__ApiKey"],
+  "cascade-segment-controls": ["Deepgram__ApiKey", "OpenAI__ApiKey", "ElevenLabs__ApiKey"],
+  "cascade-deepl-controls": ["Deepgram__ApiKey", "DeepL__ApiKey", "ElevenLabs__ApiKey"],
 };
 
 for (const config of selected) {

@@ -82,6 +82,7 @@ export class CascadeTransport implements InterpreterTransport {
           strategy: this.opts.strategy,
           providers: this.opts.providers,
           faults: this.faults,
+          controls: this.opts.controls,
         }),
       );
     };

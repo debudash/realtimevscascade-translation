@@ -85,7 +85,7 @@ public class ProviderContractTests
     public async Task DeepL_translates_spanish_to_english()
     {
         var key = Key("DeepL__ApiKey");
-        var p = new DeepLTranslationProvider(Http(), Options.Create(new DeepLOptions { ApiKey = key }), Languages);
+        var p = new DeepLTranslationProvider(Http(), Options.Create(new DeepLOptions { ApiKey = key }), Languages, Options.Create(new TranslationControlsOptions()));
 
         var text = await Collect(p.TranslateAsync(new Segment(0, "Tengo una cita a las tres con la doctora."), new TranslationContext("es", "en", []), CancellationToken.None));
 

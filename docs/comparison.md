@@ -61,6 +61,11 @@ re-billed as context, pruned here to 2 turns), 45% output audio, 7% text and 3% 
   and turn boundaries. Recognition, translation and synthesis are one opaque step: unmeasurable,
   unswappable, and the source of the run-to-run variance above. Its source transcript comes from a
   separate model and is, in OpenAI's words, "guidance".
+- **Follow-up, measured:** turning on the translation controls (formal register + clinic glossary)
+  took DeepL from 4/18 to 9/9 formal Spanish and from 18/28 to 14/14 glossary terms, and fixed
+  "receta" → *prescription* in every pipeline. Realtime's prompt fixed terminology too (13/14), so
+  the gap is smaller than "only the cascade has levers" suggests. See
+  [`harness/results-controls/report.md`](../harness/results-controls/report.md).
 - **The cascade lets us own the media plane:** every stage is timed (on screen and in the report),
   swappable by config, and tunable. The tuning points:
   - commit policy (the measured 0.22 s p50 gain of clause vs. segment, at a fluency cost);

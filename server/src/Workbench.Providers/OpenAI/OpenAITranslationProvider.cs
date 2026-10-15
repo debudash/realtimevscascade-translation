@@ -76,7 +76,7 @@ public sealed class OpenAITranslationProvider(IHttpClientFactory http, IOptions<
     {
         var src = Lang(ctx.SourceLang);
         var tgt = Lang(ctx.TargetLang);
-        var sb = new StringBuilder(InterpreterPrompt.For(src, tgt));
+        var sb = new StringBuilder(InterpreterPrompt.For(src, tgt, ctx.Controls));
         sb.Append(" The user message is one segment of live speech in a clinic; it may be an incomplete sentence. Translate it as is, in written form.");
         if (ctx.Previous.Count > 0)
         {

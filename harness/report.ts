@@ -5,6 +5,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { hasKey } from "../scripts/env.mjs";
 import { CONFIGS, ensureDir, loadScripts, resultsDir, runsDir, type ScriptClip } from "./lib";
+// (This report covers the baseline folder; harness/controls-report.ts compares the controls runs against it.)
 import { answeredHeuristic, percentile, turnCost, wer, type Pricing, type UsageLike } from "./metrics";
 
 interface Turn {

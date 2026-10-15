@@ -9,13 +9,16 @@ import { RealtimeTransport } from "./realtime/RealtimeTransport";
  */
 export function createTransportFactory(params: URLSearchParams): TransportFactory {
   const forceFake = params.get("transport") === "fake";
+  // Translation controls (formal register + glossary), e.g. ?controls=off for the baseline.
+  const c = params.get("controls");
+  const controls = c === "on" ? true : c === "off" ? false : undefined;
   // Fault injection for fake cascade providers, e.g. ?providers=fake&faults=translation:429,tts:timeout
   const faults = params.get("faults")
     ? Object.fromEntries(params.get("faults")!.split(",").map((kv) => kv.split(":") as [string, string]))
     : undefined;
   return ({ mode, sink, player, capture, pairId, strategy, providers }) => {
     if (forceFake) return new FakeTransport(sink, player);
-    const opts = { pairId, strategy, providers, captureTrack: capture.track };
+    const opts = { pairId, strategy, providers, captureTrack: capture.track, controls };
     if (mode === "realtime") return new RealtimeTransport(sink, opts);
     return new CascadeTransport(sink, player, opts, faults);
   };

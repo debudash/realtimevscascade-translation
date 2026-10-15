@@ -29,6 +29,7 @@ public sealed class CascadeSession(
     IOptions<LanguagesOptions> languages,
     IOptions<ResilienceOptions> resilience,
     IOptions<CascadeOptions> cascade,
+    IOptions<TranslationControlsOptions> translationControls,
     ICommitPolicyFactory policies,
     ILogger<CascadeSession> log) : IEventSink
 {
@@ -40,6 +41,7 @@ public sealed class CascadeSession(
     private readonly Stopwatch _clock = Stopwatch.StartNew();
     private CascadeProviderSet? _providers;
     private string _strategy = cascade.Value.DefaultStrategy;
+    private bool? _controls;
     private CascadeTurnPipeline? _turn;
     private Task _turnTask = Task.CompletedTask;
     private DateTime _lastActivity = DateTime.UtcNow;
@@ -50,6 +52,7 @@ public sealed class CascadeSession(
         string? Strategy = null,
         ProviderSelection? Providers = null,
         FaultSelection? Faults = null,
+        bool? Controls = null,
         string? TurnId = null,
         string? Speaker = null,
         string? Source = null,
@@ -172,6 +175,7 @@ public sealed class CascadeSession(
         }
 
         _strategy = msg.Strategy is { } s && policies.Names.Contains(s) ? s : cascade.Value.DefaultStrategy;
+        _controls = msg.Controls;
         _providers = factory.Create(names, msg.Faults);
 
         // Warm-up: pre-connect provider clients (DNS, TLS, pooled connections) before Ready.
@@ -231,7 +235,8 @@ public sealed class CascadeSession(
         await _turnTask.ContinueWith(_ => { }, TaskScheduler.Default);
 
         var voice = languages.Value.Languages.FirstOrDefault(l => l.Code == msg.Target)?.ElevenLabsVoiceId;
-        var spec = new CascadeTurnSpec(msg.TurnId, msg.Speaker ?? msg.Source, msg.Source, msg.Target, voice);
+        var spec = new CascadeTurnSpec(msg.TurnId, msg.Speaker ?? msg.Source, msg.Source, msg.Target, voice,
+            translationControls.Value.For(msg.Source, msg.Target, _controls));
         var pipeline = new CascadeTurnPipeline(
             spec,
             _providers.Stt,

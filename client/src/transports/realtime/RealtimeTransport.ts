@@ -76,7 +76,7 @@ export class RealtimeTransport implements InterpreterTransport {
     const res = await fetch("/api/realtime/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pairId: this.opts.pairId }),
+      body: JSON.stringify({ pairId: this.opts.pairId, controls: this.opts.controls }),
     });
     if (!res.ok) {
       const body = (await res.json().catch(() => ({}))) as { code?: string; message?: string };

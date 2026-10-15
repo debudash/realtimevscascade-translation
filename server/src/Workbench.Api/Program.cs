@@ -52,6 +52,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<FailoverCircuitRegistry>();
 builder.Services.AddSingleton<CascadeProviderFactory>();
 builder.Services.Configure<CascadeOptions>(builder.Configuration.GetSection("Cascade"));
+builder.Services.Configure<TranslationControlsOptions>(builder.Configuration.GetSection("TranslationControls"));
 builder.Services.AddSingleton<ICommitPolicyFactory, CommitPolicyFactory>();
 
 var app = builder.Build();

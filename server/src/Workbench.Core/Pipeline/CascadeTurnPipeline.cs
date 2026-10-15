@@ -6,7 +6,13 @@ using Workbench.Core.Events;
 
 namespace Workbench.Core.Pipeline;
 
-public sealed record CascadeTurnSpec(string TurnId, string Speaker, string Source, string Target, string? VoiceId = null)
+public sealed record CascadeTurnSpec(
+    string TurnId,
+    string Speaker,
+    string Source,
+    string Target,
+    string? VoiceId = null,
+    TranslationControls? Controls = null)
 {
     public string Direction => $"{Source}-{Target}";
 }
@@ -245,7 +251,7 @@ public sealed class CascadeTurnPipeline : IAsyncDisposable
             var sw = Stopwatch.StartNew();
             var first = true;
             var sb = new StringBuilder();
-            var ctx = new TranslationContext(_spec.Source, _spec.Target, history.TakeLast(_opts.ContextSegments).ToList(), _meter);
+            var ctx = new TranslationContext(_spec.Source, _spec.Target, history.TakeLast(_opts.ContextSegments).ToList(), _meter, _spec.Controls);
             _meter.AddTranslationChars(seg.Text.Length);
 
             await foreach (var delta in _translator.TranslateAsync(seg, ctx, ct))

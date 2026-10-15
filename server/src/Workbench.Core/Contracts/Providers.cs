@@ -19,13 +19,27 @@ public sealed record Segment(int Index, string Text);
 
 public sealed record SttOptions(string Language, int SampleRate = 16000);
 
+/// <summary>
+/// Controllability levers for the translation stage (clinic register, required terminology).
+/// Each adapter applies them its own way: DeepL via formality + a glossary, an LLM via its prompt.
+/// </summary>
+/// <param name="Formal">Address the listener formally (usted / vous / Sie).</param>
+/// <param name="Glossary">Required term translations for this direction (source term -> target term).</param>
+public sealed record TranslationControls(bool Formal, IReadOnlyDictionary<string, string> Glossary)
+{
+    public static readonly TranslationControls None = new(false, new Dictionary<string, string>());
+    public bool Any => Formal || Glossary.Count > 0;
+}
+
 /// <param name="Previous">The last committed segments (oldest first), with their translations, for context.</param>
 /// <param name="Meter">Per-turn meter: adapters add token usage; the resilience layer reports provider used and failover.</param>
+/// <param name="Controls">Register and terminology controls; null or None = provider defaults.</param>
 public sealed record TranslationContext(
     string SourceLang,
     string TargetLang,
     IReadOnlyList<(string Source, string Target)> Previous,
-    TurnMeter? Meter = null);
+    TurnMeter? Meter = null,
+    TranslationControls? Controls = null);
 
 public sealed record VoiceOptions(string Language, string? VoiceId = null);
 
