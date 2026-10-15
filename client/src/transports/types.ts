@@ -1,4 +1,5 @@
 import type { WorkbenchEvent } from "../contracts/events";
+import type { PlaybackStats } from "./realtime/rtcStats";
 import type { MarkName, Strategy } from "../state/metrics";
 import type { Mode } from "../state/turnMachine";
 
@@ -34,6 +35,8 @@ export interface TransportSink {
   playbackStarted(turnId: string): void;
   /** Always fires once per released turn, even when nothing was played. */
   playbackEnded(turnId: string): void;
+  /** Realtime only: WebRTC jitter-buffer delay and concealment for the turn's playback (may arrive after playbackEnded). */
+  playbackStats?(turnId: string, stats: PlaybackStats): void;
 }
 
 /** One interface, two implementations (Realtime over WebRTC, Cascade over WebSocket). */

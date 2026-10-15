@@ -67,6 +67,8 @@ export interface TurnRecord {
   usage?: TurnUsage;
   providersUsed?: string[];
   failoverNote?: string;
+  /** Realtime only: WebRTC getStats() jitter-buffer delay and concealment during this turn's playback. */
+  playback?: { jitterBufferMs: number; concealedPct: number; packetsLost: number };
   error?: { code: string; message: string; stage?: string; httpStatus?: number };
 }
 

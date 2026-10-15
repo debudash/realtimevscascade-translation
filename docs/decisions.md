@@ -212,7 +212,7 @@ Brief = `docs/brief.md` (governs). PRD = `docs/prd-summary.md`.
 - **Basis:** the brief's performance benchmarks and criterion 7. The user's
   instruction: "tight mappings to the requirements."
 - **Status:** Implemented; one cell partial
-- **Evidence:** `client/src/state/metrics.ts` (`mouthToEarMs`, access, stage marks), `client/src/ui/LatencyPanel.tsx`, `harness/report.ts`, `harness/soak.harness.ts`. Partial: playback buffer depth is measured for the cascade only. Realtime's jitter buffer belongs to the browser and is not observable (`docs/comparison.md` section 7).
+- **Evidence:** `client/src/state/metrics.ts` (`mouthToEarMs`, access, stage marks), `client/src/ui/LatencyPanel.tsx`, `harness/report.ts`, `harness/soak.harness.ts`. Partial: playback buffer depth over time is measured for the cascade only. For Realtime, the browser owns the jitter buffer; since the product follow-ups, WebRTC `getStats()` gives its average delay and concealment per turn (`client/src/transports/realtime/rtcStats.ts`, `rtcStats.test.ts`, e2e mode-switch test).
 
 ### D-16 · Realtime internal stages are shown as "hidden," never estimated
 - **Basis:** criterion 7 and the controllability dimension.

@@ -76,6 +76,10 @@ test.describe("UI walkthrough", () => {
     expect(rt.conditions).toMatchObject({ mode: "realtime", direction: "es-en" });
     await expect(page.getByTestId("turn-card").first()).toContainText("REALTIME");
     await expect(page.getByTestId("waterfall")).toContainText("hidden");
+    // The jitter buffer is the browser's, but WebRTC getStats() gives its average delay and concealment per turn.
+    await expect
+      .poll(async () => (await turns(page)).find((t) => t.turnId === rt.turnId)?.playback, { timeout: 10_000 })
+      .toMatchObject({ jitterBufferMs: expect.any(Number), concealedPct: expect.any(Number), packetsLost: expect.any(Number) });
     await expect(page.locator(".chip--hidden")).toContainText("internals not visible");
 
     // Back to Cascade between turns: applies immediately.

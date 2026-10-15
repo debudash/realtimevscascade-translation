@@ -555,6 +555,9 @@ export class WorkbenchController {
         this.set({ activeChip: "playing" });
         this.dispatch({ type: "PLAYBACK_START" });
       },
+      playbackStats: (turnId, stats) => {
+        if (live() && this.metrics.get(turnId)) this.metrics.update(turnId, { playback: stats });
+      },
       playbackEnded: (turnId) => {
         if (!live()) return;
         const f = this.turnFlags.get(turnId);

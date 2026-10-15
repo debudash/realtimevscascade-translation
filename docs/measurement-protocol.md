@@ -153,7 +153,7 @@ floor-deny test.
 | Release lag | `report.ts` `since(t, "release")` | report section 1 (release -> first audible column) |
 | Disconnects | `harness/soak.harness.ts` (connection changes to Reconnecting or Failed) | report section 5 |
 | Recovery time | `soak.harness.ts` forced drop at the midpoint (`forceDrop`), time to Ready, transcript count before and after | report section 5 |
-| Playback buffer depth | `soak.harness.ts` samples `bufferedSamples` and `underruns` from the transport's `diagnostics()` | report section 5 (cascade only) |
+| Playback buffer depth | Cascade: `soak.harness.ts` samples `bufferedSamples` and `underruns` from the transport's `diagnostics()`. Realtime: `client/src/transports/realtime/rtcStats.ts` reads WebRTC `getStats()` inbound audio (average jitter-buffer delay, concealed samples, packets lost) per turn (release to end of playback) and every 2 s for the soak | report section 5 (cascade depth; Realtime "playback health" subsection) |
 | Memory growth | `soak.harness.ts` samples `usedJSHeapSize`; report shows the post-GC floor, first vs last minute | report section 5 (browser only) |
 
 ### 8.3 Quality
@@ -207,7 +207,7 @@ the report's run table (`harness/report.ts` `buildOf`). Exported by the UI's Exp
 | 2 | `stt_final` etc. are server durations "mapped on receipt" | Two values are kept: the server Stopwatch duration in `stages[]` (report "Server stage durations") and the browser receipt time as the mark (waterfall) | The waterfall needs browser-clock positions; the durations stay pure server Stopwatch |
 | 2 | `first_audible` from the playback tap in both cases | Cascade time comes from `getOutputTimestamp` (includes device output latency); the Realtime AnalyserNode sees samples just before output | Browser APIs differ per path. Not corrected (a correction would be an estimate); disclosed in `docs/comparison.md` |
 | 3 | Access time "audio flowing" for Realtime | Realtime access is press plus the send of `session.update` / `clear`, near zero, because the WebRTC track is always live | No per-turn audio start exists on a live track |
-| 3 | Playback buffer depth for both modes | Cascade only | Realtime's jitter buffer belongs to the browser and is not observable |
+| 3 | Playback buffer depth for both modes | Cascade: depth over time. Realtime: average jitter-buffer delay and concealment from `getStats()`, not depth over time | Realtime's jitter buffer belongs to the browser; `getStats()` exposes only cumulative counters |
 | 3 | Memory: browser heap and server memory | Browser heap only, reported as post-GC floor plus raw start/end | Raw heap saw-tooths without forced GC; server memory sampling was not built |
 | 4 | Human spot-check of 10 turns | Not done; the sheet in `MORNING.md` is blank | Needs the owner; open in `docs/status.md` |
 | 6 | `runId`, `providers` object, `failover`, `build` sha, `timestamp` | `runId` and `build` added after the first evaluation (runs before that are inferred, see 8.5); failover is a per-turn `failoverNote`; providers is an array | The schema was written after the build; the two missing fields were added in the product follow-ups |

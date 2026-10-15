@@ -22,6 +22,7 @@ interface Turn {
   providersUsed?: string[];
   usage?: UsageLike;
   failoverNote?: string;
+  playback?: { jitterBufferMs: number; concealedPct: number; packetsLost: number };
   error?: { code: string; message: string };
 }
 
@@ -394,7 +395,26 @@ async function main() {
       );
     }
     line();
-    line("Unplanned disconnects excludes the one forced drop. Realtime plays through a media element, so its jitter buffer is the browser's and is not observable (0 / –). The cascade's max buffer is synthesized audio queued ahead of playback (TTS runs faster than real time); it drains to zero every turn.");
+    line("Unplanned disconnects excludes the one forced drop. Realtime plays through a media element, so its jitter buffer is the browser's and its depth over time is not observable (0 / –); see the getStats summary below. The cascade's max buffer is synthesized audio queued ahead of playback (TTS runs faster than real time); it drains to zero every turn.");
+    line();
+    line("### Realtime playback health (WebRTC getStats)");
+    line();
+    // Per turn: inbound-rtp audio counters at release vs. after playback (client/src/transports/realtime/rtcStats.ts).
+    const rtTurns = runs.filter((r) => r.config === "realtime").flatMap((r) => r.turns).filter((t) => t.playback);
+    const rtSoak = soaks.map(({ m, path }) => ({ m, s: JSON.parse(readFileSync(path, "utf8")) })).find((x) => x.m === "realtime" && x.s.rtJitterBufferMsAtEnd != null);
+    if (rtTurns.length || rtSoak) {
+      line("| Source | Turns | Jitter-buffer delay p50 / p95 | Concealed audio (mean) | Packets lost |");
+      line("|---|---|---|---|---|");
+      if (rtTurns.length) {
+        const jb = rtTurns.map((t) => t.playback!.jitterBufferMs);
+        line(`| Harness turns | ${rtTurns.length} | ${fix(percentile(jb, 50)!, 0)} / ${fix(percentile(jb, 95)!, 0)} ms | ${fix(mean(rtTurns.map((t) => t.playback!.concealedPct)), 2)}% | ${rtTurns.reduce((a, t) => a + t.playback!.packetsLost, 0)} |`);
+      }
+      if (rtSoak) line(`| 5-minute soak (cumulative) | ${rtSoak.s.turns} | ${fix(rtSoak.s.rtJitterBufferMsAtEnd, 0)} ms (average) | ${fix(rtSoak.s.rtConcealedPctAtEnd ?? NaN, 2)}% | – |`);
+      line();
+      line("Jitter-buffer delay is the average time each played sample spent in the browser's buffer; concealed audio is the share synthesized to cover gaps (glitches). Buffer depth over time stays unobservable.");
+    } else {
+      line("Not measured yet: getStats() sampling was added after these runs. A Realtime run or soak records it per turn.");
+    }
   } else {
     line("Not yet run.");
   }
