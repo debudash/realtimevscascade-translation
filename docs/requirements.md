@@ -91,7 +91,7 @@ its "Changes during the build".
 | D-21 | Deny tone never counts as first audible | `denyTone.test.ts` "never produces first_audible..." | Met |
 | D-22 | Secrets in gitignored `.env` | `HealthEndpointTests.Reports_missing_key_names_and_never_values`; `.gitignore`; settings deny rules | Met |
 | D-23 | Scope filter | This file traces every feature; one owner-approved change (C-12) | Met |
-| D-24 | Synthetic clips, cached | `harness/clips/`, `harness/scripts.json`; disclosed | Partial: no recorded live-voice session |
+| D-24 | Synthetic clips, cached | `harness/clips/`, `harness/scripts.json`; disclosed; live English session in `harness/results/live-voice/` (report §7) | Met for English to Spanish; Spanish to English synthetic only |
 | D-25 | DeepL swap and onboarding runs | report §4; `harness/results/onboarding.md` | Met |
 | D-26 | UI follows the approved design | `e2e/error-states.spec.ts`, `e2e/ui-walkthrough.spec.ts` | Met |
 | D-27 | One unattended run driven by PROGRESS.md | `KICKOFF.md`, `PROGRESS.md`, [`build-plan.md`](build-plan.md) | Met |

@@ -290,8 +290,8 @@ Brief = `docs/brief.md` (governs). PRD = `docs/prd-summary.md`.
   transcripts and translations, generated once and cached.
 - **Consequences:** synthetic speech is cleaner than human speech. Disclose
   this, and complement it with a live-voice session.
-- **Status:** Implemented; live-voice complement not recorded
-- **Evidence:** `harness/scripts.json` (24 clinic sentences plus 4 FR), `harness/generate-clips.ts`, `harness/clips/` (generated once). Disclosed in `docs/comparison.md`. No live-voice session is recorded in `harness/results/` (`docs/status.md`).
+- **Status:** Implemented; live-voice complement recorded in English only
+- **Evidence:** `harness/scripts.json` (24 clinic sentences plus 4 FR), `harness/generate-clips.ts`, `harness/clips/` (generated once). Disclosed in `docs/comparison.md`. Live-voice complement: one English speaker, six lines per mode, `harness/results/live-voice/`, report §7; Spanish to English was not tested live (no Spanish speaker).
 
 ### D-25 · Evidence runs for flexibility and onboarding
 - **Decision:**

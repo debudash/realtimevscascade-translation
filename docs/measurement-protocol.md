@@ -197,7 +197,7 @@ the report's run table (`harness/report.ts` `buildOf`). Exported by the UI's Exp
 | Run limit (3 per configuration) | `harness/lib.ts` `MAX_RUNS_PER_CONFIG = 3`, enforced by `test.skip` in `run.harness.ts` | Realtime 3/3, cascade configs 2/3 each |
 | Soak (5 min per mode, one forced drop) | `harness/soak.harness.ts` | `harness/results/soak-realtime.json`, `soak-cascade.json` |
 | Onboarding exercise (EN<->FR) | `harness/onboarding.harness.ts` | `harness/results/onboarding.md` |
-| Live-voice session per mode | Not run as a recorded procedure | Gap in `docs/status.md` |
+| Live-voice session per mode | `harness/live-voice.md` (script), UI Export, `harness/report.ts` section 7 (turns matched to script lines by WER) | `harness/results/live-voice/`, report §7 |
 | Traceability and disclosures | `docs/comparison.md` cites `harness/results/report.md` and carries all four disclosures | `docs/conformance.md` |
 
 ### 8.7 Deviations from sections 1-7
@@ -212,4 +212,4 @@ the report's run table (`harness/report.ts` `buildOf`). Exported by the UI's Exp
 | 4 | Human spot-check of 10 turns | 20 turns (10 per mode), scored blind | One mode per 10 turns allows a per-mode comparison with the judge |
 | 6 | `runId`, `providers` object, `failover`, `build` sha, `timestamp` | `runId` and `build` added after the first evaluation (runs before that are inferred, see 8.5); failover is a per-turn `failoverNote`; providers is an array | The schema was written after the build; the two missing fields were added in the product follow-ups |
 | 7 | Playwright fake audio capture | The app's Replay input (same capture graph as the mic, press/release automated) | The fake capture file loops from browser start and cannot be aligned with a press |
-| 7 | Live-voice session per mode | Not recorded | Out of the unattended run; needs a person |
+| 7 | Live-voice session per mode | Done in English only (six lines per mode); Realtime session had Clinic terms on, cascade off | No Spanish speaker available; Clinic terms changes register, not latency |
