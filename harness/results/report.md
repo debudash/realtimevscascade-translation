@@ -1,14 +1,16 @@
 # Evaluation report
 
-Generated 2026-10-15T07:11:58.560Z by `npm run report` from every saved harness run, pooled per configuration.
+Generated 2026-10-15T15:29:27.165Z by `npm run report` from every saved harness run, pooled per configuration.
 All numbers are measured; p50/p95 use linear interpolation. Clips are synthetic speech (ElevenLabs), 24 clinic sentences (12 EN, 12 ES).
 
-| Configuration | Runs | Turns |
-|---|---|---|
-| Realtime (gpt-realtime) | `runs/realtime--2026-10-15T06-17-20-574Z.json`<br>`runs/realtime--2026-10-15T06-59-21-772Z.json`<br>`runs/realtime--2026-10-15T07-11-49-286Z.json` | 72 |
-| Cascade · segment (Deepgram · OpenAI · ElevenLabs) | `runs/cascade-segment--2026-10-15T06-20-12-408Z.json`<br>`runs/cascade-segment--2026-10-15T07-02-17-004Z.json` | 48 |
-| Cascade · clause (Deepgram · OpenAI · ElevenLabs) | `runs/cascade-clause--2026-10-15T06-22-59-109Z.json`<br>`runs/cascade-clause--2026-10-15T07-05-07-417Z.json` | 48 |
-| Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs) | `runs/cascade-deepl--2026-10-15T06-28-44-737Z.json`<br>`runs/cascade-deepl--2026-10-15T07-07-52-347Z.json` | 48 |
+| Configuration | Runs | Build | Turns |
+|---|---|---|---|
+| Realtime (gpt-realtime) | `runs/realtime--2026-10-15T06-17-20-574Z.json`<br>`runs/realtime--2026-10-15T06-59-21-772Z.json`<br>`runs/realtime--2026-10-15T07-11-49-286Z.json` | e9f631f (inferred)<br>3566a34 (inferred)<br>3566a34 (inferred) | 72 |
+| Cascade · segment (Deepgram · OpenAI · ElevenLabs) | `runs/cascade-segment--2026-10-15T06-20-12-408Z.json`<br>`runs/cascade-segment--2026-10-15T07-02-17-004Z.json` | e9f631f (inferred)<br>3566a34 (inferred) | 48 |
+| Cascade · clause (Deepgram · OpenAI · ElevenLabs) | `runs/cascade-clause--2026-10-15T06-22-59-109Z.json`<br>`runs/cascade-clause--2026-10-15T07-05-07-417Z.json` | e9f631f (inferred)<br>3566a34 (inferred) | 48 |
+| Cascade · segment, DeepL primary (Deepgram · DeepL · ElevenLabs) | `runs/cascade-deepl--2026-10-15T06-28-44-737Z.json`<br>`runs/cascade-deepl--2026-10-15T07-07-52-347Z.json` | e9f631f (inferred)<br>3566a34 (inferred) | 48 |
+
+Build = the server commit recorded with the run. "(inferred)" marks runs saved before runs recorded it: the commit that was HEAD when the run started (uncommitted changes at the time are not visible).
 
 ## 1. Latency: mouth-to-ear (T0 = last voiced frame → first audible)
 
