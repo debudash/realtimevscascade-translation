@@ -41,46 +41,60 @@ vitest green. `.env` ignored / `.env.example` tracked checked before the first
 commit.
 
 ## M1 · Audio engine and floor control (≈1.5 h)
-- [ ] CaptureWorklet: PCM16 16 kHz mono, 20 ms frames. Input source is the
+- [x] CaptureWorklet: PCM16 16 kHz mono, 20 ms frames. Input source is the
       mic or a replay WAV, through the same path.
-- [ ] Energy detector emits speech start and speech end (T0). Tune its
+- [x] Energy detector emits speech start and speech end (T0). Tune its
       threshold for the clips.
-- [ ] PlaybackWorklet with a small jitter buffer, plus an OutputTap that
+- [x] PlaybackWorklet with a small jitter buffer, plus an OutputTap that
       emits `first_audible`.
-- [ ] Turn and floor state machine per `docs/architecture.md` §4, with
+- [x] Turn and floor state machine per `docs/architecture.md` §4, with
       table-driven vitest tests:
       - deny in Capturing, Finalizing, and Playing
       - mode switch queued
       - "Not ready" while Warming
       - Error -> Ready on recovery
-- [ ] The deny tone bypasses the OutputTap. Add a test that a deny never
+- [x] The deny tone bypasses the OutputTap. Add a test that a deny never
       produces `first_audible`.
-- [ ] Two talk buttons with pointer and keyboard hold. The deny tone is
+- [x] Two talk buttons with pointer and keyboard hold. The deny tone is
       generated with Web Audio. Shake animation. Capture muted during
       playback.
-- [ ] Metrics store records every mark per turn, with run conditions.
+- [x] Metrics store records every mark per turn, with run conditions.
 
 **Acceptance:**
 - State machine tests are green.
 - Replaying a WAV produces press, access, T0, and release marks.
 
+**Notes (M1):** 73 vitest + 3 Playwright (simulated transport) green. Replay of
+the fixture: speechStart 151 ms / T0 2352 ms after press vs. the clip's own
+voiced span 100-2280 ms (constant ~50 ms press-to-clip offset), so the -45 dBFS
+threshold is right for clean speech. A subagent review found 4 must-fix bugs
+(press/release race, T0 stamped on the output clock, partial safety-timeout
+cleanup, mode switch bypassing session errors); all fixed, plus in-flight
+frame flush at release, frame-end interpolation, stale-audio reset, guards on
+input/strategy changes mid-turn.
+
 ## M2 · Realtime mode end to end (≈2 h)
-- [ ] Read the current OpenAI Realtime + WebRTC docs. Record the URLs in the
+- [x] Read the current OpenAI Realtime + WebRTC docs. Record the URLs in the
       code.
-- [ ] `POST /api/realtime/session` mints a short-lived client secret, with
+- [x] `POST /api/realtime/session` mints a short-lived client secret, with
       the interpreter instructions, turn detection off, and input
       transcription on.
-- [ ] RealtimeTransport: WebRTC, send track from the capture graph, data
+- [x] RealtimeTransport: WebRTC, send track from the capture graph, data
       channel. On release: commit and request a response. Map events to the
       normalized schema.
-- [ ] Remote audio track gets an AnalyserNode -> `first_audible`, and
+- [x] Remote audio track gets an AnalyserNode -> `first_audible`, and
       `rt_response_start` from the data channel.
-- [ ] Playwright e2e with fake audio capture of an EN clip: asserts that
+- [x] Playwright e2e with fake audio capture of an EN clip: asserts that
       target text appears and that `first_audible` is recorded. Skip with a
       message if the OpenAI key is missing.
 
 **Acceptance:** an EN clip produces Spanish audio and transcripts, with marks
 recorded.
+
+**Notes (M2):** `POST /api/realtime/session` verified against the live API
+(gpt-realtime). Playwright e2e passes on the real model: EN fixture -> Spanish
+target text + audio, all marks recorded. Provider-boundary xUnit tests cover
+the minted session config, key never returned, config_error and 429 mapping.
 
 ## M3 · Cascade core with fakes (≈2 h)
 - [ ] The orchestrator: bounded channels, a per-turn CancellationTokenSource,
@@ -228,6 +242,35 @@ configurations, plus the soak, provider-swap, and onboarding results.
   (`Languages`), served by `GET /api/config`; clips are served by
   `GET /api/clips` from `harness/clips/`. Node scripts load `.env` via
   `scripts/env.mjs` (dotenv, override false).
+- **M1 · Replay automation:** a replay turn presses, plays the clip through
+  the capture graph, and releases 250 ms after the clip ends. T0 comes from
+  the energy detector, so the tail does not enter the headline metric, but
+  any trailing silence in a clip delays release (and therefore finalization)
+  just like a slow human release would. Eval clips are trimmed (M6).
+- **M1 · Clocks:** capture marks use the capture context's processing time
+  (minus the mic's reported input latency); first_audible uses
+  getOutputTimestamp (when the sample reaches the speaker) in cascade, and a
+  5 ms-polled AnalyserNode on the remote track in Realtime. Both modes are
+  therefore measured to the output device, not to "sent to the speaker API".
+- **M1 · Client-only FakeTransport** (`?transport=fake`) for UI/audio work
+  with no backend audio path; server-side fakes come in M3.
+- **M1 · Retry turn:** the controller keeps the last 5 turns' captured PCM;
+  "Retry turn" replays it through the same capture path (works in both modes,
+  mic or replay input).
+- **M2 · Direction per turn:** one Realtime session serves both speakers. On
+  press the client sends `session.update` (instructions + transcription
+  language for that direction) and `input_audio_buffer.clear`; on release
+  `input_audio_buffer.commit` + `response.create` with the same instructions.
+  The server owns the prompt text (returned by `/api/realtime/session`).
+- **M2 · Context:** conversation items older than the last 2 turns are
+  deleted (`conversation.item.delete`), matching the cascade's 2-segment
+  context and bounding cost over a long session.
+- **M2 · Access time (Realtime):** the WebRTC track is always live, so
+  access = press + the time to send `session.update`/`clear` (near zero).
+  Cascade access is the first frame sent on the WebSocket.
+- **M2 · Model:** locked `gpt-realtime` (snapshot gpt-realtime-2025-08-28,
+  still GA). Newer `gpt-realtime-2.x` and `gpt-realtime-translate` exist;
+  noted for the write-up, not used (locked decision).
 
 ## Blockers
 (The agent appends here.)

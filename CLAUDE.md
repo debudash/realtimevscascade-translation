@@ -248,3 +248,15 @@ media modules split into separate services.
   unattended Claude Code run using KICKOFF.md.
 - **Agent:** append one line per milestone, saying what was built, which
   decisions you made, and what you deferred.
+- **M0 (agent):** scaffolded .NET 10 solution (Api/Core/Providers/Tests), Vite
+  React client, root scripts, .env loading (DotNetEnv / dotenv), health +
+  config_error panel, event contract round-tripped by both sides. Decided:
+  repo-local .NET SDK (none installed), base64 audio in JSON events.
+- **M1 (agent):** audio engine (capture/playback worklets, energy-detector
+  T0, OutputTap, deny tone), floor state machine, metrics store, talk
+  buttons, simulated transport. A subagent review caught a press/release
+  race and a T0 clock bias; both fixed. Deferred: full UI (M5).
+- **M2 (agent):** Realtime mode end to end (client-secret mint, WebRTC,
+  data-channel event mapper, remote-track first_audible, reconnect 1-5),
+  verified on the live API by Playwright. Decided: per-turn session.update
+  for direction, prune context to last 2 turns.
