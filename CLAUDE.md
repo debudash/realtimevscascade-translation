@@ -18,6 +18,9 @@ Read these first:
 - `docs/design/`: the design reference (see the README there).
 - `PROGRESS.md`: the milestone checklist. This is your work queue and your
   memory between sessions.
+- `docs/status.md`, `docs/decisions.md`, `docs/build-plan.md`,
+  `docs/measurement-protocol.md`, `docs/architecture/`: the doc pack (see
+  Standing rules).
 
 ## Must-haves (from the brief; all are required)
 
@@ -201,6 +204,35 @@ Rules:
    it running. MORNING.md must still give the one command to start it, in
    case it has stopped.
 
+## Standing rules (added after the conformity check, 2026-10-15)
+
+These apply to every milestone from now on, in addition to the protocol above.
+
+1. **Test-first for pipeline work.** Changes to the cascade pipeline, commit
+   policies or provider adapters start with a failing test (xUnit or
+   vitest), then the code.
+2. **Agent log at the start of every milestone.** Write
+   `docs/agent-log/<milestone>.md` with the prompt or plan for it before
+   writing code.
+3. **Status at the end of every milestone.** Update `docs/status.md`
+   (metrics vs targets, open gaps, uncommitted WIP, next actions).
+   `PROGRESS.md` stays the run log.
+4. **Decision changes travel with the code.** Any change to a decision gets
+   an entry in `docs/decisions.md` "Changes during the build" in the same
+   commit.
+5. **Track hours.** Record approximate hours per milestone against the
+   15-20 h budget in `docs/build-plan.md`.
+6. **Conformance gate at every milestone end.** Re-run the check in
+   `docs/conformance.md` (brief criteria, doc pack, every D-xx) and fix doc
+   gaps before committing.
+7. **Final milestone syncs the architecture docs.** `docs/architecture/hla.md`,
+   `lla.md` and `sequences.md` are regenerated from the code and state the
+   source commit.
+8. **Prose style.** No em dashes or double hyphens in prose; use a single
+   hyphen or rephrase. Code, CLI flags and tables are exempt.
+9. **One Claude Code session per repo at a time.** A second session reads a
+   moving tree (this happened on 2026-10-15).
+
 ## Comparison write-up requirements (docs/comparison.md)
 
 **Use measured numbers only,** from `harness/results/report.md`. Never use
@@ -242,6 +274,11 @@ Close with a short "path to production" paragraph: at scale, the control and
 media modules split into separate services.
 
 ## How I directed the agent (keep this section; the brief requires it)
+
+The prompts actually sent, with timestamps, are in
+[`docs/agent-log/`](docs/agent-log/): `00-planning-session.md`,
+`01-overnight-run.md`, `02-conformance-fix.md`.
+
 
 - The user prepared this pack (brief, locked decisions, architecture, UI
   design, milestone plan) in a planning session with Claude, then started one
@@ -292,3 +329,8 @@ media modules split into separate services.
 - **Follow-up (agent, at the user's request):** header "Clinic terms" toggle
   and a per-turn tag for the translation controls, logged as a D-23 scope
   change in docs/decisions.md; no glossary editing UI.
+- **Conformance fix (agent, at the user's request):** docs only. Filled
+  decisions status and evidence, measurement protocol section 8, as-built
+  HLA/LLA/sequence diagrams, requirements rows per decision and matrix cell,
+  build-plan, status, agent-log from transcripts, standing rules, style
+  sweep, conformance check. No product code changed.
