@@ -232,6 +232,17 @@ These apply to every milestone from now on, in addition to the protocol above.
    hyphen or rephrase. Code, CLI flags and tables are exempt.
 9. **One Claude Code session per repo at a time.** A second session reads a
    moving tree (this happened on 2026-10-15).
+10. **Commit hygiene.**
+    - Every commit has a short body (1-3 lines) saying why the change was
+      made, not only what changed.
+    - One concern per commit. Unrelated fixes go in separate commits, even
+      when found in the same review pass.
+    - Measured data (harness runs, reports, result files) goes in its own
+      `data(harness): ...` commit, separate from the code that produced it.
+    - Commit each unit when it is done and tested, not in a batch at the
+      end of the milestone.
+    - Types: `feat`, `fix`, `test`, `docs`, `build`, `data`, with a scope
+      (see README "Reading the git history").
 
 ## Comparison write-up requirements (docs/comparison.md)
 

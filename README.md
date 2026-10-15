@@ -152,6 +152,33 @@ Providers sit behind `ISttProvider`, `ITranslationProvider`, `ITtsProvider` (`se
   blocks before a user gesture is started from the first press, but a manual check in desktop Chrome
   is part of MORNING.md. Safari and Firefox are untested.
 
+## Reading the git history
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): subject`.
+
+| Type | Used for | Example |
+|---|---|---|
+| `feat` | New behaviour | `feat(cascade): segment and clause commit policies as pure classes with xUnit tests` |
+| `fix` | Bug fixes, including those found by review passes | `fix(audio): stamp T0 on the capture clock, flush in-flight frames at release, guard press/release race` |
+| `test` | Tests added on their own | `test(cascade): pipeline streaming, ordering, cancellation, timeout, empty and 429 failover` |
+| `docs` | Documentation | `docs(decisions): status and evidence for D-01 to D-27` |
+| `build` | Tooling and scripts | `build: add root npm scripts and cross-platform dotnet launcher` |
+| `data` | Measured results (harness runs, reports) | `data(harness): ...` |
+
+Scopes name the area touched: `api`, `client`, `audio`, `state`, `session`, `ui`, `realtime`,
+`cascade`, `providers`, `contracts`, `harness`, `report`, `translation`, and the doc name for `docs`.
+
+- **Commits by milestone:** [`docs/build-plan.md`](docs/build-plan.md) maps every commit to its
+  milestone, with timestamps.
+- **Why a change was made:** [`docs/decisions.md`](docs/decisions.md) (planning decisions D-01 to
+  D-27 and changes during the build, C-01 onward, which cite the commits) and `PROGRESS.md`
+  "Decisions made during the run".
+- **Review fixes:** each review pass ended in `fix(...)` commits, e.g. `99d7815` (T0 clock and
+  press/release race), `2cc1516` (session lifecycle hangs), `439ac5f` (Deepgram send race),
+  `28e4ab0` and `a2992e0` (architecture review).
+- **Useful commands:** `git log --oneline`, `git log --oneline -- server/src/Workbench.Core/Pipeline`
+  (history of one area), `git show <sha>` (one change with its message).
+
 ## Repo layout
 
 ```
