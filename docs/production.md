@@ -53,3 +53,47 @@ Run the existing soak with fake providers for 30-60 minutes, take heap
 snapshots at the start and end, and compare retained object counts against
 the number of turn records. That separates retention from a leak at no API
 cost.
+
+## 2. Speech synthesis starts per segment, not per phrase
+
+### What the cascade does
+
+Each committed segment is translated, and its text goes to ElevenLabs only
+when the translation is complete (`CascadeTurnPipeline.cs`, HTTP streaming
+`/stream`). Audio then streams back as it is synthesized. Segments overlap:
+while one is being synthesized the next is being translated, and all of it
+runs during speech. So the pipeline streams throughout, but within one
+segment, TTS waits for the whole translated sentence.
+
+This was a deliberate choice: ElevenLabs recommends HTTP streaming when the
+full text is known, which is the case per segment, and a whole sentence
+gives the voice its natural prosody.
+
+### What it costs (measured)
+
+From the server stage durations in `harness/results/report.md` (final
+segment, p50 / p95):
+
+| Configuration | Translate first token | Translate done | Gap TTS waits for |
+|---|---|---|---|
+| Cascade segment (OpenAI) | 0.46 / 0.78 s | 0.61 / 0.89 s | about 0.15 s / 0.11 s |
+| Cascade clause (OpenAI) | 0.39 / 0.51 s | 0.47 / 0.65 s | about 0.08 s / 0.14 s |
+| Cascade DeepL | 0.33 / 0.40 s | 0.33 / 0.40 s | 0 (DeepL returns the whole segment) |
+
+The gap is the difference of the percentiles, so it is approximate. It is
+the most that feeding translation tokens into TTS could save on the final
+segment. It is small because clinic sentences are short, and every cascade
+configuration already meets the < 2 s stretch target at p95 (1.25-1.89 s).
+
+### How production would do it
+
+- **Phrase-level synthesis for long turns.** Use the ElevenLabs WebSocket
+  input-streaming API and send translated text at phrase boundaries
+  (punctuation or about 8-12 words), with the provider's chunk schedule
+  tuned for latency. Keep sentence-level synthesis as the default for short
+  turns, where the gain is under 0.2 s and prosody matters more.
+- **Gate it on measurement.** Add it as a selectable option next to the
+  commit policies, run the same harness, and adopt it only where p95
+  improves without a drop in the fluency score.
+- **Pair it with a streaming translator.** It helps only when translation
+  streams; with DeepL (no streaming API) there is nothing to gain.
