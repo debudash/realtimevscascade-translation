@@ -18,7 +18,7 @@ playwright-report/
 # Harness scratch output
 harness/results/tmp/
 
-# Repo-local .NET SDK (installed by scripts/ensure-dotnet when no global SDK)
+# Optional repo-local .NET SDK (scripts/dotnet.mjs prefers it over PATH)
 .dotnet/
 
 # IDE / OS
