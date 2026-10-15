@@ -1,4 +1,4 @@
-# 01 · Overnight run (prompts as sent)
+# 01 · Initial build phase (prompts as sent)
 
 Extracted from the local Claude Code transcript for this repo
 (`~/.claude/projects/d--Dev-boostlingo-workbench/a04c7ce0-....jsonl`). Text
@@ -7,8 +7,8 @@ Background-task notifications (harness progress) are not prompts and are
 left out. Times are from the transcript; local time is UTC-5.
 
 The kickoff prompt matches `KICKOFF.md` "Kickoff prompt". The resume prompt
-in `KICKOFF.md` ("If the run stopped early") was **not used**: the run
-finished M0-M7 in one session. Commits per milestone are in
+in `KICKOFF.md` ("If the run stopped early") was **not used**: the build
+phase finished M0-M7 without a restart. Commits per milestone are in
 [`../build-plan.md`](../build-plan.md); the per-milestone summary is in
 `CLAUDE.md` "How I directed the agent".
 
@@ -107,6 +107,6 @@ Finish M7 by writing MORNING.md, then start `npm run dev` as a background task, 
 
 ## During the run
 
-No further prompts were sent until the morning. The run ended with the last
+No further prompts were sent until the owner's review. The phase ended with the last
 M7 commit at 2026-10-15 02:16 local (ba42cc1) and left `npm run dev`
 running.

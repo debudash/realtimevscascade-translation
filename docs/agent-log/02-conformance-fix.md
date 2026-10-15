@@ -1,11 +1,11 @@
-# 02 · Morning follow-ups, conformity check and conformance fix (prompts as sent)
+# 02 · First follow-ups, conformity check and conformance fix (prompts as sent)
 
 Extracted from two local Claude Code transcripts for this repo. Text is
 verbatim; IDE notices, paste wrappers and background-task notifications
 were removed. Local time is UTC-5.
 
-- Session A: `a04c7ce0-....jsonl` (the overnight session, continued in the
-  morning).
+- Session A: `a04c7ce0-....jsonl` (the build-phase session, continued for
+  the follow-up rounds).
 - Session B: `d30ccfbe-....jsonl` (a separate session for the conformity
   check). It ran while session A was building the translation controls,
   which is why it saw them as uncommitted. CLAUDE.md now allows one session

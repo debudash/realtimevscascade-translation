@@ -134,14 +134,14 @@ In practice, run both behind the same UI and route per tenant or per call type.
 
 ## Disclosures
 
-- **Synthetic clips.** Clean, single-voice speech (ElevenLabs). Real callers will raise WER and stress endpointing.
+- **Synthetic clips.** Clean, single-voice speech (ElevenLabs). Real callers will raise WER and stress endpointing. A live English session (one speaker, six lines per mode, report §7) gave source WER 0.017-0.021 and the same ranking; Spanish to English was not tested live.
 - **Network path.** Realtime goes browser-direct to OpenAI over WebRTC. The cascade adds a backend hop (browser → ASP.NET Core → providers); negligible on localhost, a real leg when deployed.
 - **Consecutive playback favors the cascade.** It translates and synthesizes during speech and can start playing at release, while Realtime only starts generating after the commit.
   - Most of these sentences are a single segment, so the advantage mostly did not apply.
   - In clause mode it did: longer sentences reached first audio at 0.56-0.59 s, essentially at release.
 - **Realtime's source transcript is a side transcription process** (gpt-4o-transcribe, asynchronous, "guidance" per OpenAI), so its WER does not measure what the model understood.
 - **Push-to-talk.** Both modes use two push-to-talk buttons (deterministic turns, fair timing). That is less natural than hands-free conversation, and the latencies here exclude any voice-activity endpointing a hands-free product would add.
-- **Release lag.** Release came about 0.41 s after T0 in every configuration (clip tail plus automated release), and both architectures wait for release.
+- **Release lag.** Release came about 0.41 s after T0 in every configuration (clip tail plus automated release), and both architectures wait for release. A real speaker released after 0.15 s (report §7), so the harness numbers are conservative by about 0.26 s for both modes: live mouth-to-ear p50/p95 was 0.87 / 1.24 s for Realtime and 1.27 / 1.81 s for the cascade.
 - **Output measurement differs.** Cascade first-audible includes the device's output latency; Realtime's AnalyserNode sees samples just before it. This favors Realtime by tens of ms.
 - **Automated judge.** Quality scores come from gpt-4.1-mini, checked by a blind human spot-check of 20 turns (report §2). Target WER against one reference is a crude proxy.
 

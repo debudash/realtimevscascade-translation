@@ -1,0 +1,361 @@
+{
+  "exportedAt": "2026-10-15T18:01:33.420Z",
+  "summary": [
+    {
+      "key": "realtime",
+      "n": 6,
+      "p50": 872.0643410845296,
+      "p95": 1242.9660852713132,
+      "targetMs": 1500,
+      "meetsTarget": true
+    },
+    {
+      "key": "cascade-segment",
+      "n": 0,
+      "p50": null,
+      "p95": null,
+      "targetMs": 3000,
+      "meetsTarget": null
+    },
+    {
+      "key": "cascade-clause",
+      "n": 0,
+      "p50": null,
+      "p95": null,
+      "targetMs": 2000,
+      "meetsTarget": null
+    }
+  ],
+  "turns": [
+    {
+      "turnId": "a72eb9f0",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "mic",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:00:35.709Z",
+      "marks": {
+        "press": 13133.70000000298,
+        "access": 13135,
+        "speechStart": 13620.368992246573,
+        "release": 16785.60000000149,
+        "t0": 16782.23565891622,
+        "rtResponseStart": 16859.20000000298,
+        "firstAudible": 17314.89999999851
+      },
+      "stages": [],
+      "sourceText": "My son has had a fever since last night.",
+      "targetText": "Mi hijo ha tenido fiebre desde anoche.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.675,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 36,
+          "inputTextTokens": 303,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 50,
+          "outputTextTokens": 20
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ],
+      "playback": {
+        "jitterBufferMs": 39.4,
+        "concealedPct": 0,
+        "packetsLost": 0
+      },
+      "mouthToEarMs": 532.6643410822908,
+      "accessMs": 1.2999999970197678
+    },
+    {
+      "turnId": "068c359b",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "mic",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:00:43.938Z",
+      "marks": {
+        "press": 21362.60000000149,
+        "access": 21362.79999999702,
+        "speechStart": 21740.26899224508,
+        "release": 24651.70000000298,
+        "t0": 24434.299999997016,
+        "rtResponseStart": 24698.60000000149,
+        "firstAudible": 25145.29999999702
+      },
+      "stages": [],
+      "sourceText": "The pain started after lunch and it is getting worse.",
+      "targetText": "El dolor comenzó después del almuerzo y está empeorando.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.312,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 119,
+          "inputTextTokens": 333,
+          "cachedInputTokens": 320,
+          "outputAudioTokens": 75,
+          "outputTextTokens": 25
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ],
+      "playback": {
+        "jitterBufferMs": 29.8,
+        "concealedPct": 0,
+        "packetsLost": 0
+      },
+      "mouthToEarMs": 711.0000000000036,
+      "accessMs": 0.19999999552965164
+    },
+    {
+      "turnId": "8d152722",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "mic",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:00:53.194Z",
+      "marks": {
+        "press": 30618.39999999851,
+        "access": 30618.60000000149,
+        "speechStart": 31060.56899224955,
+        "release": 34077.89999999851,
+        "t0": 33537.135658914725,
+        "rtResponseStart": 34128.79999999702,
+        "firstAudible": 34574.5
+      },
+      "stages": [],
+      "sourceText": "Please take one tablet twice a day with food.",
+      "targetText": "Por favor, tome una tableta dos veces al día con alimentos.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 3.47,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 178,
+          "inputTextTokens": 360,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 99,
+          "outputTextTokens": 28
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ],
+      "playback": {
+        "jitterBufferMs": 29.9,
+        "concealedPct": 0,
+        "packetsLost": 0
+      },
+      "mouthToEarMs": 1037.3643410852746,
+      "accessMs": 0.20000000298023224
+    },
+    {
+      "turnId": "d4a6e290",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "mic",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:01:03.991Z",
+      "marks": {
+        "press": 41415.70000000298,
+        "access": 41416,
+        "speechStart": 41954.20000000299,
+        "release": 44282.29999999702,
+        "t0": 44257.50232558437,
+        "rtResponseStart": 44355.5,
+        "firstAudible": 45225.10000000149
+      },
+      "stages": [],
+      "sourceText": "Your blood pressure is little high today.",
+      "targetText": "Su presión arterial está un poco alta hoy.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.898,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 194,
+          "inputTextTokens": 366,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 72,
+          "outputTextTokens": 21
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ],
+      "playback": {
+        "jitterBufferMs": 29.9,
+        "concealedPct": 0,
+        "packetsLost": 0
+      },
+      "mouthToEarMs": 967.5976744171203,
+      "accessMs": 0.29999999701976776
+    },
+    {
+      "turnId": "8802bcc1",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "mic",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:01:12.078Z",
+      "marks": {
+        "press": 49502.70000000298,
+        "access": 49502.89999999851,
+        "speechStart": 49795.5,
+        "release": 52338.70000000298,
+        "t0": 52234.50000000001,
+        "rtResponseStart": 52611.29999999702,
+        "firstAudible": 53546
+      },
+      "stages": [],
+      "sourceText": "Does it hurt when you breathe deeply?",
+      "targetText": "¿Le duele cuando respira profundamente?",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 2.862,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 162,
+          "inputTextTokens": 360,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 64,
+          "outputTextTokens": 21
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ],
+      "playback": {
+        "jitterBufferMs": 30,
+        "concealedPct": 0,
+        "packetsLost": 0
+      },
+      "mouthToEarMs": 1311.4999999999927,
+      "accessMs": 0.19999999552965164
+    },
+    {
+      "turnId": "b142b9b9",
+      "speaker": "en",
+      "conditions": {
+        "mode": "realtime",
+        "strategy": null,
+        "providers": [
+          "gpt-realtime"
+        ],
+        "pair": "en-es",
+        "direction": "en-es",
+        "inputSource": "mic",
+        "controls": true,
+        "runId": "83c696a8",
+        "build": "1e3f900"
+      },
+      "startedAtIso": "2026-10-15T18:01:21.614Z",
+      "marks": {
+        "press": 59038.39999999851,
+        "access": 59038.70000000298,
+        "speechStart": 59657.90232558288,
+        "release": 63505.60000000149,
+        "t0": 63300.26899224508,
+        "rtResponseStart": 63563.10000000149,
+        "firstAudible": 64076.79999999702
+      },
+      "stages": [],
+      "sourceText": "Do not eat or drink anything after midnight before the procedure.",
+      "targetText": "No coma ni beba nada después de la medianoche antes del procedimiento.",
+      "status": "completed",
+      "usage": {
+        "sttAudioSeconds": 4.493,
+        "translationInputTokens": 0,
+        "translationOutputTokens": 0,
+        "translationCharacters": 0,
+        "ttsCharacters": 0,
+        "realtime": {
+          "inputAudioTokens": 164,
+          "inputTextTokens": 355,
+          "cachedInputTokens": 0,
+          "outputAudioTokens": 98,
+          "outputTextTokens": 27
+        }
+      },
+      "providersUsed": [
+        "gpt-realtime"
+      ],
+      "playback": {
+        "jitterBufferMs": 29.9,
+        "concealedPct": 0,
+        "packetsLost": 0
+      },
+      "mouthToEarMs": 776.5310077519389,
+      "accessMs": 0.30000000447034836
+    }
+  ]
+}
