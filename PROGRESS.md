@@ -410,8 +410,8 @@ Realtime's vendor-side variance; the comparison reflects it. Final suite:
 (The agent appends one line per session: start time, milestones covered, and
 where it stopped.)
 
-- 2026-10-14 23:59 → 2026-10-15 ~07:30 local session: M0-M7 in one session; stopped
-  after M7 with `npm run dev` running.
+- 2026-10-14 23:57 → 2026-10-15 02:16 local (corrected from "~07:30", which was UTC):
+  M0-M7 in one session; stopped after M7 with `npm run dev` running.
 - 2026-10-15 daytime, follow-ups at the user's request: translation controls
   (+ `harness/results-controls/`, docs/translation-controls.md), the user's
   planning docs committed (00-planning-session, decisions, measurement-protocol),
